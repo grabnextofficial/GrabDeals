@@ -1,0 +1,46 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { executeQuery } from '@/lib/db'
+
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: NextRequest) {
+  try {
+    const results = await executeQuery(
+      "SELECT * FROM categories ORDER BY name ASC"
+    )
+
+    return NextResponse.json(results)
+  } catch (error: any) {
+    console.error("[v0] Categories API Error:", error)
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 })
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const data = await request.json()
+    const id = crypto.randomUUID()
+    const now = Date.now()
+    const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+
+    await executeQuery(`
+      INSERT INTO categories (id, name, slug, description, imageUrl, isActive, createdAt, updatedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      id,
+      data.name,
+      slug,
+      data.description || '',
+      data.imageUrl || '',
+      1,
+      now,
+      now
+    ])
+
+    return NextResponse.json({ success: true, id }, { status: 201 })
+  } catch (error: any) {
+    console.error("[v0] Create Category Error:", error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
+
