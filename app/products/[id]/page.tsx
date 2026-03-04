@@ -2,7 +2,8 @@
 
 export const runtime = 'edge'
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ImageZoom } from "@/components/image-zoom"
@@ -95,6 +96,7 @@ function RatingBar({ label, count, total }: { label: string; count: number; tota
 export default function ProductDetailPage() {
     const params = useParams()
     const id = params?.id as string
+    const router = useRouter()
     const { addToCart } = useCart()
     const { user } = useAuth()
 
@@ -107,6 +109,7 @@ export default function ProductDetailPage() {
     const [reviewForm, setReviewForm] = useState({ rating: 0, comment: "", userName: user?.displayName || "" })
     const [submittingReview, setSubmittingReview] = useState(false)
     const [wishlisted, setWishlisted] = useState(false)
+    const [buyingNow, setBuyingNow] = useState(false)
 
     // Image gallery state
     const [activeImg, setActiveImg] = useState(0)
@@ -270,10 +273,21 @@ export default function ProductDetailPage() {
                                     onClick={() => { addToCart(product); toast({ title: "🛒 Added to cart!" }) }}>
                                     <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
                                 </Button>
-                                <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white font-bold h-12" asChild>
-                                    <Link href="/checkout"><Zap className="h-5 w-5 mr-2" /> Buy Now</Link>
+                                <Button
+                                    size="lg"
+                                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold h-12"
+                                    disabled={buyingNow}
+                                    onClick={() => {
+                                        setBuyingNow(true)
+                                        addToCart(product)
+                                        router.push("/checkout")
+                                    }}
+                                >
+                                    <Zap className="h-5 w-5 mr-2" />
+                                    {buyingNow ? "Going..." : "Buy Now"}
                                 </Button>
                             </div>
+
                         </div>
 
                         {/* Right: Info */}

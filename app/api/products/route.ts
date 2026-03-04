@@ -51,7 +51,11 @@ export async function GET(request: NextRequest) {
       reviewCount: ratingsMap[p.id]?.reviewCount ?? 0,
     }))
 
-    return NextResponse.json(products)
+    return NextResponse.json(products, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=300',
+      }
+    })
   } catch (error: any) {
     console.error('[Products GET Error]', error)
     return NextResponse.json({ error: error.message }, { status: 500 })

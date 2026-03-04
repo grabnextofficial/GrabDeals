@@ -10,7 +10,9 @@ export async function GET(request: NextRequest) {
       "SELECT * FROM categories ORDER BY name ASC"
     )
 
-    return NextResponse.json(results)
+    return NextResponse.json(results, {
+      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=600' }
+    })
   } catch (error: any) {
     console.error("[v0] Categories API Error:", error)
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 })
