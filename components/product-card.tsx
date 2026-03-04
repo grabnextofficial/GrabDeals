@@ -14,23 +14,21 @@ export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart()
   const [added, setAdded] = useState(false)
   const [imgIdx, setImgIdx] = useState(0)
+  const [fade, setFade] = useState(true)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(price)
 
-  // Use real originalPrice if admin set it, else no strikethrough
   const p = product as any
   const origPrice: number | null = p.originalPrice ? Number(p.originalPrice) : null
   const discount = origPrice && origPrice > product.price
     ? Math.round(((origPrice - product.price) / origPrice) * 100)
     : 0
 
-  // Real rating from DB (joined in products API)
   const avgRating: number = p.avgRating ? Number(p.avgRating) : 0
   const reviewCount: number = p.reviewCount ? Number(p.reviewCount) : 0
 
-  // Build images array
   const images: string[] = (() => {
     const arr = Array.isArray(p.images) ? p.images : []
     if (arr.filter(Boolean).length > 0) return arr.filter(Boolean)
@@ -43,16 +41,30 @@ export function ProductCard({ product }: ProductCardProps) {
     ? images[imgIdx]
     : `/placeholder.svg?height=200&width=300&query=${encodeURIComponent(product?.category || "product")}`
 
+  // Smooth crossfade: set fade=false before switching, then switch and back to true
+  const switchTo = (newIdx: number) => {
+    setFade(false)
+    setTimeout(() => {
+      setImgIdx(newIdx)
+      setFade(true)
+    }, 180)
+  }
+
   const handleMouseEnter = () => {
     if (images.length < 2) return
+    let i = 0
     timerRef.current = setInterval(() => {
-      setImgIdx((i) => (i + 1) % images.length)
+      i = (i + 1) % images.length
+      switchTo(i)
     }, 1200)
   }
+
   const handleMouseLeave = () => {
     if (timerRef.current) clearInterval(timerRef.current)
-    setImgIdx(0)
+    timerRef.current = null
+    switchTo(0)
   }
+
   useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current) }, [])
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -79,17 +91,21 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="absolute top-2 right-2 z-10 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">Bestseller</div>
         )}
 
-        {/* Image */}
+        {/* Image with smooth crossfade */}
         <div className="relative h-40 w-full bg-gray-50 overflow-hidden flex items-center justify-center p-2">
           <img
             src={currentImg}
             alt={product?.title || "product"}
             className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
+            style={{
+              opacity: fade ? 1 : 0,
+              transition: "opacity 0.18s ease-in-out, transform 0.3s ease",
+            }}
           />
           {images.length > 1 && (
             <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
               {images.map((_, i) => (
-                <div key={i} className={`h-1 rounded-full transition-all ${i === imgIdx ? "w-4 bg-primary" : "w-1 bg-gray-300"}`} />
+                <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === imgIdx ? "w-4 bg-primary" : "w-1 bg-gray-300"}`} />
               ))}
             </div>
           )}
@@ -101,7 +117,6 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.title}
           </h3>
 
-          {/* Real rating — only show if product has at least 1 review */}
           {avgRating > 0 ? (
             <div className="flex items-center gap-1">
               <div className="flex items-center gap-0.5 bg-green-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
@@ -116,7 +131,6 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="mt-auto pt-1">
             <div className="flex items-baseline gap-1.5 flex-wrap">
               <span className="text-base font-bold text-slate-900">{formatPrice(product.price)}</span>
-              {/* Only show strikethrough if admin set originalPrice AND it's higher than current price */}
               {origPrice && origPrice > product.price && (
                 <>
                   <span className="text-xs text-gray-400 line-through">{formatPrice(origPrice)}</span>

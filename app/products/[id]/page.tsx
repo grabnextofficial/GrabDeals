@@ -108,7 +108,16 @@ export default function ProductDetailPage() {
 
     // Image gallery state
     const [activeImg, setActiveImg] = useState(0)
+    const [imgFade, setImgFade] = useState(true)
     const [zoomIdx, setZoomIdx] = useState<number | null>(null)
+
+    const changeActiveImg = (i: number) => {
+        setImgFade(false)
+        setTimeout(() => {
+            setActiveImg(i)
+            setImgFade(true)
+        }, 180)
+    }
 
     useEffect(() => {
         if (user?.displayName) setReviewForm(f => ({ ...f, userName: f.userName || user.displayName }))
@@ -222,11 +231,18 @@ export default function ProductDetailPage() {
                             <div className="relative">
                                 {product.salesCount > 100 && <Badge className="absolute top-3 left-3 z-10 bg-blue-600">Bestseller</Badge>}
                                 {discount > 0 && <Badge className="absolute bottom-3 left-3 z-10 bg-red-500">{discount}% OFF</Badge>}
-                                <ImageZoom
-                                    src={images[activeImg]}
-                                    alt={product.title}
-                                    zoomLevel={2.5}
-                                />
+                                <div
+                                    style={{
+                                        opacity: imgFade ? 1 : 0,
+                                        transition: "opacity 0.18s ease-in-out",
+                                    }}
+                                >
+                                    <ImageZoom
+                                        src={images[activeImg]}
+                                        alt={product.title}
+                                        zoomLevel={2.5}
+                                    />
+                                </div>
                             </div>
 
 
@@ -236,8 +252,9 @@ export default function ProductDetailPage() {
                                     {images.map((img, i) => (
                                         <button
                                             key={i}
-                                            onClick={() => setActiveImg(i)}
-                                            className={`shrink-0 h-14 w-14 rounded-lg border-2 overflow-hidden bg-gray-50 transition-all ${i === activeImg ? "border-primary shadow-md" : "border-gray-200 hover:border-gray-400"}`}
+                                            onMouseEnter={() => changeActiveImg(i)}
+                                            onClick={() => changeActiveImg(i)}
+                                            className={`shrink-0 h-14 w-14 rounded-lg border-2 overflow-hidden bg-gray-50 transition-all duration-200 ${i === activeImg ? "border-primary shadow-md scale-105" : "border-gray-200 hover:border-primary hover:shadow-sm"}`}
                                         >
                                             <img src={img} alt={`View ${i + 1}`} className="w-full h-full object-contain p-1" />
                                         </button>
