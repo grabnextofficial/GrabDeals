@@ -7,7 +7,9 @@ export interface UserProfile {
   phone?: string
   address?: string
   city?: string
+  state?: string
   country?: string
+  isGuest?: boolean
   updatedAt?: Date
 }
 
@@ -19,7 +21,7 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, displayName })
   });
-  
+
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to sign up');
   return data.user;
@@ -31,7 +33,7 @@ export const signInWithEmail = async (email: string, password: string) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  
+
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to sign in');
   return data.user;
@@ -44,6 +46,17 @@ export const signInWithGoogle = async () => {
 export const signOutUser = async () => {
   const res = await fetch('/api/auth/logout', { method: 'POST' });
   if (!res.ok) throw new Error('Failed to sign out');
+}
+
+export const confirmGuestPassword = async (newPassword: string) => {
+  const res = await fetch('/api/auth/confirm-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ newPassword })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to confirm password');
+  return data;
 }
 
 export const getUserProfile = async (): Promise<UserProfile | null> => {

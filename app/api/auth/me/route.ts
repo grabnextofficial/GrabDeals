@@ -28,7 +28,9 @@ export async function GET(request: NextRequest) {
         phone: user.phone,
         address: user.address,
         city: user.city,
+        state: user.state,
         country: user.country,
+        isGuest: user.isGuest === 1 || user.isGuest === true,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
       }

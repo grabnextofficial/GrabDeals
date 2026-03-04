@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Search, ShoppingCart, User, Menu, ChevronDown, Package, LayoutGrid, Monitor, BookOpen } from "lucide-react"
+import { Search, ShoppingCart, User, Menu, ChevronDown, Package, LayoutGrid, Monitor, BookOpen, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -39,9 +39,27 @@ export function StoreHeader() {
 
   // Check if user is admin (either by Role OR by Email)
   const isAdmin = userProfile?.role === "admin" || (user?.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+  const isGuest = mounted && user?.isGuest === true;
 
   return (
     <div className="sticky top-0 z-50 w-full flex flex-col shadow-md">
+      {/* Guest Banner - shown only for guest users */}
+      {isGuest && (
+        <div className="bg-red-600 text-white px-4 py-2 flex items-center justify-center gap-3 text-sm font-medium animate-pulse-once">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span>
+            ⚠️ <strong>Guest Account</strong> — Your account was created automatically. Please{" "}
+            <Link
+              href="/dashboard/confirm-account"
+              className="underline font-bold hover:text-red-100 transition-colors"
+            >
+              set a permanent password
+            </Link>{" "}
+            to secure your orders.
+          </span>
+        </div>
+      )}
+
       {/* Top Bar - Orange Primary Brand */}
       <header className="bg-primary text-primary-foreground border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -93,14 +111,23 @@ export function StoreHeader() {
             {mounted && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="hidden md:flex gap-1 text-white hover:bg-white/10 font-medium">
+                  <Button variant="ghost" className="hidden md:flex gap-1 text-white hover:bg-white/10 font-medium relative">
                     <User className="h-4 w-4" />
                     <span className="max-w-[100px] truncate">{user.displayName || "Account"}</span>
+                    {isGuest && (
+                      <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-primary"></span>
+                    )}
                     <ChevronDown className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuLabel>
+                    {isGuest ? (
+                      <span className="text-red-600 flex items-center gap-1">
+                        <AlertTriangle className="h-3 w-3" /> Guest Account
+                      </span>
+                    ) : "My Account"}
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard">My Dashboard</Link>
@@ -111,6 +138,16 @@ export function StoreHeader() {
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard">Downloads</Link>
                   </DropdownMenuItem>
+
+                  {/* Guest: show password set link */}
+                  {isGuest && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild className="text-red-600 font-medium bg-red-50">
+                        <Link href="/dashboard/confirm-account">🔑 Set Permanent Password</Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
 
                   {/* Explicit Admin Link for Admin Email */}
                   {isAdmin && (
@@ -157,6 +194,18 @@ export function StoreHeader() {
               </SheetTrigger>
               <SheetContent side="right">
                 <div className="flex flex-col space-y-6 mt-6">
+                  {isGuest && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                      <p className="text-red-700 text-sm font-medium flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4" />
+                        Guest Account
+                      </p>
+                      <p className="text-red-600 text-xs mt-1">Please set a permanent password to secure your account.</p>
+                      <Link href="/dashboard/confirm-account" className="text-xs text-red-700 underline font-semibold mt-1 block">
+                        Set Password →
+                      </Link>
+                    </div>
+                  )}
                   <div className="space-y-4">
                     <h3 className="font-semibold text-lg border-b pb-2">Categories</h3>
                     {categories.map((cat) => (
@@ -180,6 +229,11 @@ export function StoreHeader() {
                         <Button asChild variant="ghost" className="w-full justify-start">
                           <Link href="/dashboard">My Orders</Link>
                         </Button>
+                        {isGuest && (
+                          <Button asChild variant="destructive" className="w-full">
+                            <Link href="/dashboard/confirm-account">🔑 Set Permanent Password</Link>
+                          </Button>
+                        )}
                         {isAdmin && (
                           <Button asChild variant="default" className="w-full">
                             <Link href="/admin">Admin Panel</Link>

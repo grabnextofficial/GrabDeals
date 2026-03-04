@@ -1,6 +1,8 @@
 export const runtime = 'edge'
 import { NextRequest, NextResponse } from 'next/server'
 import { executeQuery } from '@/lib/db'
+import { encrypt } from '@/lib/session'
+import { cookies } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,6 +24,7 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 // POST /api/auth/guest-register
+// Creates a guest account and auto-logs-in the user via session cookie
 export async function POST(request: NextRequest) {
     try {
         const { email, displayName, phone } = await request.json()
@@ -32,17 +35,32 @@ export async function POST(request: NextRequest) {
 
         // Check if user already exists
         const existing = await executeQuery(
-            'SELECT uid, email FROM users WHERE email = ? LIMIT 1',
+            'SELECT uid, email, displayName, isGuest FROM users WHERE email = ? LIMIT 1',
             [email]
         )
 
         if (existing && existing.length > 0) {
-            // User already exists — return their info (they can login normally)
+            const existingUser = existing[0] as any
+            // User already exists — auto-login them and return info
+            const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            const session = await encrypt({
+                uid: existingUser.uid,
+                email: existingUser.email,
+                role: 'user',
+                expires
+            })
+            cookies().set('session', session, { expires, httpOnly: true })
+
             return NextResponse.json({
-                user: { uid: existing[0].uid, email: existing[0].email },
+                user: {
+                    uid: existingUser.uid,
+                    email: existingUser.email,
+                    displayName: existingUser.displayName,
+                    isGuest: existingUser.isGuest === 1
+                },
                 isExisting: true,
                 temporaryPassword: null,
-                message: 'Account already exists. Please login to access your account.'
+                message: 'Existing account found. You are now logged in.'
             })
         }
 
@@ -59,11 +77,21 @@ export async function POST(request: NextRequest) {
             [uid, email, passwordHash, name, phone || '', now, now]
         )
 
+        // Auto-login: set session cookie
+        const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        const session = await encrypt({
+            uid,
+            email,
+            role: 'user',
+            expires
+        })
+        cookies().set('session', session, { expires, httpOnly: true })
+
         return NextResponse.json({
-            user: { uid, email, displayName: name },
+            user: { uid, email, displayName: name, isGuest: true },
             isExisting: false,
             temporaryPassword,
-            message: `Account created! Save your password: ${temporaryPassword}`
+            message: `Guest account created and you are now logged in. Save your temporary password: ${temporaryPassword}`
         }, { status: 201 })
     } catch (error: any) {
         console.error('[Guest Register Error]', error)
