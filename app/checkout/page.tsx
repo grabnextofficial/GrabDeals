@@ -23,7 +23,10 @@ import {
 } from "@/components/ui/dialog"
 
 declare global {
-  interface Window { XPay: any }
+  interface Window {
+    XPay: any
+    Razorpay: any
+  }
 }
 
 export default function CheckoutPage() {
@@ -33,6 +36,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [newAccountInfo, setNewAccountInfo] = useState<{ email: string; password: string } | null>(null)
   const [showPassword, setShowPassword] = useState(false)
+  const [activeGateway, setActiveGateway] = useState<string>("xpay")
 
   const [formData, setFormData] = useState({
     email: "",
@@ -45,6 +49,26 @@ export default function CheckoutPage() {
     zipCode: "",
     country: "India",
   })
+
+  // Load active payment gateway from settings
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => setActiveGateway(data.payment_gateway || "xpay"))
+      .catch(() => setActiveGateway("xpay"))
+  }, [])
+
+  // Load Razorpay script when needed
+  useEffect(() => {
+    if (activeGateway === "razorpay") {
+      if (!document.querySelector('script[src*="razorpay"]')) {
+        const script = document.createElement("script")
+        script.src = "https://checkout.razorpay.com/v1/checkout.js"
+        script.async = true
+        document.body.appendChild(script)
+      }
+    }
+  }, [activeGateway])
 
   // Pre-fill from logged-in user
   useEffect(() => {
@@ -65,7 +89,7 @@ export default function CheckoutPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFormData({ ...formData, [e.target.name]: e.target.value })
 
-  const saveOrder = useCallback(async (utr: string, userId: string) => {
+  const saveOrder = useCallback(async (paymentId: string, userId: string) => {
     try {
       await fetch("/api/orders", {
         method: "POST",
@@ -85,7 +109,7 @@ export default function CheckoutPage() {
           ),
           totalAmount,
           status: "paid",
-          paymentId: utr,
+          paymentId,
         }),
       })
     } catch (err) {
@@ -93,26 +117,38 @@ export default function CheckoutPage() {
     }
   }, [formData, items, totalAmount])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (items.length === 0) {
-      toast({ title: "Your cart is empty", variant: "destructive" })
-      return
+  const getOrCreateUserId = async () => {
+    if (user?.uid) return user.uid
+    try {
+      const guestRes = await fetch("/api/auth/guest-register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          displayName: `${formData.firstName} ${formData.lastName}`.trim(),
+          phone: formData.phone,
+        }),
+      })
+      const guestData = await guestRes.json()
+      if (guestData.user?.uid) {
+        if (!guestData.isExisting && guestData.temporaryPassword) {
+          setNewAccountInfo({ email: formData.email, password: guestData.temporaryPassword })
+        }
+        await refreshUser()
+        return guestData.user.uid
+      }
+    } catch (err) {
+      console.error("Guest register error:", err)
     }
+    return "guest"
+  }
 
-    if (!formData.email) {
-      toast({ title: "Please enter your email address", variant: "destructive" })
-      return
-    }
-
+  // ─── XPay ────────────────────────────────────────────────────────────
+  const handleXPay = () => {
     if (!window.XPay) {
       toast({ title: "Payment system loading, please try again", variant: "destructive" })
       return
     }
-
-    setLoading(true)
-
     const orderTitle =
       items.length === 1
         ? items[0].product.title
@@ -122,57 +158,93 @@ export default function CheckoutPage() {
       api_key: "xp_live_wtm5vj64kseuylg9cfmsl9",
       amount: Math.round(totalAmount),
       title: orderTitle,
-
       onSuccess: async (data: { utr: string }) => {
         setLoading(false)
-
-        // Determine userId: logged-in user or create guest account
-        let userId = user?.uid || "guest"
-
-        if (!user) {
-          // Auto-create guest account
-          try {
-            const guestRes = await fetch("/api/auth/guest-register", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                email: formData.email,
-                displayName: `${formData.firstName} ${formData.lastName}`.trim(),
-                phone: formData.phone,
-              }),
-            })
-            const guestData = await guestRes.json()
-            if (guestData.user?.uid) {
-              userId = guestData.user.uid
-              if (!guestData.isExisting && guestData.temporaryPassword) {
-                setNewAccountInfo({
-                  email: formData.email,
-                  password: guestData.temporaryPassword,
-                })
-              }
-            }
-            await refreshUser()
-          } catch (err) {
-            console.error("Guest register error:", err)
-          }
-        }
-
+        const userId = await getOrCreateUserId()
         await saveOrder(data.utr, userId)
         clearCart()
-        toast({
-          title: "🎉 Payment Successful!",
-          description: `UTR: ${data.utr} — Your order has been placed.`,
-        })
+        toast({ title: "🎉 Payment Successful!", description: `UTR: ${data.utr}` })
         router.push(`/checkout/success?utr=${data.utr}`)
       },
-
       onClose: () => {
         setLoading(false)
         toast({ title: "Payment cancelled", variant: "destructive" })
       },
     })
-
     xpay.open()
+  }
+
+  // ─── Razorpay ────────────────────────────────────────────────────────
+  const handleRazorpay = async () => {
+    // Create order server-side
+    const orderRes = await fetch("/api/razorpay/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: totalAmount, currency: "INR" }),
+    })
+    const orderData = await orderRes.json()
+    if (!orderData.orderId) {
+      toast({ title: orderData.error || "Failed to create Razorpay order", variant: "destructive" })
+      setLoading(false)
+      return
+    }
+
+    if (!window.Razorpay) {
+      toast({ title: "Razorpay not loaded, please try again", variant: "destructive" })
+      setLoading(false)
+      return
+    }
+
+    const options = {
+      key: orderData.keyId,
+      amount: Math.round(totalAmount * 100),
+      currency: "INR",
+      name: "Grabnext",
+      description: items.length === 1 ? items[0].product.title : `${items.length} items`,
+      order_id: orderData.orderId,
+      prefill: {
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        email: formData.email,
+        contact: formData.phone,
+      },
+      theme: { color: "#2563eb" },
+      handler: async (response: any) => {
+        setLoading(false)
+        const paymentId = response.razorpay_payment_id
+        const userId = await getOrCreateUserId()
+        await saveOrder(paymentId, userId)
+        clearCart()
+        toast({ title: "🎉 Payment Successful!", description: `Payment ID: ${paymentId}` })
+        router.push(`/checkout/success?utr=${paymentId}`)
+      },
+      modal: {
+        ondismiss: () => {
+          setLoading(false)
+          toast({ title: "Payment cancelled", variant: "destructive" })
+        },
+      },
+    }
+
+    const rzp = new window.Razorpay(options)
+    rzp.open()
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (items.length === 0) {
+      toast({ title: "Your cart is empty", variant: "destructive" })
+      return
+    }
+    if (!formData.email) {
+      toast({ title: "Please enter your email address", variant: "destructive" })
+      return
+    }
+    setLoading(true)
+    if (activeGateway === "razorpay") {
+      await handleRazorpay()
+    } else {
+      handleXPay()
+    }
   }
 
   if (items.length === 0) {
@@ -248,13 +320,18 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-3xl font-bold mb-2">Checkout</h1>
+
+          {/* Active gateway badge */}
+          <div className="mb-4 inline-flex items-center gap-2 text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded-full px-3 py-1">
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+            Paying via <strong>{activeGateway === "razorpay" ? "Razorpay" : "XPay"}</strong>
+          </div>
+
           {!user && (
             <p className="text-sm text-muted-foreground mb-6">
               Already have an account?{" "}
-              <Link href="/auth/login" className="text-primary hover:underline">
-                Sign in
-              </Link>{" "}
-              to load your details. Or continue as guest — we'll create an account for you automatically.
+              <Link href="/auth/login" className="text-primary hover:underline">Sign in</Link>{" "}
+              to load your details. Or continue as guest.
             </p>
           )}
 
@@ -283,11 +360,6 @@ export default function CheckoutPage() {
                         disabled={!!user?.email}
                         placeholder="your@email.com"
                       />
-                      {!user && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Order confirmation will be sent here
-                        </p>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -369,16 +441,13 @@ export default function CheckoutPage() {
                     <Separator />
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span>Subtotal</span>
-                        <span>{formatPrice(totalAmount)}</span>
+                        <span>Subtotal</span><span>{formatPrice(totalAmount)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Tax</span>
-                        <span>Included</span>
+                        <span>Tax</span><span>Included</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Shipping</span>
-                        <span className="text-green-600 font-medium">Free</span>
+                        <span>Shipping</span><span className="text-green-600 font-medium">Free</span>
                       </div>
                     </div>
                     <Separator />
@@ -407,7 +476,7 @@ export default function CheckoutPage() {
                       </Button>
 
                       <p className="text-xs text-muted-foreground text-center">
-                        Secured by XPay · UPI payment gateway
+                        Secured by {activeGateway === "razorpay" ? "Razorpay" : "XPay"} · Safe & Encrypted
                       </p>
                     </div>
                   </CardContent>
