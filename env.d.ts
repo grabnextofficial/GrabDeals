@@ -22,6 +22,13 @@ interface D1Database {
 
 interface CloudflareEnv {
   DB: D1Database;
+  JWT_SECRET?: string;
+  DB_API_SECRET?: string;
+  BLOB_READ_WRITE_TOKEN?: string;
+  CLOUDFLARE_ACCOUNT_ID?: string;
+  CLOUDFLARE_D1_DB_ID?: string;
+  CLOUDFLARE_D1_TOKEN?: string;
+  NEXT_PUBLIC_ADMIN_EMAIL?: string;
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_CHAT_ID?: string;
 }
