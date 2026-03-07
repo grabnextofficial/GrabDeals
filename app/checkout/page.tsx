@@ -109,7 +109,7 @@ export default function CheckoutPage() {
   const getOrCreateUserId = async () => {
     if (user?.uid) return user.uid
     try {
-      const guestRes = await fetch("/api/auth/guest-register", {
+      const regRes = await fetch("/api/auth/guest-register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -118,18 +118,22 @@ export default function CheckoutPage() {
           phone: formData.phone,
         }),
       })
-      const guestData = await guestRes.json()
-      if (guestData.user?.uid) {
-        if (!guestData.isExisting && guestData.temporaryPassword) {
-          setNewAccountInfo({ email: formData.email, password: guestData.temporaryPassword })
+      const regData = await regRes.json()
+      if (!regRes.ok) {
+        throw new Error(regData.error || "Registration failed")
+      }
+
+      if (regData.user?.uid) {
+        if (!regData.isExisting && regData.temporaryPassword) {
+          setNewAccountInfo({ email: formData.email, password: regData.temporaryPassword })
         }
         await refreshUser()
-        return guestData.user.uid
+        return regData.user.uid
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Guest register error:", err)
+      return "guest"
     }
-    return "guest"
   }
 
   // ─── XPay ────────────────────────────────────────────────────────────

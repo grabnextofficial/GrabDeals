@@ -67,15 +67,21 @@ export async function POST(request: NextRequest) {
         // Create new guest account
         const uid = crypto.randomUUID()
         const temporaryPassword = generatePassword(10)
-        const passwordHash = await hashPassword(temporaryPassword)
+        // Switch to plain text to match existing login/register logic
+        const passwordHash = temporaryPassword
         const now = Date.now()
         const name = displayName || email.split('@')[0]
 
-        await executeQuery(
-            `INSERT INTO users (uid, email, passwordHash, displayName, role, phone, isGuest, createdAt, updatedAt)
-       VALUES (?, ?, ?, ?, 'user', ?, 1, ?, ?)`,
-            [uid, email, passwordHash, name, phone || '', now, now]
-        )
+        try {
+            await executeQuery(
+                `INSERT INTO users (uid, email, passwordHash, displayName, role, phone, isGuest, createdAt, updatedAt)
+           VALUES (?, ?, ?, ?, 'user', ?, 1, ?, ?)`,
+                [uid, email, passwordHash, name, phone || '', now, now]
+            )
+        } catch (dbError: any) {
+            console.error('[Guest DB Error]', dbError)
+            return NextResponse.json({ error: `Database Save Failed: ${dbError.message}` }, { status: 500 })
+        }
 
         // Auto-login: set session cookie
         const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
