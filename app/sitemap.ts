@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { executeQuery } from '@/lib/db'
 
+export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
 export const revalidate = 3600 // Cache for 1 hour
 
