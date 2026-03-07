@@ -90,33 +90,21 @@ export default function CheckoutPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFormData({ ...formData, [e.target.name]: e.target.value })
 
-  const saveOrder = useCallback(async (paymentId: string, userId: string) => {
+  const updateOrder = useCallback(async (orderId: string, paymentId: string) => {
     try {
       await fetch("/api/orders", {
-        method: "POST",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId,
-          userEmail: formData.email,
-          userName: `${formData.firstName} ${formData.lastName}`.trim(),
-          userPhone: formData.phone,
-          items: JSON.stringify(
-            items.map((i) => ({
-              productId: i.productId,
-              title: i.product.title,
-              price: i.product.price,
-              quantity: i.quantity,
-            }))
-          ),
-          totalAmount,
+          id: orderId,
           status: "paid",
           paymentId,
         }),
       })
     } catch (err) {
-      console.error("Order save error:", err)
+      console.error("Order update error:", err)
     }
-  }, [formData, items, totalAmount])
+  }, [])
 
   const getOrCreateUserId = async () => {
     if (user?.uid) return user.uid
@@ -145,7 +133,7 @@ export default function CheckoutPage() {
   }
 
   // ─── XPay ────────────────────────────────────────────────────────────
-  const handleXPay = () => {
+  const handleXPay = (orderId: string) => {
     if (!window.XPay) {
       toast({ title: "Payment system loading, please try again", variant: "destructive" })
       return
@@ -161,23 +149,22 @@ export default function CheckoutPage() {
       title: orderTitle,
       onSuccess: async (data: { utr: string }) => {
         setLoading(false)
-        const userId = await getOrCreateUserId()
-        await saveOrder(data.utr, userId)
+        await updateOrder(orderId, data.utr)
         clearCart()
         toast({ title: "🎉 Payment Successful!", description: `UTR: ${data.utr}` })
         router.push(`/checkout/success?utr=${data.utr}`)
       },
       onClose: () => {
         setLoading(false)
-        toast({ title: "Payment cancelled", variant: "destructive" })
+        router.push(`/dashboard`)
+        toast({ title: "Order Saved", description: "Your order is pending. You can complete payment from your dashboard." })
       },
     })
     xpay.open()
   }
 
   // ─── Razorpay ────────────────────────────────────────────────────────
-  const handleRazorpay = async () => {
-    // Create order server-side
+  const handleRazorpay = async (orderId: string) => {
     const orderRes = await fetch("/api/razorpay/create-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -212,8 +199,7 @@ export default function CheckoutPage() {
       handler: async (response: any) => {
         setLoading(false)
         const paymentId = response.razorpay_payment_id
-        const userId = await getOrCreateUserId()
-        await saveOrder(paymentId, userId)
+        await updateOrder(orderId, paymentId)
         clearCart()
         toast({ title: "🎉 Payment Successful!", description: `Payment ID: ${paymentId}` })
         router.push(`/checkout/success?utr=${paymentId}`)
@@ -221,7 +207,8 @@ export default function CheckoutPage() {
       modal: {
         ondismiss: () => {
           setLoading(false)
-          toast({ title: "Payment cancelled", variant: "destructive" })
+          router.push(`/dashboard`)
+          toast({ title: "Order Saved", description: "Your order is pending. You can complete payment from your dashboard." })
         },
       },
     }
@@ -240,11 +227,51 @@ export default function CheckoutPage() {
       toast({ title: "Please enter your email address", variant: "destructive" })
       return
     }
+
     setLoading(true)
-    if (activeGateway === "razorpay") {
-      await handleRazorpay()
-    } else {
-      handleXPay()
+
+    try {
+      // 1. Ensure user is registered/logged in first
+      const userId = await getOrCreateUserId()
+
+      // 2. Create a "Pending" order immediately
+      const orderRes = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          userEmail: formData.email,
+          userName: `${formData.firstName} ${formData.lastName}`.trim(),
+          userPhone: formData.phone,
+          items: items.map((i) => ({
+            productId: i.productId,
+            title: i.product.title,
+            price: i.product.price,
+            quantity: i.quantity,
+            imageUrl: i.product.imageUrl,
+            downloadUrl: i.product.downloadUrl
+          })),
+          totalAmount,
+          status: "pending",
+        }),
+      })
+
+      const orderData = await orderRes.json()
+      if (!orderData.id) {
+        throw new Error("Failed to initialize order")
+      }
+
+      const orderId = orderData.id
+
+      // 3. Initiate payment
+      if (activeGateway === "razorpay") {
+        await handleRazorpay(orderId)
+      } else {
+        handleXPay(orderId)
+      }
+    } catch (err: any) {
+      setLoading(false)
+      toast({ title: "Error", description: err.message, variant: "destructive" })
     }
   }
 

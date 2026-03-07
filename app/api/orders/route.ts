@@ -49,3 +49,26 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  try {
+    const data = await request.json()
+    const { id, status, paymentId } = data
+
+    if (!id) {
+      return NextResponse.json({ error: "Order ID is required" }, { status: 400 })
+    }
+
+    const now = Date.now()
+    await executeQuery(`
+      UPDATE orders 
+      SET status = ?, paymentId = ?, updatedAt = ?
+      WHERE id = ?
+    `, [status || 'paid', paymentId || null, now, id])
+
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    console.error("[v0] Update Order Error:", error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
+

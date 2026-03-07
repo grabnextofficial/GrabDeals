@@ -13,7 +13,7 @@ import { getUserOrders } from "@/lib/d1-client"
 import { toast } from "@/hooks/use-toast"
 import {
     User, ShoppingBag, Download, Loader2, Package, LogIn,
-    CalendarDays, CreditCard, ExternalLink, ShieldCheck, ChevronDown, ChevronUp, MapPin
+    CalendarDays, CreditCard, ExternalLink, ShieldCheck, ChevronDown, ChevronUp, MapPin, Lock, ShoppingCart
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -45,7 +45,7 @@ function formatDateTime(ts: number | string) {
     })
 }
 
-function OrderCard({ order }: { order: any }) {
+function OrderCard({ order, onPay }: { order: any, onPay?: (order: any) => void }) {
     const [expanded, setExpanded] = useState(false)
     let items: any[] = []
     try { items = Array.isArray(order.items) ? order.items : JSON.parse(order.items) } catch { }
@@ -166,12 +166,23 @@ function OrderCard({ order }: { order: any }) {
                     </div>
 
                     {/* Payment Info */}
-                    {order.paymentId && (
-                        <div className="mt-4 flex items-center gap-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-3">
-                            <CreditCard className="h-4 w-4 shrink-0" />
-                            <span><strong>Payment ID:</strong> {order.paymentId}</span>
-                        </div>
-                    )}
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                        {order.status === 'pending' && onPay && (
+                            <Button
+                                size="sm"
+                                onClick={(e) => { e.stopPropagation(); onPay(order); }}
+                                className="bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-sm"
+                            >
+                                <CreditCard className="h-4 w-4 mr-2" /> Pay Now
+                            </Button>
+                        )}
+                        {order.paymentId && (
+                            <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-3 border">
+                                <CreditCard className="h-4 w-4 shrink-0" />
+                                <span><strong>Payment ID:</strong> {order.paymentId}</span>
+                            </div>
+                        )}
+                    </div>
                 </CardContent>
             )}
         </Card>
@@ -191,6 +202,28 @@ export default function DashboardPage() {
         country: "",
     })
     const [savingProfile, setSavingProfile] = useState(false)
+    const [activeGateway, setActiveGateway] = useState<string>("xpay")
+    const [completingPayment, setCompletingPayment] = useState<boolean>(false)
+
+    // Load active payment gateway from settings
+    useEffect(() => {
+        fetch("/api/settings")
+            .then((r) => r.json())
+            .then((data) => setActiveGateway(data.payment_gateway || "xpay"))
+            .catch(() => setActiveGateway("xpay"))
+    }, [])
+
+    // Load Razorpay script when needed
+    useEffect(() => {
+        if (activeGateway === "razorpay") {
+            if (!document.querySelector('script[src*="razorpay"]')) {
+                const script = document.createElement("script")
+                script.src = "https://checkout.razorpay.com/v1/checkout.js"
+                script.async = true
+                document.body.appendChild(script)
+            }
+        }
+    }, [activeGateway])
 
     useEffect(() => {
         if (user) {
@@ -218,6 +251,80 @@ export default function DashboardPage() {
             console.error(e)
         } finally {
             setOrdersLoading(false)
+        }
+    }
+
+    const updateOrder = async (orderId: string, paymentId: string) => {
+        try {
+            await fetch("/api/orders", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: orderId,
+                    status: "paid",
+                    paymentId,
+                }),
+            })
+            toast({ title: "🎉 Payment Successful!" })
+            loadOrders()
+        } catch (err) {
+            console.error("Order update error:", err)
+        }
+    }
+
+    const handlePayNow = async (order: any) => {
+        setCompletingPayment(true)
+        const orderId = order.id
+
+        if (activeGateway === "razorpay") {
+            const orderRes = await fetch("/api/razorpay/create-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: order.totalAmount, currency: "INR" }),
+            })
+            const orderData = await orderRes.json()
+            if (!orderData.orderId || !window.Razorpay) {
+                toast({ title: "Failed to load payment gateway", variant: "destructive" })
+                setCompletingPayment(false)
+                return
+            }
+
+            const options = {
+                key: orderData.keyId,
+                amount: Math.round(order.totalAmount * 100),
+                currency: "INR",
+                name: "Grabnext",
+                order_id: orderData.orderId,
+                prefill: {
+                    name: order.userName || "",
+                    email: order.userEmail || "",
+                    contact: order.userPhone || "",
+                },
+                handler: async (response: any) => {
+                    await updateOrder(orderId, response.razorpay_payment_id)
+                    setCompletingPayment(false)
+                },
+                modal: { ondismiss: () => setCompletingPayment(false) }
+            }
+            const rzp = new window.Razorpay(options)
+            rzp.open()
+        } else {
+            if (!window.XPay) {
+                toast({ title: "XPay not loaded", variant: "destructive" })
+                setCompletingPayment(false)
+                return
+            }
+            const xpay = new window.XPay({
+                api_key: "xp_live_wtm5vj64kseuylg9cfmsl9",
+                amount: Math.round(order.totalAmount),
+                title: `Order ${orderId}`,
+                onSuccess: async (data: { utr: string }) => {
+                    await updateOrder(orderId, data.utr)
+                    setCompletingPayment(false)
+                },
+                onClose: () => setCompletingPayment(false),
+            })
+            xpay.open()
         }
     }
 
@@ -351,7 +458,7 @@ export default function DashboardPage() {
                             ) : (
                                 <div className="space-y-4">
                                     {orders.map((order: any) => (
-                                        <OrderCard key={order.id} order={order} />
+                                        <OrderCard key={order.id} order={order} onPay={handlePayNow} />
                                     ))}
                                 </div>
                             )}
