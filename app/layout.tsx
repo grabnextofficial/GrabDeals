@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: "Grabnext - Online Shopping Site for Mobiles, Electronics, Furniture, Grocery, Lifestyle, Books & More. Best Offers!",
   description: "Shop for electronics, apparels & more using our Flipkart-like e-commerce platform Grabnext.",
   generator: "v0.app",
+  verification: {
+    google: "a6IFtvu-QdswT63axIr-jp_-vPxu2OYz5dpN6y8CZmk",
+  },
   icons: {
     icon: "/logo.png",
     shortcut: "/logo.png",
@@ -27,6 +30,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${GeistSans.variable}`}>
       <head>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-TBEMXJ6DCV"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-TBEMXJ6DCV');
+            `,
+          }}
+        />
         <script src="https://x-pg.pages.dev/xpay.js" async />
         <style dangerouslySetInnerHTML={{
           __html: `
