@@ -92,7 +92,7 @@ function RatingBar({ label, count, total }: { label: string; count: number; tota
 
 export function ProductDetailView({ product: initialProduct, id }: { product: Product, id: string }) {
     const router = useRouter()
-    const { addToCart } = useCart()
+    const { addToCart, setDrawerOpen } = useCart()
     const { user } = useAuth()
 
     const [product, setProduct] = useState<Product>(initialProduct)
@@ -232,7 +232,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                             {/* Buy buttons */}
                             <div className="grid grid-cols-2 gap-3 mt-1">
                                 <Button size="lg" className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold h-12"
-                                    onClick={() => { addToCart(product); toast({ title: "🛒 Added to cart!" }) }}>
+                                    onClick={() => { addToCart(product); setDrawerOpen(true); toast({ title: "🛒 Added to cart!" }) }}>
                                     <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
                                 </Button>
                                 <Button

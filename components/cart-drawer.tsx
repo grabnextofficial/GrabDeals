@@ -14,7 +14,7 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ children }: CartDrawerProps) {
-  const { items, totalItems, totalAmount, updateQuantity, removeFromCart } = useCart()
+  const { items, totalItems, totalAmount, updateQuantity, removeFromCart, isDrawerOpen, setDrawerOpen } = useCart()
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-IN", {
@@ -24,7 +24,7 @@ export function CartDrawer({ children }: CartDrawerProps) {
   }
 
   return (
-    <Sheet>
+    <Sheet open={isDrawerOpen} onOpenChange={setDrawerOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent className="w-full sm:max-w-lg">
         <SheetHeader className="animate-slide-up">

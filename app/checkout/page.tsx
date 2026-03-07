@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useCallback, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Lock, Mail, User, Phone, Eye, EyeOff, CheckCircle2, Loader2 } from "lucide-react"
+import { Lock, Mail, User, Phone, Eye, EyeOff, CheckCircle2, Loader2, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -49,6 +49,7 @@ export default function CheckoutPage() {
     zipCode: "",
     country: "India",
   })
+  const isDigitalOnly = items.every(item => item.product.downloadUrl)
 
   // Load active payment gateway from settings
   useEffect(() => {
@@ -277,12 +278,12 @@ export default function CheckoutPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-green-500" />
-              Account Created!
+              Success! Your Account is Ready
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3 text-sm">
             <p className="text-muted-foreground">
-              We've created an account for you automatically so you can track your orders.
+              We've created a <strong>Guest Account</strong> for you so you can access your digital downloads instantly.
             </p>
             <div className="bg-muted rounded-lg p-4 space-y-2">
               <div className="flex justify-between">
@@ -290,7 +291,7 @@ export default function CheckoutPage() {
                 <span className="font-medium">{newAccountInfo?.email}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Password:</span>
+                <span className="text-muted-foreground">Temporary Password:</span>
                 <div className="flex items-center gap-2">
                   <span className="font-mono font-bold text-primary">
                     {showPassword ? newAccountInfo?.password : "••••••••••"}
@@ -301,17 +302,18 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
-            <p className="text-xs text-orange-600 font-medium">
-              ⚠️ Please save this password. You can use it to login and track your orders.
+            <p className="text-xs text-blue-600 font-medium bg-blue-50 p-2 rounded border border-blue-100">
+              💡 <strong>Save these details!</strong> You'll need them to download your products from your "My Orders" section anytime.
             </p>
             <Button
               className="w-full"
+              variant="default"
               onClick={() => {
                 navigator.clipboard.writeText(newAccountInfo?.password || "")
                 toast({ title: "Password copied!" })
               }}
             >
-              Copy Password
+              Copy Password & Continue
             </Button>
           </div>
         </DialogContent>
@@ -384,36 +386,73 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="phone">Phone Number *</Label>
+                      <Label htmlFor="phone">Mobile Number *</Label>
                       <div className="relative">
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} required className="pl-10" placeholder="+91 XXXXX XXXXX" />
                       </div>
                     </div>
-                    <div>
-                      <Label htmlFor="address">Address</Label>
-                      <Input id="address" name="address" value={formData.address} onChange={handleInputChange} />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="city">City</Label>
-                        <Input id="city" name="city" value={formData.city} onChange={handleInputChange} />
+
+                    {!isDigitalOnly && (
+                      <div className="space-y-4 pt-2">
+                        <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 text-xs text-blue-700 flex gap-2">
+                          <Package className="h-4 w-4 shrink-0" />
+                          <span>We need your address for shipping physical products.</span>
+                        </div>
+                        <div>
+                          <Label htmlFor="address">Address</Label>
+                          <Input id="address" name="address" value={formData.address} onChange={handleInputChange} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="city">City</Label>
+                            <Input id="city" name="city" value={formData.city} onChange={handleInputChange} />
+                          </div>
+                          <div>
+                            <Label htmlFor="state">State</Label>
+                            <Input id="state" name="state" value={formData.state} onChange={handleInputChange} />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="zipCode">ZIP Code</Label>
+                            <Input id="zipCode" name="zipCode" value={formData.zipCode} onChange={handleInputChange} />
+                          </div>
+                          <div>
+                            <Label htmlFor="country">Country</Label>
+                            <Input id="country" name="country" value={formData.country} onChange={handleInputChange} />
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <Label htmlFor="state">State</Label>
-                        <Input id="state" name="state" value={formData.state} onChange={handleInputChange} />
+                    )}
+
+                    {isDigitalOnly && (
+                      <div className="bg-green-50 p-4 rounded-lg border border-green-100 mt-2">
+                        <p className="text-sm text-green-700 font-medium flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4" />
+                          Digital Delivery Selected
+                        </p>
+                        <p className="text-xs text-green-600 mt-1">
+                          Since you're buying digital products, we don't need your shipping address. You'll get your download link instantly after payment.
+                        </p>
                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="zipCode">ZIP Code</Label>
-                        <Input id="zipCode" name="zipCode" value={formData.zipCode} onChange={handleInputChange} />
+                    )}
+
+                    {!user && (
+                      <div className="pt-2 border-t mt-4">
+                        <div className="flex items-center gap-2 bg-yellow-50 p-3 rounded-lg border border-yellow-100">
+                          <Checkbox id="createAccount" checked disabled className="cursor-default" />
+                          <div className="grid gap-1.5 leading-none">
+                            <label htmlFor="createAccount" className="text-sm font-medium leading-none">
+                              Save my details for next time
+                            </label>
+                            <p className="text-xs text-muted-foreground">
+                              We'll create a guest account automatically so you can access your downloads anytime.
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <Label htmlFor="country">Country</Label>
-                        <Input id="country" name="country" value={formData.country} onChange={handleInputChange} />
-                      </div>
-                    </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>

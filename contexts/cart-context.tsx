@@ -14,17 +14,21 @@ interface CartContextType {
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
   isInCart: (productId: string) => boolean
+  isDrawerOpen: boolean
+  setDrawerOpen: (open: boolean) => void
 }
 
 const CartContext = createContext<CartContextType>({
   items: [],
   totalItems: 0,
   totalAmount: 0,
-  addToCart: () => {},
-  removeFromCart: () => {},
-  updateQuantity: () => {},
-  clearCart: () => {},
+  addToCart: () => { },
+  removeFromCart: () => { },
+  updateQuantity: () => { },
+  clearCart: () => { },
   isInCart: () => false,
+  isDrawerOpen: false,
+  setDrawerOpen: () => { },
 })
 
 export const useCart = () => {
@@ -41,6 +45,7 @@ interface CartProviderProps {
 
 export const CartProvider = ({ children }: CartProviderProps) => {
   const [items, setItems] = useState<CartItem[]>([])
+  const [isDrawerOpen, setDrawerOpen] = useState(false)
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -129,6 +134,8 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         updateQuantity,
         clearCart,
         isInCart,
+        isDrawerOpen,
+        setDrawerOpen,
       }}
     >
       {children}
