@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StoreHeader } from "@/components/store-header"
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { DigitalProductViewer } from "@/components/digital-product-viewer"
 
 export default function CheckoutSuccessPage() {
   const searchParams = useSearchParams()
@@ -72,12 +73,15 @@ export default function CheckoutSuccessPage() {
                               <p className="font-medium text-sm line-clamp-1">{item.title}</p>
                               <p className="text-xs text-muted-foreground italic">Digital Product</p>
                             </div>
-                            <Button asChild size="sm" className="shrink-0 bg-primary hover:bg-primary/90 text-white shadow-sm">
-                              <a href={item.downloadUrl} target="_blank" rel="noopener noreferrer">
-                                <Download className="h-4 w-4 mr-2" />
-                                Download Now
-                              </a>
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <DigitalProductViewer downloadUrl={item.downloadUrl} title={item.title} />
+                              <Button asChild size="sm" className="shrink-0 bg-primary hover:bg-primary/90 text-white shadow-sm">
+                                <a href={item.downloadUrl} target="_blank" rel="noopener noreferrer">
+                                  <Download className="h-4 w-4 mr-2" />
+                                  Download Now
+                                </a>
+                              </Button>
+                            </div>
                           </div>
                         ))}
                       </div>

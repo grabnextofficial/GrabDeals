@@ -30,7 +30,8 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
     const [submitting, setSubmitting] = useState(false)
     const [uploading, setUploading] = useState(false)
     const [digitalUploading, setDigitalUploading] = useState(false)
-    const [storageProvider, setStorageProvider] = useState<"vercel" | "tdrive">("vercel")
+    const [imageStorageProvider, setImageStorageProvider] = useState<"vercel" | "tdrive">("vercel")
+    const [digitalStorageProvider, setDigitalStorageProvider] = useState<"vercel" | "tdrive">("vercel")
     const [loading, setLoading] = useState(mode === "edit")
     const digitalFileRef = useRef<HTMLInputElement>(null)
 
@@ -65,11 +66,11 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
         for (const file of Array.from(files)) {
             try {
                 const fd = new FormData(); fd.append("file", file)
-                const endpoint = storageProvider === "vercel" ? "/api/upload" : "/api/upload-tdrive"
+                const endpoint = imageStorageProvider === "vercel" ? "/api/upload" : "/api/upload-tdrive"
                 const res = await fetch(endpoint, { method: "POST", body: fd })
                 const data = await res.json()
                 if (!res.ok) throw new Error(data.error || "Upload failed")
-                const imageUrl = storageProvider === "vercel" ? data.url : data.preview_url
+                const imageUrl = imageStorageProvider === "vercel" ? data.url : data.preview_url
                 uploaded.push(imageUrl)
             } catch (err: any) {
                 toast({ title: `Upload failed: ${file.name}`, description: err.message, variant: "destructive" })
@@ -86,12 +87,14 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
         try {
             const formData = new FormData()
             formData.append("file", files[0])
-            const res = await fetch("/api/upload-tdrive", { method: "POST", body: formData })
+            const endpoint = digitalStorageProvider === "vercel" ? "/api/upload" : "/api/upload-tdrive"
+            const res = await fetch(endpoint, { method: "POST", body: formData })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || "Upload failed")
 
-            setForm(f => ({ ...f, downloadUrl: data.download_url }))
-            toast({ title: "✅ Digital file uploaded to T-Drive!" })
+            const downloadUrl = digitalStorageProvider === "vercel" ? data.url : data.download_url
+            setForm(f => ({ ...f, downloadUrl }))
+            toast({ title: `✅ Digital file uploaded to ${digitalStorageProvider === "tdrive" ? "T-Drive" : "Vercel"}!` })
         } catch (err: any) {
             toast({ title: "Upload failed", description: err.message, variant: "destructive" })
         } finally {
@@ -216,8 +219,18 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
                                 </div>
                             </div>
                             <div>
-                                <Label>Download URL <span className="text-gray-400 text-xs">for digital products</span></Label>
-                                <div className="flex gap-2 mt-1">
+                                <Label className="flex justify-between items-center text-xs">
+                                    <span>Download URL <span className="text-gray-400 font-normal">for digital products</span></span>
+                                    <select
+                                        value={digitalStorageProvider}
+                                        onChange={e => setDigitalStorageProvider(e.target.value as any)}
+                                        className="border border-gray-200 rounded-md px-2 py-0.5 text-[10px] bg-white focus:outline-none focus:ring-1 focus:ring-primary"
+                                    >
+                                        <option value="vercel">Vercel Blob</option>
+                                        <option value="tdrive">T-Drive API</option>
+                                    </select>
+                                </Label>
+                                <div className="flex gap-2 mt-1.5">
                                     <Input value={form.downloadUrl} onChange={e => setForm(f => ({ ...f, downloadUrl: e.target.value }))}
                                         placeholder="https://..." type="url" className="flex-1" />
                                     <Button type="button" variant="outline" onClick={() => digitalFileRef.current?.click()} disabled={digitalUploading}>
@@ -226,7 +239,7 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
                                     </Button>
                                     <input ref={digitalFileRef} type="file" className="hidden" onChange={e => handleDigitalUpload(e.target.files)} />
                                 </div>
-                                <p className="text-xs text-gray-400 mt-1">Upload files to T-Drive to automatically generate a secure download link.</p>
+                                <p className="text-xs text-gray-400 mt-1.5">Upload a digital product securely using the selected provider.</p>
                             </div>
                         </div>
 
@@ -305,8 +318,8 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
                                 <div className="flex gap-2 items-center justify-between mb-2">
                                     <Label className="text-xs">Storage Provider:</Label>
                                     <select
-                                        value={storageProvider}
-                                        onChange={e => setStorageProvider(e.target.value as any)}
+                                        value={imageStorageProvider}
+                                        onChange={e => setImageStorageProvider(e.target.value as any)}
                                         className="border border-gray-200 rounded-md px-2 py-1 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-primary"
                                     >
                                         <option value="vercel">Vercel Blob</option>

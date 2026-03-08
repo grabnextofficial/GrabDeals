@@ -9,6 +9,7 @@ import {
   Download, Search, Filter, RefreshCw, Loader2, ShoppingBag, Phone, Mail, MapPin
 } from "lucide-react"
 import Link from "next/link"
+import { DigitalProductViewer } from "@/components/digital-product-viewer"
 
 function StatusBadge({ status }: { status: string }) {
   const variants: Record<string, string> = {
@@ -228,16 +229,18 @@ function OrderRow({ order, onStatusChange }: { order: any; onStatusChange: (id: 
                         ₹{(item.price * item.quantity).toLocaleString("en-IN")}
                       </p>
                     </div>
-
                     {item.downloadUrl && (
-                      <a
-                        href={item.downloadUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 mt-2 text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 px-3 py-1.5 rounded-lg transition-all"
-                      >
-                        <Download className="h-3.5 w-3.5" /> Download File
-                      </a>
+                      <div className="flex gap-2 mt-2">
+                        <DigitalProductViewer downloadUrl={item.downloadUrl} title={item.title} />
+                        <a
+                          href={item.downloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 px-3 py-1.5 rounded-lg transition-all"
+                        >
+                          <Download className="h-3.5 w-3.5" /> Download File
+                        </a>
+                      </div>
                     )}
                   </div>
                 </div>

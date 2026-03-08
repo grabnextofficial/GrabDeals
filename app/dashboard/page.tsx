@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { DigitalProductViewer } from "@/components/digital-product-viewer"
 
 function StatusBadge({ status }: { status: string }) {
     const map: Record<string, { bg: string; text: string; dot: string }> = {
@@ -151,14 +152,17 @@ function OrderCard({ order, onPay }: { order: any, onPay?: (order: any) => void 
 
                                     {/* Download button for digital products */}
                                     {item.downloadUrl && (
-                                        <a
-                                            href={item.downloadUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-1.5 mt-2 text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 px-3 py-1.5 rounded-lg transition-all shadow-sm hover:shadow-md"
-                                        >
-                                            <Download className="h-3.5 w-3.5" /> Download
-                                        </a>
+                                        <div className="flex gap-2 mt-2">
+                                            <a
+                                                href={item.downloadUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 px-3 py-1.5 rounded-lg transition-all shadow-sm hover:shadow-md"
+                                            >
+                                                <Download className="h-3.5 w-3.5" /> Download
+                                            </a>
+                                            <DigitalProductViewer downloadUrl={item.downloadUrl} title={item.title} />
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -553,14 +557,17 @@ export default function DashboardPage() {
                                                         From order <span className="font-mono">{item.orderId}</span> · {formatDateTime(item.orderDate)}
                                                     </p>
                                                 </div>
-                                                <a
-                                                    href={item.downloadUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 px-4 py-2 rounded-lg transition-all shadow-sm"
-                                                >
-                                                    <Download className="h-4 w-4" /> Download
-                                                </a>
+                                                <div className="flex gap-2 isolate shrink-0">
+                                                    <DigitalProductViewer downloadUrl={item.downloadUrl} title={item.title} />
+                                                    <a
+                                                        href={item.downloadUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 px-4 py-2 rounded-lg transition-all shadow-sm"
+                                                    >
+                                                        <Download className="h-4 w-4" /> Download
+                                                    </a>
+                                                </div>
                                             </CardContent>
                                         </Card>
                                     ))}
