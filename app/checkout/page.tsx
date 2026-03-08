@@ -262,10 +262,15 @@ export default function CheckoutPage() {
       }
 
       setPendingOrderId(orderData.id)
-      setCheckoutStep(2) // Move to step 2 (Payment)
-      setLoading(false)
-      toast({ title: "Details Saved", description: "Your order has been securely saved. Please proceed to payment." })
+      setCheckoutStep(2) // Move to step 2 (Payment UI will auto-open)
+      toast({ title: "Processing Payment...", description: "Securely opening the payment gateway." })
 
+      // Auto-trigger payment gateway immediately
+      if (activeGateway === "razorpay") {
+        await handleRazorpay(orderData.id)
+      } else {
+        handleXPay(orderData.id)
+      }
     } catch (err: any) {
       setLoading(false)
       toast({ title: "Error", description: err.message, variant: "destructive" })
@@ -501,19 +506,19 @@ export default function CheckoutPage() {
                       </div>
 
                       {checkoutStep === 1 ? (
-                        <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" size="lg" disabled={loading}>
                           {loading ? (
-                            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving Details...</>
+                            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Processing...</>
                           ) : (
-                            <>Continue to Payment <CheckCircle2 className="h-4 w-4 ml-2" /></>
+                            <>Continue & Pay Securely <Lock className="h-4 w-4 ml-2" /></>
                           )}
                         </Button>
                       ) : (
-                        <Button type="button" onClick={handlePayNow} className="w-full bg-orange-600 hover:bg-orange-700 text-white" size="lg" disabled={loading}>
+                        <Button type="button" onClick={handlePayNow} className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg" size="lg" disabled={loading}>
                           {loading ? (
                             <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Opening payment...</>
                           ) : (
-                            <><Lock className="h-4 w-4 mr-2" />Pay {formatPrice(totalAmount)}</>
+                            <><Lock className="h-4 w-4 mr-2" />Try Payment Again</>
                           )}
                         </Button>
                       )}
