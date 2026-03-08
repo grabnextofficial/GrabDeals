@@ -46,8 +46,11 @@ function ProductForm({
 }) {
   const [form, setForm] = useState<FormData>(initial)
   const [uploading, setUploading] = useState(false)
+  const [digitalUploading, setDigitalUploading] = useState(false)
+  const [storageProvider, setStorageProvider] = useState<"vercel" | "tdrive">("vercel")
   const [preview, setPreview] = useState(initial.imageUrl || "")
   const fileRef = useRef<HTMLInputElement>(null)
+  const digitalFileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { setForm(initial); setPreview(initial.imageUrl || "") }, [initial])
 
@@ -58,16 +61,40 @@ function ProductForm({
     try {
       const fd = new FormData()
       fd.append("file", file)
-      const res = await fetch("/api/upload", { method: "POST", body: fd })
+      const endpoint = storageProvider === "vercel" ? "/api/upload" : "/api/upload-tdrive"
+      const res = await fetch(endpoint, { method: "POST", body: fd })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Upload failed")
-      setForm({ ...form, imageUrl: data.url })
-      setPreview(data.url)
+
+      const imageUrl = storageProvider === "vercel" ? data.url : data.preview_url
+
+      setForm({ ...form, imageUrl: imageUrl })
+      setPreview(imageUrl)
       toast({ title: "✅ Image uploaded!" })
     } catch (err: any) {
       toast({ title: "Upload failed", description: err.message, variant: "destructive" })
     } finally {
       setUploading(false)
+    }
+  }
+
+  const handleDigitalUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setDigitalUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append("file", file)
+      const res = await fetch("/api/upload-tdrive", { method: "POST", body: fd })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Upload failed")
+
+      setForm({ ...form, downloadUrl: data.download_url })
+      toast({ title: "✅ Digital file uploaded to T-Drive!" })
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" })
+    } finally {
+      setDigitalUploading(false)
     }
   }
 
@@ -89,7 +116,14 @@ function ProductForm({
               <ImageIcon className="h-10 w-10 text-gray-300" />
             </div>
           )}
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <Select value={storageProvider} onValueChange={(v: "vercel" | "tdrive") => setStorageProvider(v)}>
+              <SelectTrigger className="w-32 h-9 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="vercel">Vercel Blob</SelectItem>
+                <SelectItem value="tdrive">T-Drive API</SelectItem>
+              </SelectContent>
+            </Select>
             <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
               {uploading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Upload className="h-4 w-4 mr-1" />}
               {uploading ? "Uploading..." : "Upload Image"}
@@ -150,8 +184,16 @@ function ProductForm({
       </div>
 
       <div>
-        <Label>Download URL</Label>
-        <Input value={form.downloadUrl} onChange={(e) => setForm({ ...form, downloadUrl: e.target.value })} placeholder="https://..." />
+        <Label>Download URL <span className="text-gray-400 text-xs">(Digital Product)</span></Label>
+        <div className="flex gap-2 mt-1">
+          <Input value={form.downloadUrl} onChange={(e) => setForm({ ...form, downloadUrl: e.target.value })} placeholder="https://..." className="flex-1" />
+          <Button type="button" variant="outline" onClick={() => digitalFileRef.current?.click()} disabled={digitalUploading}>
+            {digitalUploading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Upload className="h-4 w-4 mr-1" />}
+            {digitalUploading ? "Uploading..." : "Upload File"}
+          </Button>
+          <input ref={digitalFileRef} type="file" className="hidden" onChange={handleDigitalUpload} />
+        </div>
+        <p className="text-xs text-gray-400 mt-1">Upload files to T-Drive to automatically generate a secure download link.</p>
       </div>
 
       <div className="flex items-center gap-3">
@@ -159,7 +201,7 @@ function ProductForm({
         <Label htmlFor="isActive">Active (visible in store)</Label>
       </div>
 
-      <Button type="submit" className="w-full" disabled={submitting || uploading}>
+      <Button type="submit" className="w-full" disabled={submitting || uploading || digitalUploading}>
         {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</> : mode === "create" ? "Create Product" : "Save Changes"}
       </Button>
     </form>

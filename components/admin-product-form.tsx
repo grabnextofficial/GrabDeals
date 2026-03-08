@@ -29,7 +29,10 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
     const [categories, setCategories] = useState<any[]>([])
     const [submitting, setSubmitting] = useState(false)
     const [uploading, setUploading] = useState(false)
+    const [digitalUploading, setDigitalUploading] = useState(false)
+    const [storageProvider, setStorageProvider] = useState<"vercel" | "tdrive">("vercel")
     const [loading, setLoading] = useState(mode === "edit")
+    const digitalFileRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
         fetchCategories().then((cats: any) => setCategories(Array.isArray(cats) ? cats : []))
@@ -62,10 +65,12 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
         for (const file of Array.from(files)) {
             try {
                 const fd = new FormData(); fd.append("file", file)
-                const res = await fetch("/api/upload", { method: "POST", body: fd })
+                const endpoint = storageProvider === "vercel" ? "/api/upload" : "/api/upload-tdrive"
+                const res = await fetch(endpoint, { method: "POST", body: fd })
                 const data = await res.json()
                 if (!res.ok) throw new Error(data.error || "Upload failed")
-                uploaded.push(data.url)
+                const imageUrl = storageProvider === "vercel" ? data.url : data.preview_url
+                uploaded.push(imageUrl)
             } catch (err: any) {
                 toast({ title: `Upload failed: ${file.name}`, description: err.message, variant: "destructive" })
             }
@@ -73,6 +78,25 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
         setForm(f => ({ ...f, images: [...f.images, ...uploaded] }))
         setUploading(false)
         toast({ title: `✅ ${uploaded.length} image(s) uploaded!` })
+    }
+
+    const handleDigitalUpload = async (files: FileList | null) => {
+        if (!files || files.length === 0) return
+        setDigitalUploading(true)
+        try {
+            const formData = new FormData()
+            formData.append("file", files[0])
+            const res = await fetch("/api/upload-tdrive", { method: "POST", body: formData })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || "Upload failed")
+
+            setForm(f => ({ ...f, downloadUrl: data.download_url }))
+            toast({ title: "✅ Digital file uploaded to T-Drive!" })
+        } catch (err: any) {
+            toast({ title: "Upload failed", description: err.message, variant: "destructive" })
+        } finally {
+            setDigitalUploading(false)
+        }
     }
 
     const removeImage = (idx: number) => setForm(f => ({ ...f, images: f.images.filter((_, i) => i !== idx) }))
@@ -128,7 +152,7 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
                     </div>
                     <div className="flex gap-2">
                         <Button type="button" variant="outline" asChild><Link href="/admin/products">Cancel</Link></Button>
-                        <Button type="submit" form="product-form" disabled={submitting || uploading}>
+                        <Button type="submit" form="product-form" disabled={submitting || uploading || digitalUploading}>
                             {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</> : mode === "edit" ? "Save Changes" : "Create Product"}
                         </Button>
                     </div>
@@ -193,8 +217,16 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
                             </div>
                             <div>
                                 <Label>Download URL <span className="text-gray-400 text-xs">for digital products</span></Label>
-                                <Input value={form.downloadUrl} onChange={e => setForm(f => ({ ...f, downloadUrl: e.target.value }))}
-                                    placeholder="https://..." type="url" className="mt-1" />
+                                <div className="flex gap-2 mt-1">
+                                    <Input value={form.downloadUrl} onChange={e => setForm(f => ({ ...f, downloadUrl: e.target.value }))}
+                                        placeholder="https://..." type="url" className="flex-1" />
+                                    <Button type="button" variant="outline" onClick={() => digitalFileRef.current?.click()} disabled={digitalUploading}>
+                                        {digitalUploading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Upload className="h-4 w-4 mr-1" />}
+                                        {digitalUploading ? "Uploading..." : "Upload File"}
+                                    </Button>
+                                    <input ref={digitalFileRef} type="file" className="hidden" onChange={e => handleDigitalUpload(e.target.files)} />
+                                </div>
+                                <p className="text-xs text-gray-400 mt-1">Upload files to T-Drive to automatically generate a secure download link.</p>
                             </div>
                         </div>
 
@@ -270,6 +302,17 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
 
                             {/* File Upload */}
                             <div>
+                                <div className="flex gap-2 items-center justify-between mb-2">
+                                    <Label className="text-xs">Storage Provider:</Label>
+                                    <select
+                                        value={storageProvider}
+                                        onChange={e => setStorageProvider(e.target.value as any)}
+                                        className="border border-gray-200 rounded-md px-2 py-1 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-primary"
+                                    >
+                                        <option value="vercel">Vercel Blob</option>
+                                        <option value="tdrive">T-Drive API</option>
+                                    </select>
+                                </div>
                                 <Button
                                     type="button"
                                     variant="outline"
