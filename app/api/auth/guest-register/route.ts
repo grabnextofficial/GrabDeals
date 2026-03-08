@@ -41,7 +41,16 @@ export async function POST(request: NextRequest) {
 
         if (existing && existing.length > 0) {
             const existingUser = existing[0] as any
-            // User already exists — auto-login them and return info
+
+            // SECURITY CHECK: If it's a real user (not a guest), we MUST NOT auto-login without a password.
+            // They must use the regular login page.
+            if (existingUser.isGuest !== 1 && existingUser.isGuest !== true) {
+                return NextResponse.json({
+                    error: 'An account with this email already exists and is not a guest account. Please log in to continue.'
+                }, { status: 403 })
+            }
+
+            // If it IS a guest account, auto-login them safely and return info
             const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
             const session = await encrypt({
                 uid: existingUser.uid,
@@ -56,11 +65,11 @@ export async function POST(request: NextRequest) {
                     uid: existingUser.uid,
                     email: existingUser.email,
                     displayName: existingUser.displayName,
-                    isGuest: existingUser.isGuest === 1
+                    isGuest: true
                 },
                 isExisting: true,
                 temporaryPassword: null,
-                message: 'Existing account found. You are now logged in.'
+                message: 'Welcome back! We found your guest account and logged you in.'
             })
         }
 

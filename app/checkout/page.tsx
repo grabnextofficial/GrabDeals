@@ -112,32 +112,29 @@ export default function CheckoutPage() {
 
   const getOrCreateUserId = async () => {
     if (user?.uid) return user.uid
-    try {
-      const regRes = await fetch("/api/auth/guest-register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          displayName: `${formData.firstName} ${formData.lastName}`.trim(),
-          phone: formData.phone,
-        }),
-      })
-      const regData = await regRes.json()
-      if (!regRes.ok) {
-        throw new Error(regData.error || "Registration failed")
-      }
-
-      if (regData.user?.uid) {
-        if (!regData.isExisting && regData.temporaryPassword) {
-          setNewAccountInfo({ email: formData.email, password: regData.temporaryPassword })
-        }
-        await refreshUser()
-        return regData.user.uid
-      }
-    } catch (err: any) {
-      console.error("Guest register error:", err)
-      return "guest"
+    const regRes = await fetch("/api/auth/guest-register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: formData.email,
+        displayName: `${formData.firstName} ${formData.lastName}`.trim(),
+        phone: formData.phone,
+      }),
+    })
+    const regData = await regRes.json()
+    if (!regRes.ok) {
+      throw new Error(regData.error || "Registration failed")
     }
+
+    if (regData.user?.uid) {
+      if (!regData.isExisting && regData.temporaryPassword) {
+        setNewAccountInfo({ email: formData.email, password: regData.temporaryPassword })
+      }
+      await refreshUser()
+      return regData.user.uid
+    }
+
+    return "guest"
   }
 
   // ─── XPay ────────────────────────────────────────────────────────────
