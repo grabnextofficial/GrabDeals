@@ -17,10 +17,10 @@ export async function POST(request: NextRequest) {
         tDriveFormData.append('file', file);
         tDriveFormData.append('folder', 'grabnext-digital-products');
 
-        const tDriveResponse = await fetch('https://t-drive.pages.dev//api/v1/upload', {
+        const tDriveResponse = await fetch('https://t-drive.pages.dev/api/v1/upload', {
             method: 'POST',
             headers: {
-                'x-api-key': 'sk_live_666ef1580e67a292ef0d46f123ac854fed62a778fa33bbf4',
+                'x-api-key': 'sk_live_d30c93cf44df595667d291d198b90d958c2817a1132960e8',
             },
             body: tDriveFormData
         });
