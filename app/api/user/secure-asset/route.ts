@@ -1,25 +1,8 @@
 export const runtime = 'edge'
 import { NextRequest, NextResponse } from 'next/server'
 import { executeQuery } from '@/lib/db'
-import { cookies } from 'next/headers'
-import { jwtVerify } from 'jose'
+import { getSession } from '@/lib/session'
 import { DigitalAsset } from '@/lib/types'
-
-export const dynamic = 'force-dynamic'
-
-async function getUserIdAndRoleFromCookie(): Promise<{ uid: string, role: string } | null> {
-    try {
-        const cookieStore = await cookies()
-        const token = cookieStore.get('auth-token')?.value
-        if (!token) return null
-
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'grabnext-local-dev-secret-key-change-in-production')
-        const { payload } = await jwtVerify(token, secret)
-        return { uid: (payload as any).uid, role: (payload as any).role || 'user' }
-    } catch {
-        return null
-    }
-}
 
 // GET /api/user/secure-asset?productId=123&assetId=456
 export async function GET(request: NextRequest) {
@@ -32,7 +15,7 @@ export async function GET(request: NextRequest) {
             return new NextResponse('Missing productId or assetId', { status: 400 })
         }
 
-        const auth = await getUserIdAndRoleFromCookie()
+        const auth = await getSession()
         if (!auth) {
             return new NextResponse('Unauthorized: Please log in', { status: 401 })
         }
