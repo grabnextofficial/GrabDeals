@@ -53,10 +53,10 @@ function OrderCard({ order, onPay }: { order: any, onPay?: (order: any) => void 
     const hasDigitalItems = items.some((item: any) => item.downloadUrl)
 
     return (
-        <Card className="overflow-hidden border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all">
+        <Card className="overflow-hidden border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all">
             {/* Order Header */}
             <div
-                className="flex flex-wrap gap-4 items-center justify-between px-5 py-4 cursor-pointer bg-gradient-to-r from-orange-50 to-white"
+                className="flex flex-wrap gap-4 items-center justify-between px-5 py-4 cursor-pointer bg-gradient-to-r from-blue-50 to-white"
                 onClick={() => setExpanded(!expanded)}
             >
                 <div className="space-y-0.5">
@@ -71,7 +71,7 @@ function OrderCard({ order, onPay }: { order: any, onPay?: (order: any) => void 
 
                 <div className="space-y-0.5 text-right">
                     <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Total</p>
-                    <p className="text-lg font-bold text-orange-600">₹{Number(order.totalAmount).toLocaleString("en-IN")}</p>
+                    <p className="text-lg font-bold text-blue-600">₹{Number(order.totalAmount).toLocaleString("en-IN")}</p>
                 </div>
 
                 <div className="flex flex-col items-end gap-2">
@@ -83,7 +83,7 @@ function OrderCard({ order, onPay }: { order: any, onPay?: (order: any) => void 
                     )}
                 </div>
 
-                <button className="text-gray-400 hover:text-orange-500 transition-colors">
+                <button className="text-gray-400 hover:text-blue-500 transition-colors">
                     {expanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
                 </button>
             </div>
@@ -133,7 +133,7 @@ function OrderCard({ order, onPay }: { order: any, onPay?: (order: any) => void 
                                     <div className="flex items-start justify-between gap-2">
                                         <div>
                                             {item.id ? (
-                                                <Link href={`/products/${item.id}`} className="font-semibold text-gray-800 hover:text-orange-600 transition-colors line-clamp-2 flex items-center gap-1 group">
+                                                <Link href={`/products/${item.id}`} className="font-semibold text-gray-800 hover:text-blue-600 transition-colors line-clamp-2 flex items-center gap-1 group">
                                                     {item.title}
                                                     <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 shrink-0" />
                                                 </Link>
@@ -171,7 +171,7 @@ function OrderCard({ order, onPay }: { order: any, onPay?: (order: any) => void 
                             <Button
                                 size="sm"
                                 onClick={(e) => { e.stopPropagation(); onPay(order); }}
-                                className="bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-sm"
+                                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold shadow-sm"
                             >
                                 <CreditCard className="h-4 w-4 mr-2" /> Pay Now
                             </Button>
@@ -363,7 +363,7 @@ export default function DashboardPage() {
             <div className="min-h-screen">
                 <StoreHeader />
                 <div className="flex items-center justify-center py-24">
-                    <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+                    <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                 </div>
             </div>
         )
@@ -375,16 +375,16 @@ export default function DashboardPage() {
                 <StoreHeader />
                 <div className="container mx-auto px-4 py-24 text-center">
                     <div className="max-w-md mx-auto">
-                        <div className="h-24 w-24 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-6">
-                            <ShoppingBag className="h-12 w-12 text-orange-500" />
+                        <div className="h-24 w-24 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-6">
+                            <ShoppingBag className="h-12 w-12 text-blue-500" />
                         </div>
                         <h1 className="text-2xl font-bold mb-2 text-gray-800">Sign in to your account</h1>
                         <p className="text-muted-foreground mb-6">View your orders, manage your profile, and download your purchases.</p>
                         <div className="flex gap-3 justify-center">
-                            <Button asChild className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold px-6">
+                            <Button asChild className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-6">
                                 <Link href="/auth/login"><LogIn className="h-4 w-4 mr-2" />Sign In</Link>
                             </Button>
-                            <Button asChild variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50 font-semibold px-6">
+                            <Button asChild variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold px-6">
                                 <Link href="/auth/register">Create Account</Link>
                             </Button>
                         </div>
@@ -401,7 +401,7 @@ export default function DashboardPage() {
                 <div className="max-w-5xl mx-auto">
                     {/* Header */}
                     <div className="flex items-center gap-5 mb-8">
-                        <div className="h-16 w-16 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shrink-0">
+                        <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shrink-0">
                             {user.displayName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "U"}
                         </div>
                         <div>
@@ -416,19 +416,19 @@ export default function DashboardPage() {
                     </div>
 
                     <Tabs defaultValue="orders">
-                        <TabsList className="mb-6 bg-orange-50 border border-orange-200">
-                            <TabsTrigger value="orders" className="flex items-center gap-2 data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+                        <TabsList className="mb-6 bg-blue-50 border border-blue-200">
+                            <TabsTrigger value="orders" className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                                 <ShoppingBag className="h-4 w-4" />Orders
                                 {orders.length > 0 && (
-                                    <span className="bg-orange-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                                    <span className="bg-blue-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
                                         {orders.length}
                                     </span>
                                 )}
                             </TabsTrigger>
-                            <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+                            <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                                 <User className="h-4 w-4" />Profile
                             </TabsTrigger>
-                            <TabsTrigger value="downloads" className="flex items-center gap-2 data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+                            <TabsTrigger value="downloads" className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                                 <Download className="h-4 w-4" />Downloads
                                 {downloadableItems.length > 0 && (
                                     <span className="bg-blue-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
@@ -442,7 +442,7 @@ export default function DashboardPage() {
                         <TabsContent value="orders">
                             {ordersLoading ? (
                                 <div className="flex justify-center py-16">
-                                    <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+                                    <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                                 </div>
                             ) : orders.length === 0 ? (
                                 <div className="text-center py-16">
@@ -451,7 +451,7 @@ export default function DashboardPage() {
                                     </div>
                                     <h3 className="text-lg font-semibold mb-1 text-gray-700">No orders yet</h3>
                                     <p className="text-muted-foreground mb-6">Your order history will appear here after your first purchase</p>
-                                    <Button asChild className="bg-gradient-to-r from-orange-500 to-red-600 text-white">
+                                    <Button asChild className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                                         <Link href="/products">Browse Products</Link>
                                     </Button>
                                 </div>
@@ -469,7 +469,7 @@ export default function DashboardPage() {
                             <Card className="border-gray-200">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <User className="h-5 w-5 text-orange-500" /> Edit Profile
+                                        <User className="h-5 w-5 text-blue-500" /> Edit Profile
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
@@ -507,7 +507,7 @@ export default function DashboardPage() {
                                             <Label htmlFor="country">Country</Label>
                                             <Input id="country" value={profileForm.country} onChange={(e) => setProfileForm({ ...profileForm, country: e.target.value })} className="mt-1.5" />
                                         </div>
-                                        <Button type="submit" disabled={savingProfile} className="bg-gradient-to-r from-orange-500 to-red-600 text-white">
+                                        <Button type="submit" disabled={savingProfile} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white">
                                             {savingProfile ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving...</> : "Save Changes"}
                                         </Button>
                                     </form>
@@ -542,7 +542,7 @@ export default function DashboardPage() {
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     {item.id ? (
-                                                        <Link href={`/products/${item.id}`} className="font-semibold text-gray-800 hover:text-orange-600 transition-colors line-clamp-1 flex items-center gap-1 group">
+                                                        <Link href={`/products/${item.id}`} className="font-semibold text-gray-800 hover:text-blue-600 transition-colors line-clamp-1 flex items-center gap-1 group">
                                                             {item.title}
                                                             <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 shrink-0" />
                                                         </Link>

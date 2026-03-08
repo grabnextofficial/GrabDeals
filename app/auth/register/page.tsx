@@ -34,7 +34,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-4">
       {/* Background pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
@@ -46,11 +46,11 @@ export default function SignUpPage() {
         <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg mb-4">
+            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg mb-4">
               <ShoppingBag className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-              Grab<span className="text-orange-500">next</span>
+              Grab<span className="text-blue-600">next</span>
             </h1>
             <p className="text-gray-500 text-sm mt-1">Create your account and start shopping</p>
           </div>
@@ -65,7 +65,7 @@ export default function SignUpPage() {
                 id="displayName"
                 type="text"
                 placeholder="Your full name"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all text-gray-900 placeholder:text-gray-400"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 placeholder:text-gray-400"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 required
@@ -81,7 +81,7 @@ export default function SignUpPage() {
                 id="email"
                 type="email"
                 placeholder="you@example.com"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all text-gray-900 placeholder:text-gray-400"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 placeholder:text-gray-400"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -98,7 +98,7 @@ export default function SignUpPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Min. 6 characters"
-                  className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all text-gray-900 placeholder:text-gray-400"
+                  className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 placeholder:text-gray-400"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -125,7 +125,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 disabled:opacity-60 text-white py-3.5 rounded-xl font-bold shadow-lg hover:shadow-orange-500/40 transition-all duration-200 flex items-center justify-center gap-2 text-base"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-60 text-white py-3.5 rounded-xl font-bold shadow-lg hover:shadow-blue-500/40 transition-all duration-200 flex items-center justify-center gap-2 text-base"
             >
               {loading ? (
                 <><Loader2 className="h-5 w-5 animate-spin" /> Creating account…</>
@@ -147,7 +147,7 @@ export default function SignUpPage() {
 
           <Link
             href="/auth/login"
-            className="block w-full text-center py-3 rounded-xl border-2 border-orange-500 text-orange-600 font-bold hover:bg-orange-50 transition-all duration-200"
+            className="block w-full text-center py-3 rounded-xl border-2 border-blue-600 text-blue-700 font-bold hover:bg-blue-50 transition-all duration-200"
           >
             Sign in instead
           </Link>
@@ -155,8 +155,8 @@ export default function SignUpPage() {
 
         <p className="text-center text-white/70 text-sm mt-6">
           By creating an account, you agree to our{" "}
-          <Link href="/terms" className="text-white underline hover:text-orange-200">Terms</Link>{" "}and{" "}
-          <Link href="/privacy" className="text-white underline hover:text-orange-200">Privacy Policy</Link>
+          <Link href="/terms" className="text-white underline hover:text-blue-200">Terms</Link>{" "}and{" "}
+          <Link href="/privacy" className="text-white underline hover:text-blue-200">Privacy Policy</Link>
         </p>
       </div>
     </div>

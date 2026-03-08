@@ -64,7 +64,7 @@ function OrderRow({ order, onStatusChange }: { order: any; onStatusChange: (id: 
     <div className="border border-gray-200 rounded-xl overflow-hidden hover:border-orange-300 hover:shadow-sm transition-all">
       {/* Summary Row */}
       <div
-        className="flex flex-wrap gap-3 items-center px-4 py-3.5 bg-white cursor-pointer hover:bg-orange-50/50 transition-colors"
+        className="flex flex-wrap gap-3 items-center px-4 py-3.5 bg-white cursor-pointer hover:bg-blue-50/50 transition-colors"
         onClick={() => setExpanded(!expanded)}
       >
         {/* Order ID */}
@@ -97,7 +97,7 @@ function OrderRow({ order, onStatusChange }: { order: any; onStatusChange: (id: 
         {/* Total */}
         <div className="min-w-[100px] text-right">
           <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Total</p>
-          <p className="text-base font-extrabold text-orange-600">₹{Number(order.totalAmount).toLocaleString("en-IN")}</p>
+          <p className="text-base font-extrabold text-blue-600">₹{Number(order.totalAmount).toLocaleString("en-IN")}</p>
         </div>
 
         {/* Status */}
@@ -105,7 +105,7 @@ function OrderRow({ order, onStatusChange }: { order: any; onStatusChange: (id: 
           <StatusBadge status={order.status} />
         </div>
 
-        <button className="text-gray-400 hover:text-orange-500 transition-colors ml-auto">
+        <button className="text-gray-400 hover:text-blue-500 transition-colors ml-auto">
           {expanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
         </button>
       </div>
@@ -170,8 +170,8 @@ function OrderRow({ order, onStatusChange }: { order: any; onStatusChange: (id: 
                         onClick={() => handleStatusChange(s)}
                         disabled={order.status === s || updatingStatus}
                         className={`text-xs px-3 py-1.5 rounded-lg font-semibold border transition-all ${order.status === s
-                            ? "bg-orange-500 text-white border-orange-500"
-                            : "bg-white text-gray-600 border-gray-300 hover:border-orange-400 hover:text-orange-600"
+                          ? "bg-blue-500 text-white border-blue-500"
+                          : "bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600"
                           } disabled:opacity-50`}
                       >
                         {updatingStatus && order.status !== s ? <Loader2 className="h-3 w-3 animate-spin" /> : s}
@@ -207,7 +207,7 @@ function OrderRow({ order, onStatusChange }: { order: any; onStatusChange: (id: 
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         {item.id ? (
-                          <Link href={`/products/${item.id}`} target="_blank" className="font-semibold text-gray-800 hover:text-orange-600 transition-colors flex items-center gap-1 group line-clamp-2">
+                          <Link href={`/products/${item.id}`} target="_blank" className="font-semibold text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-1 group line-clamp-2">
                             {item.title}
                             <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 shrink-0" />
                           </Link>
@@ -248,7 +248,7 @@ function OrderRow({ order, onStatusChange }: { order: any; onStatusChange: (id: 
             <div className="flex justify-end mt-3 bg-white border border-gray-200 rounded-xl px-4 py-3">
               <div className="text-right">
                 <p className="text-xs text-gray-500 font-semibold uppercase">Order Total</p>
-                <p className="text-xl font-extrabold text-orange-600">₹{Number(order.totalAmount).toLocaleString("en-IN")}</p>
+                <p className="text-xl font-extrabold text-blue-600">₹{Number(order.totalAmount).toLocaleString("en-IN")}</p>
               </div>
             </div>
           </div>
@@ -313,14 +313,14 @@ export default function AdminOrdersPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-gray-900 flex items-center gap-2">
-            <ShoppingBag className="h-8 w-8 text-orange-500" /> Orders
+            <ShoppingBag className="h-8 w-8 text-blue-500" /> Orders
           </h1>
           <p className="text-gray-500 text-sm mt-0.5">{orders.length} total orders</p>
         </div>
         <button
           onClick={loadOrders}
           disabled={loading}
-          className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-orange-600 bg-white border border-gray-200 hover:border-orange-300 px-4 py-2 rounded-xl transition-all"
+          className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-blue-600 bg-white border border-gray-200 hover:border-blue-300 px-4 py-2 rounded-xl transition-all"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
         </button>
@@ -330,7 +330,7 @@ export default function AdminOrdersPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: "Total Orders", value: orders.length, color: "text-gray-800" },
-          { label: "Revenue", value: `₹${totalRevenue.toLocaleString("en-IN")}`, color: "text-orange-600" },
+          { label: "Revenue", value: `₹${totalRevenue.toLocaleString("en-IN")}`, color: "text-blue-600" },
           { label: "Pending", value: orders.filter(o => o.status === "pending").length, color: "text-yellow-600" },
           { label: "Completed", value: orders.filter(o => o.status === "completed" || o.status === "paid").length, color: "text-green-600" },
         ].map((stat) => (
@@ -350,13 +350,13 @@ export default function AdminOrdersPage() {
             placeholder="Search by order ID, customer, email, payment ID…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer"
+          className="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 cursor-pointer"
         >
           <option value="all">All Status</option>
           <option value="pending">Pending</option>
@@ -371,7 +371,7 @@ export default function AdminOrdersPage() {
       {/* Orders List */}
       {loading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 bg-white border border-gray-200 rounded-2xl">

@@ -237,7 +237,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                 </Button>
                                 <Button
                                     size="lg"
-                                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold h-12"
+                                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold h-12"
                                     disabled={buyingNow}
                                     onClick={() => {
                                         setBuyingNow(true)
