@@ -1,0 +1,123 @@
+export const runtime = 'edge'
+import { NextRequest, NextResponse } from 'next/server'
+import { executeQuery } from '@/lib/db'
+import { cookies } from 'next/headers'
+import { jwtVerify } from 'jose'
+import { DigitalAsset } from '@/lib/types'
+
+export const dynamic = 'force-dynamic'
+
+async function getUserIdAndRoleFromCookie(): Promise<{ uid: string, role: string } | null> {
+    try {
+        const cookieStore = await cookies()
+        const token = cookieStore.get('auth-token')?.value
+        if (!token) return null
+
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'grabnext-local-dev-secret-key-change-in-production')
+        const { payload } = await jwtVerify(token, secret)
+        return { uid: (payload as any).uid, role: (payload as any).role || 'user' }
+    } catch {
+        return null
+    }
+}
+
+// GET /api/user/secure-asset?productId=123&assetId=456
+export async function GET(request: NextRequest) {
+    try {
+        const { searchParams } = new URL(request.url)
+        const productId = searchParams.get('productId')
+        const assetId = searchParams.get('assetId')
+
+        if (!productId || !assetId) {
+            return new NextResponse('Missing productId or assetId', { status: 400 })
+        }
+
+        const auth = await getUserIdAndRoleFromCookie()
+        if (!auth) {
+            return new NextResponse('Unauthorized: Please log in', { status: 401 })
+        }
+
+        const isAdmin = auth.role === 'admin'
+
+        // Verify purchase if not admin
+        if (!isAdmin) {
+            const orders = await executeQuery(
+                "SELECT items FROM orders WHERE userId = ? AND status = 'completed'",
+                [auth.uid]
+            )
+
+            let hasPurchased = false;
+            for (const order of orders || []) {
+                try {
+                    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items
+                    if (Array.isArray(items) && items.some((item: any) => item.productId === productId)) {
+                        hasPurchased = true;
+                        break;
+                    }
+                } catch (e) { }
+            }
+
+            if (!hasPurchased) {
+                return new NextResponse('Forbidden: You have not purchased this product', { status: 403 })
+            }
+        }
+
+        // Get product to find the asset URL
+        const products = await executeQuery(
+            "SELECT downloadUrl FROM products WHERE id = ? LIMIT 1",
+            [productId]
+        )
+
+        if (!products || products.length === 0) {
+            return new NextResponse('Product not found', { status: 404 })
+        }
+
+        const product = products[0]
+        let assets: DigitalAsset[] = []
+        try {
+            assets = JSON.parse(product.downloadUrl)
+        } catch {
+            return new NextResponse('Product has no digital assets', { status: 404 })
+        }
+
+        const asset = assets.find(a => a.id === assetId)
+        if (!asset) {
+            return new NextResponse('Asset not found', { status: 404 })
+        }
+
+        if (asset.provider === 'external' || asset.type === 'link') {
+            return NextResponse.redirect(asset.url)
+        }
+
+        // Stream the file securely (proxy)
+        try {
+            const fileRes = await fetch(asset.url)
+            if (!fileRes.ok) {
+                throw new Error(`Failed to fetch upstream file: ${fileRes.statusText}`)
+            }
+
+            // Copy necessary headers (Content-Type, Content-Length)
+            const headers = new Headers()
+            const contentType = fileRes.headers.get('content-type')
+            const contentLength = fileRes.headers.get('content-length')
+
+            if (contentType) headers.set('Content-Type', contentType)
+            if (contentLength) headers.set('Content-Length', contentLength)
+
+            // Allow native HTML streaming logic
+            headers.set('Cache-Control', 'private, max-age=0, must-revalidate')
+
+            return new NextResponse(fileRes.body, {
+                status: 200,
+                headers
+            })
+        } catch (error: any) {
+            console.error("Secure asset proxy error:", error)
+            return new NextResponse(`Error retrieving asset: ${error.message}`, { status: 502 })
+        }
+
+    } catch (error: any) {
+        console.error("Secure asset handler error:", error)
+        return new NextResponse(error.message, { status: 500 })
+    }
+}

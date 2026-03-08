@@ -1,3 +1,11 @@
+export interface DigitalAsset {
+  id: string
+  name: string
+  type: "pdf" | "video" | "link" | "file"
+  provider: "vercel" | "tdrive" | "external"
+  url: string
+}
+
 export interface Product {
   id: string
   title: string
@@ -6,7 +14,7 @@ export interface Product {
   category: string
   tags: string[]
   imageUrl: string
-  downloadUrl: string
+  downloadUrl: string // Now stores JSON.stringify(DigitalAsset[])
   createdAt: Date
   updatedAt: Date
   isActive: boolean

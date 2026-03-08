@@ -67,23 +67,43 @@ export default function CheckoutSuccessPage() {
                         <h3>Instant Access: Your Downloads</h3>
                       </div>
                       <div className="space-y-3">
-                        {digitalItems.map((item: any, idx: number) => (
-                          <div key={idx} className="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/10 group hover:bg-primary/10 transition-colors">
-                            <div className="flex-1">
-                              <p className="font-medium text-sm line-clamp-1">{item.title}</p>
-                              <p className="text-xs text-muted-foreground italic">Digital Product</p>
+                        {digitalItems.map((item: any, idx: number) => {
+                          let assets: any[] = []
+                          try {
+                            assets = JSON.parse(item.downloadUrl)
+                          } catch {
+                            assets = [{ id: 'legacy', name: item.title, type: 'file', provider: 'external', url: item.downloadUrl }]
+                          }
+                          const pId = item.productId || item.id
+
+                          return (
+                            <div key={idx} className="space-y-2 mb-4">
+                              <p className="font-semibold text-sm border-b border-gray-100 pb-1.5 px-1">{item.title}</p>
+                              {assets.map((asset: any) => {
+                                const isLegacy = asset.id === 'legacy'
+                                const secureUrl = isLegacy ? asset.url : `/api/user/secure-asset?productId=${pId}&assetId=${asset.id}`
+
+                                return (
+                                  <div key={asset.id} className="flex items-center justify-between p-3 ml-2 bg-primary/5 rounded-xl border border-primary/10 group hover:bg-primary/10 transition-colors">
+                                    <div className="flex-1">
+                                      <p className="font-medium text-sm line-clamp-1">{asset.name}</p>
+                                      <p className="text-[10px] text-muted-foreground uppercase font-semibold mt-0.5">{asset.type} Asset</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      {asset.type !== 'link' && <DigitalProductViewer assetUrl={secureUrl} title={asset.name} type={asset.type} />}
+                                      <Button asChild size="sm" className="shrink-0 bg-primary hover:bg-primary/90 text-white shadow-sm">
+                                        <a href={secureUrl} target="_blank" rel="noopener noreferrer">
+                                          <Download className="h-4 w-4 sm:mr-2" />
+                                          <span className="hidden sm:inline">Download</span>
+                                        </a>
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )
+                              })}
                             </div>
-                            <div className="flex items-center gap-2">
-                              <DigitalProductViewer downloadUrl={item.downloadUrl} title={item.title} />
-                              <Button asChild size="sm" className="shrink-0 bg-primary hover:bg-primary/90 text-white shadow-sm">
-                                <a href={item.downloadUrl} target="_blank" rel="noopener noreferrer">
-                                  <Download className="h-4 w-4 mr-2" />
-                                  Download Now
-                                </a>
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
                       <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-xs text-blue-700">
                         <p className="font-semibold flex items-center gap-1.5 mb-1">

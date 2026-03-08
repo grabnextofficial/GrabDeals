@@ -12,9 +12,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { fetchProducts, createD1Product, updateD1Product, deleteD1Product, fetchCategories } from "@/lib/d1-client"
-import { Plus, Search, Trash2, Edit, Loader2, Upload, ImageIcon } from "lucide-react"
+import { Plus, Search, Trash2, Edit, Loader2, Upload, ImageIcon, FileText, Video, Link as LinkIcon, File, X } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
-import type { Product } from "@/lib/types"
+import type { Product, DigitalAsset } from "@/lib/types"
 import Image from "next/image"
 
 const EMPTY_FORM = {
@@ -48,12 +48,25 @@ function ProductForm({
   const [uploading, setUploading] = useState(false)
   const [digitalUploading, setDigitalUploading] = useState(false)
   const [imageStorageProvider, setImageStorageProvider] = useState<"vercel" | "tdrive">("vercel")
-  const [digitalStorageProvider, setDigitalStorageProvider] = useState<"vercel" | "tdrive">("vercel")
+  const [digitalStorageProvider, setDigitalStorageProvider] = useState<"vercel" | "tdrive" | "external">("tdrive")
+  const [digitalAssetType, setDigitalAssetType] = useState<DigitalAsset["type"]>("file")
+  const [digitalAssetName, setDigitalAssetName] = useState("")
+  const [digitalAssets, setDigitalAssets] = useState<DigitalAsset[]>([])
   const [preview, setPreview] = useState(initial.imageUrl || "")
   const fileRef = useRef<HTMLInputElement>(null)
   const digitalFileRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => { setForm(initial); setPreview(initial.imageUrl || "") }, [initial])
+  useEffect(() => {
+    setForm(initial);
+    setPreview(initial.imageUrl || "")
+
+    let parsedAssets: DigitalAsset[] = []
+    if (initial.downloadUrl) {
+      try { parsedAssets = JSON.parse(initial.downloadUrl) }
+      catch { parsedAssets = [{ id: crypto.randomUUID(), name: "Legacy Download", type: "file", provider: "external", url: initial.downloadUrl }] }
+    }
+    setDigitalAssets(parsedAssets)
+  }, [initial])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -82,6 +95,10 @@ function ProductForm({
   const handleDigitalUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    if (!digitalAssetName.trim()) {
+      toast({ title: "Asset name required", description: "Please enter a name for the digital asset before uploading.", variant: "destructive" })
+      return
+    }
     setDigitalUploading(true)
     try {
       const fd = new FormData()
@@ -92,8 +109,19 @@ function ProductForm({
       if (!res.ok) throw new Error(data.error || "Upload failed")
 
       const downloadUrl = digitalStorageProvider === "vercel" ? data.url : data.download_url
-      setForm({ ...form, downloadUrl })
-      toast({ title: `✅ Digital file uploaded to ${digitalStorageProvider === "tdrive" ? "T-Drive" : "Vercel"}!` })
+
+      const newAsset: DigitalAsset = {
+        id: crypto.randomUUID(),
+        name: digitalAssetName.trim(),
+        type: digitalAssetType,
+        provider: digitalStorageProvider as any,
+        url: downloadUrl
+      }
+
+      setDigitalAssets(prev => [...prev, newAsset])
+      setDigitalAssetName("")
+      if (digitalFileRef.current) digitalFileRef.current.value = ""
+      toast({ title: `✅ ${digitalAssetType.toUpperCase()} asset added via ${digitalStorageProvider === "tdrive" ? "T-Drive" : "Vercel"}!` })
     } catch (err: any) {
       toast({ title: "Upload failed", description: err.message, variant: "destructive" })
     } finally {
@@ -101,9 +129,28 @@ function ProductForm({
     }
   }
 
+  const addExternalDigitalLink = () => {
+    if (!digitalAssetName.trim() || !form.downloadUrl.trim()) return
+    const newAsset: DigitalAsset = {
+      id: crypto.randomUUID(),
+      name: digitalAssetName.trim(),
+      type: digitalAssetType,
+      provider: "external",
+      url: form.downloadUrl.trim()
+    }
+    setDigitalAssets(prev => [...prev, newAsset])
+    setDigitalAssetName("")
+    setForm(f => ({ ...f, downloadUrl: "" }))
+    toast({ title: "✅ External asset link added!" })
+  }
+
+  const removeDigitalAsset = (id: string) => {
+    setDigitalAssets(prev => prev.filter(a => a.id !== id))
+  }
+
   return (
     <form
-      onSubmit={(e) => { e.preventDefault(); onSubmit(form) }}
+      onSubmit={(e) => { e.preventDefault(); onSubmit({ ...form, downloadUrl: JSON.stringify(digitalAssets) }) }}
       className="space-y-4 max-h-[70vh] overflow-y-auto pr-1"
     >
       {/* Image Upload */}
@@ -186,26 +233,90 @@ function ProductForm({
         </div>
       </div>
 
-      <div>
-        <Label className="flex justify-between items-center text-xs">
-          <span>Download URL (Digital Product)</span>
-          <Select value={digitalStorageProvider} onValueChange={(v: "vercel" | "tdrive") => setDigitalStorageProvider(v)}>
-            <SelectTrigger className="w-[110px] h-7 text-[10px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="vercel">Vercel Blob</SelectItem>
-              <SelectItem value="tdrive">T-Drive API</SelectItem>
-            </SelectContent>
-          </Select>
-        </Label>
-        <div className="flex gap-2 mt-1.5">
-          <Input value={form.downloadUrl} onChange={(e) => setForm({ ...form, downloadUrl: e.target.value })} placeholder="https://..." className="flex-1" />
-          <Button type="button" variant="outline" onClick={() => digitalFileRef.current?.click()} disabled={digitalUploading}>
-            {digitalUploading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Upload className="h-4 w-4 mr-1" />}
-            {digitalUploading ? "Uploading..." : "Upload File"}
-          </Button>
-          <input ref={digitalFileRef} type="file" className="hidden" onChange={handleDigitalUpload} />
+      {/* Digital Assets Section */}
+      <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-4">
+        <div>
+          <h3 className="font-semibold text-sm">Digital Assets ({digitalAssets.length})</h3>
         </div>
-        <p className="text-xs text-gray-400 mt-1">Upload a digital product securely using the selected provider.</p>
+
+        {digitalAssets.length > 0 && (
+          <div className="space-y-2">
+            {digitalAssets.map(asset => (
+              <div key={asset.id} className="flex items-center justify-between p-2 bg-white border rounded">
+                <div className="flex items-center gap-2">
+                  {asset.type === 'pdf' ? <FileText className="h-4 w-4 text-red-500" /> :
+                    asset.type === 'video' ? <Video className="h-4 w-4 text-blue-500" /> :
+                      asset.type === 'link' ? <LinkIcon className="h-4 w-4 text-green-500" /> :
+                        <File className="h-4 w-4 text-gray-500" />}
+                  <span className="text-sm font-medium line-clamp-1 max-w-[120px]">{asset.name}</span>
+                  <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 uppercase">{asset.provider}</span>
+                </div>
+                <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-red-500 shrink-0" onClick={() => removeDigitalAsset(asset.id)}>
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-3">
+          <div className="grid grid-cols-2 gap-3 mt-1.5">
+            <div>
+              <Label className="text-xs">Asset Name *</Label>
+              <Input value={digitalAssetName} onChange={e => setDigitalAssetName(e.target.value)} placeholder="e.g. Chapter 1" className="h-8 text-xs mt-1" />
+            </div>
+            <div>
+              <Label className="text-xs">Asset Type</Label>
+              <Select value={digitalAssetType} onValueChange={(v: any) => setDigitalAssetType(v)}>
+                <SelectTrigger className="h-8 text-xs mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="file">Generic File</SelectItem>
+                  <SelectItem value="pdf">PDF Document</SelectItem>
+                  <SelectItem value="video">Video</SelectItem>
+                  <SelectItem value="link">External Link</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <Label className="flex justify-between items-center text-xs mb-1">
+              <span>Source</span>
+              <Select value={digitalStorageProvider} onValueChange={(v: any) => setDigitalStorageProvider(v)}>
+                <SelectTrigger className="w-[120px] h-7 text-[10px]"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="tdrive">T-Drive (Secure)</SelectItem>
+                  <SelectItem value="vercel">Vercel Blob</SelectItem>
+                  <SelectItem value="external">External URL</SelectItem>
+                </SelectContent>
+              </Select>
+            </Label>
+
+            {digitalStorageProvider === 'external' ? (
+              <div className="flex gap-2">
+                <Input value={form.downloadUrl} onChange={e => setForm({ ...form, downloadUrl: e.target.value })}
+                  placeholder="https://..." type="url" className="flex-1 h-8 text-xs" />
+                <Button type="button" size="sm" className="h-8 text-xs" onClick={addExternalDigitalLink} disabled={!digitalAssetName || !form.downloadUrl}>
+                  Add
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" className="w-full text-xs h-8" onClick={() => {
+                  if (!digitalAssetName.trim()) {
+                    toast({ title: "Name required", description: "Enter a name first", variant: "destructive" })
+                  } else {
+                    digitalFileRef.current?.click()
+                  }
+                }} disabled={digitalUploading}>
+                  {digitalUploading ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Upload className="h-3 w-3 mr-1" />}
+                  {digitalUploading ? "Uploading..." : `Upload to ${digitalStorageProvider === 'tdrive' ? 'T-Drive' : 'Vercel'}`}
+                </Button>
+                <input ref={digitalFileRef} type="file" className="hidden" onChange={handleDigitalUpload} />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="flex items-center gap-3">

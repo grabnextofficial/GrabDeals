@@ -230,16 +230,34 @@ function OrderRow({ order, onStatusChange }: { order: any; onStatusChange: (id: 
                       </p>
                     </div>
                     {item.downloadUrl && (
-                      <div className="flex gap-2 mt-2">
-                        <DigitalProductViewer downloadUrl={item.downloadUrl} title={item.title} />
-                        <a
-                          href={item.downloadUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 px-3 py-1.5 rounded-lg transition-all"
-                        >
-                          <Download className="h-3.5 w-3.5" /> Download File
-                        </a>
+                      <div className="flex flex-col gap-2 mt-3 border-t border-gray-100 pt-3">
+                        {(() => {
+                          let assets: any[] = []
+                          try { assets = JSON.parse(item.downloadUrl) }
+                          catch { assets = [{ id: 'legacy', name: item.title, type: 'file', provider: 'external', url: item.downloadUrl }] }
+                          const pId = item.productId || item.id
+
+                          return assets.map((asset: any) => {
+                            const isLegacy = asset.id === 'legacy'
+                            const secureUrl = isLegacy ? asset.url : `/api/user/secure-asset?productId=${pId}&assetId=${asset.id}`
+                            return (
+                              <div key={asset.id} className="flex items-center justify-between bg-blue-50/50 p-2 rounded border border-blue-100/50">
+                                <span className="text-xs font-medium text-blue-900 line-clamp-1 flex-1 pr-2">{asset.name}</span>
+                                <div className="flex gap-2 shrink-0">
+                                  {asset.type !== 'link' && <DigitalProductViewer assetUrl={secureUrl} title={asset.name} type={asset.type} />}
+                                  <a
+                                    href={secureUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 px-3 py-1.5 rounded-lg transition-all shadow-sm"
+                                  >
+                                    <Download className="h-3.5 w-3.5" /> Download
+                                  </a>
+                                </div>
+                              </div>
+                            )
+                          })
+                        })()}
                       </div>
                     )}
                   </div>
