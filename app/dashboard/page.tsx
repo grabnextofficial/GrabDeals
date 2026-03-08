@@ -150,36 +150,18 @@ function OrderCard({ order, onPay }: { order: any, onPay?: (order: any) => void 
                                         </p>
                                     </div>
 
-                                    {/* Download button for digital products */}
+                                    {/* Download prompt for digital products in Orders view */}
                                     {item.downloadUrl && (
-                                        <div className="flex flex-col gap-2 mt-3 border-t border-gray-100 pt-3">
-                                            {(() => {
-                                                let assets: any[] = []
-                                                try { assets = JSON.parse(item.downloadUrl) }
-                                                catch { assets = [{ id: 'legacy', name: item.title, type: 'file', provider: 'external', url: item.downloadUrl }] }
-                                                const pId = item.productId || item.id
-
-                                                return assets.map((asset: any) => {
-                                                    const isLegacy = asset.id === 'legacy'
-                                                    const secureUrl = isLegacy ? asset.url : `/api/user/secure-asset?productId=${pId}&assetId=${asset.id}`
-                                                    return (
-                                                        <div key={asset.id} className="flex items-center justify-between bg-blue-50/50 p-2 rounded border border-blue-100/50">
-                                                            <span className="text-xs font-medium text-blue-900 line-clamp-1 flex-1 pr-2">{asset.name}</span>
-                                                            <div className="flex gap-2 shrink-0">
-                                                                {asset.type !== 'link' && <DigitalProductViewer assetUrl={secureUrl} title={asset.name} type={asset.type} />}
-                                                                <a
-                                                                    href={secureUrl}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 px-3 py-1.5 rounded-lg transition-all shadow-sm"
-                                                                >
-                                                                    <Download className="h-3.5 w-3.5" /> Download
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                })
-                                            })()}
+                                        <div className="mt-3 border-t border-gray-100 pt-3">
+                                            {order.status === 'paid' || order.status === 'completed' ? (
+                                                <p className="text-sm font-semibold text-green-600 flex items-center gap-1">
+                                                    <ShieldCheck className="h-4 w-4" /> Paid. Check Downloads tab.
+                                                </p>
+                                            ) : (
+                                                <p className="text-sm font-medium text-amber-600 flex items-center gap-1">
+                                                    <Lock className="h-4 w-4" /> Pay to unlock downloads
+                                                </p>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -369,16 +351,24 @@ export default function DashboardPage() {
         }
     }
 
-    // All downloadable items across all orders
-    const downloadableItems = orders.flatMap((order) => {
-        let items: any[] = []
-        try { items = Array.isArray(order.items) ? order.items : JSON.parse(order.items) } catch { }
-        return items.filter((item: any) => item.downloadUrl).map((item: any) => ({
-            ...item,
-            orderId: order.id,
-            orderDate: order.createdAt,
-        }))
-    })
+    // Group downloadable items by their paid/completed orders
+    const groupedDownloads = orders
+        .filter(order => order.status === 'paid' || order.status === 'completed')
+        .map(order => {
+            let items: any[] = []
+            try { items = Array.isArray(order.items) ? order.items : JSON.parse(order.items) } catch { }
+            const digitalItems = items.filter((item: any) => item.downloadUrl)
+            return {
+                orderId: order.id,
+                orderDate: order.createdAt,
+                paymentId: order.paymentId,
+                items: digitalItems
+            }
+        })
+        .filter(group => group.items.length > 0)
+
+    // Calculate total count for the badge
+    const totalDownloadsCount = groupedDownloads.reduce((sum, group) => sum + group.items.length, 0)
 
     if (authLoading) {
         return (
@@ -452,9 +442,9 @@ export default function DashboardPage() {
                             </TabsTrigger>
                             <TabsTrigger value="downloads" className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                                 <Download className="h-4 w-4" />Downloads
-                                {downloadableItems.length > 0 && (
+                                {totalDownloadsCount > 0 && (
                                     <span className="bg-blue-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
-                                        {downloadableItems.length}
+                                        {totalDownloadsCount}
                                     </span>
                                 )}
                             </TabsTrigger>
@@ -539,68 +529,96 @@ export default function DashboardPage() {
 
                         {/* Downloads Tab */}
                         <TabsContent value="downloads">
-                            {downloadableItems.length === 0 ? (
+                            {groupedDownloads.length === 0 ? (
                                 <div className="text-center py-16">
                                     <div className="h-24 w-24 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
                                         <Download className="h-12 w-12 text-blue-300" />
                                     </div>
                                     <h3 className="text-lg font-semibold mb-1 text-gray-700">No downloads available</h3>
-                                    <p className="text-muted-foreground">Purchase digital products to see download links here</p>
+                                    <p className="text-muted-foreground">Paid orders with digital products will appear here.</p>
                                 </div>
                             ) : (
-                                <div className="space-y-3">
-                                    {downloadableItems.map((item: any, i: number) => (
-                                        <Card key={i} className="border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all">
-                                            <CardContent className="flex items-center gap-4 py-4 px-5">
-                                                {/* Thumbnail */}
-                                                <div className="shrink-0 h-14 w-14 rounded-lg overflow-hidden bg-gray-100 border">
-                                                    {item.imageUrl ? (
-                                                        <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" />
-                                                    ) : (
-                                                        <div className="h-full w-full flex items-center justify-center">
-                                                            <Package className="h-6 w-6 text-gray-300" />
-                                                        </div>
-                                                    )}
+                                <div className="space-y-6">
+                                    {groupedDownloads.map((group, groupIdx) => (
+                                        <Card key={groupIdx} className="border-gray-200 overflow-hidden hover:border-blue-300 hover:shadow-md transition-all">
+                                            <div className="bg-blue-50 px-5 py-4 border-b border-blue-100 flex flex-wrap justify-between items-center gap-4">
+                                                <div>
+                                                    <p className="text-xs text-blue-600 font-bold uppercase tracking-wide">Order details</p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <p className="font-mono text-sm font-semibold text-gray-800">{group.orderId}</p>
+                                                        <span className="text-gray-300">•</span>
+                                                        <p className="text-sm text-gray-600 flex items-center gap-1"><CalendarDays className="h-4 w-4" /> {formatDateTime(group.orderDate)}</p>
+                                                    </div>
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    {item.id ? (
-                                                        <Link href={`/products/${item.id}`} className="font-semibold text-gray-800 hover:text-blue-600 transition-colors line-clamp-1 flex items-center gap-1 group">
-                                                            {item.title}
-                                                            <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 shrink-0" />
-                                                        </Link>
-                                                    ) : (
-                                                        <p className="font-semibold text-gray-800 line-clamp-1">{item.title}</p>
-                                                    )}
-                                                    <p className="text-xs text-gray-500 mt-0.5">
-                                                        From order <span className="font-mono">{item.orderId}</span> · {formatDateTime(item.orderDate)}
-                                                    </p>
+                                                <div className="flex gap-2 isolate">
+                                                    <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-green-100 text-green-700">
+                                                        <span className="h-1.5 w-1.5 rounded-full bg-green-500" /> Payment Verified
+                                                    </span>
                                                 </div>
-                                                <div className="flex flex-col gap-2 isolate shrink-0 min-w-[200px]">
-                                                    {(() => {
-                                                        let assets: any[] = []
-                                                        try { assets = JSON.parse(item.downloadUrl) }
-                                                        catch { assets = [{ id: 'legacy', name: item.title, type: 'file', provider: 'external', url: item.downloadUrl }] }
-                                                        const pId = item.productId || item.id
+                                            </div>
+                                            <CardContent className="p-0">
+                                                <div className="divide-y divide-gray-100">
+                                                    {group.items.map((item: any, i: number) => (
+                                                        <div key={i} className="p-5 flex flex-col md:flex-row gap-5 items-start">
+                                                            {/* Product Image */}
+                                                            <div className="shrink-0 h-20 w-20 rounded-xl overflow-hidden bg-gray-50 border border-gray-200">
+                                                                {item.imageUrl ? (
+                                                                    <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" />
+                                                                ) : (
+                                                                    <div className="h-full w-full flex items-center justify-center">
+                                                                        <Package className="h-8 w-8 text-gray-300" />
+                                                                    </div>
+                                                                )}
+                                                            </div>
 
-                                                        return assets.map((asset: any) => {
-                                                            const isLegacy = asset.id === 'legacy'
-                                                            const secureUrl = isLegacy ? asset.url : `/api/user/secure-asset?productId=${pId}&assetId=${asset.id}`
-                                                            return (
-                                                                <div key={asset.id} className="flex gap-2 w-full justify-end items-center">
-                                                                    <span className="text-xs font-medium text-gray-500 line-clamp-1 flex-1 text-right mr-2 hidden sm:block">{asset.name}</span>
-                                                                    {asset.type !== 'link' && <DigitalProductViewer assetUrl={secureUrl} title={asset.name} type={asset.type} />}
-                                                                    <a
-                                                                        href={secureUrl}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 px-3 py-1.5 rounded-lg transition-all shadow-sm"
-                                                                    >
-                                                                        <Download className="h-4 w-4" /> <span className="hidden sm:inline">Download</span>
-                                                                    </a>
+                                                            <div className="flex-1 min-w-0 w-full space-y-4">
+                                                                <div>
+                                                                    {item.id ? (
+                                                                        <Link href={`/products/${item.id}`} className="font-bold text-gray-900 text-lg hover:text-blue-600 transition-colors line-clamp-1 flex items-center gap-1 group">
+                                                                            {item.title}
+                                                                            <ExternalLink className="h-4 w-4 opacity-0 group-hover:opacity-100 shrink-0" />
+                                                                        </Link>
+                                                                    ) : (
+                                                                        <p className="font-bold text-gray-900 text-lg line-clamp-1">{item.title}</p>
+                                                                    )}
                                                                 </div>
-                                                            )
-                                                        })
-                                                    })()}
+
+                                                                {/* Map over digital assets */}
+                                                                <div className="flex flex-col gap-2 bg-gray-50/50 p-3 rounded-xl border border-gray-100">
+                                                                    {(() => {
+                                                                        let assets: any[] = []
+                                                                        try { assets = JSON.parse(item.downloadUrl) }
+                                                                        catch { assets = [{ id: 'legacy', name: item.title, type: 'file', provider: 'external', url: item.downloadUrl }] }
+                                                                        const pId = item.productId || item.id
+
+                                                                        return assets.map((asset: any) => {
+                                                                            const isLegacy = asset.id === 'legacy'
+                                                                            const secureUrl = isLegacy ? asset.url : `/api/user/secure-asset?productId=${pId}&assetId=${asset.id}`
+                                                                            return (
+                                                                                <div key={asset.id} className="flex justify-between items-center bg-white p-3 rounded border border-gray-200 shadow-sm">
+                                                                                    <div className="flex items-center gap-2 pr-4 overflow-hidden">
+                                                                                        <Download className="h-4 w-4 text-blue-500 shrink-0" />
+                                                                                        <span className="text-sm font-semibold text-gray-800 truncate">{asset.name}</span>
+                                                                                    </div>
+                                                                                    <div className="flex gap-2 shrink-0">
+                                                                                        {asset.type !== 'link' && <DigitalProductViewer assetUrl={secureUrl} title={asset.name} type={asset.type} />}
+                                                                                        <a
+                                                                                            href={secureUrl}
+                                                                                            target="_blank"
+                                                                                            rel="noopener noreferrer"
+                                                                                            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-4 py-2 rounded-lg transition-all"
+                                                                                        >
+                                                                                            Download
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </div>
+                                                                            )
+                                                                        })
+                                                                    })()}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </CardContent>
                                         </Card>
