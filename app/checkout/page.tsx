@@ -506,7 +506,7 @@ export default function CheckoutPage() {
                       </div>
 
                       {checkoutStep === 1 ? (
-                        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" size="lg" disabled={loading}>
+                        <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md transition-all" size="lg" disabled={loading}>
                           {loading ? (
                             <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Processing...</>
                           ) : (
@@ -514,7 +514,7 @@ export default function CheckoutPage() {
                           )}
                         </Button>
                       ) : (
-                        <Button type="button" onClick={handlePayNow} className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg" size="lg" disabled={loading}>
+                        <Button type="button" onClick={handlePayNow} className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg transition-all" size="lg" disabled={loading}>
                           {loading ? (
                             <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Opening payment...</>
                           ) : (
