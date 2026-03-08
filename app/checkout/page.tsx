@@ -38,6 +38,10 @@ export default function CheckoutPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [activeGateway, setActiveGateway] = useState<string>("xpay")
 
+  // Two-step checkout states
+  const [checkoutStep, setCheckoutStep] = useState<1 | 2>(1)
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null)
+
   const [formData, setFormData] = useState({
     email: "",
     firstName: "",
@@ -221,7 +225,7 @@ export default function CheckoutPage() {
     rzp.open()
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleContinueToPayment = async (e: React.FormEvent) => {
     e.preventDefault()
     if (items.length === 0) {
       toast({ title: "Your cart is empty", variant: "destructive" })
@@ -265,17 +269,32 @@ export default function CheckoutPage() {
         throw new Error("Failed to initialize order")
       }
 
-      const orderId = orderData.id
+      setPendingOrderId(orderData.id)
+      setCheckoutStep(2) // Move to step 2 (Payment)
+      setLoading(false)
+      toast({ title: "Details Saved", description: "Your order has been securely saved. Please proceed to payment." })
 
-      // 3. Initiate payment
-      if (activeGateway === "razorpay") {
-        await handleRazorpay(orderId)
-      } else {
-        handleXPay(orderId)
-      }
     } catch (err: any) {
       setLoading(false)
       toast({ title: "Error", description: err.message, variant: "destructive" })
+    }
+  }
+
+  const handlePayNow = async () => {
+    if (!pendingOrderId) {
+      toast({ title: "Missing order ID, please try again", variant: "destructive" })
+      return
+    }
+    setLoading(true)
+    try {
+      if (activeGateway === "razorpay") {
+        await handleRazorpay(pendingOrderId)
+      } else {
+        handleXPay(pendingOrderId)
+      }
+    } catch (err: any) {
+      setLoading(false)
+      toast({ title: "Payment Error", description: err.message, variant: "destructive" })
     }
   }
 
@@ -360,7 +379,7 @@ export default function CheckoutPage() {
             Paying via <strong>{activeGateway === "razorpay" ? "Razorpay" : "XPay"}</strong>
           </div>
 
-          {!user && (
+          {!user && checkoutStep === 1 && (
             <p className="text-sm text-muted-foreground mb-6">
               Already have an account?{" "}
               <Link href="/auth/login" className="text-primary hover:underline">Sign in</Link>{" "}
@@ -368,7 +387,7 @@ export default function CheckoutPage() {
             </p>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={checkoutStep === 1 ? handleContinueToPayment : (e) => e.preventDefault()}>
             <div className="grid lg:grid-cols-2 gap-8">
               {/* Left: Forms */}
               <div className="space-y-6">
@@ -420,7 +439,7 @@ export default function CheckoutPage() {
                       <Label htmlFor="phone">Mobile Number *</Label>
                       <div className="relative">
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} required className="pl-10" placeholder="+91 XXXXX XXXXX" />
+                        <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} required className="pl-10" placeholder="+91 XXXXX XXXXX" disabled={checkoutStep === 2} />
                       </div>
                     </div>
 
@@ -469,7 +488,7 @@ export default function CheckoutPage() {
                       </div>
                     )}
 
-                    {!user && (
+                    {(!user || checkoutStep === 2) && checkoutStep === 1 && (
                       <div className="pt-2 border-t mt-4">
                         <div className="flex items-center gap-2 bg-yellow-50 p-3 rounded-lg border border-yellow-100">
                           <Checkbox id="createAccount" checked disabled className="cursor-default" />
@@ -528,7 +547,7 @@ export default function CheckoutPage() {
 
                     <div className="space-y-4 pt-2">
                       <div className="flex items-start gap-2">
-                        <Checkbox id="terms" required className="mt-0.5" />
+                        <Checkbox id="terms" required className="mt-0.5" disabled={checkoutStep === 2} />
                         <Label htmlFor="terms" className="text-sm font-normal leading-relaxed">
                           I agree to the{" "}
                           <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link>
@@ -537,17 +556,29 @@ export default function CheckoutPage() {
                         </Label>
                       </div>
 
-                      <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                        {loading ? (
-                          <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Opening payment...</>
-                        ) : (
-                          <><Lock className="h-4 w-4 mr-2" />Pay {formatPrice(totalAmount)}</>
-                        )}
-                      </Button>
+                      {checkoutStep === 1 ? (
+                        <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                          {loading ? (
+                            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving Details...</>
+                          ) : (
+                            <>Continue to Payment <CheckCircle2 className="h-4 w-4 ml-2" /></>
+                          )}
+                        </Button>
+                      ) : (
+                        <Button type="button" onClick={handlePayNow} className="w-full bg-orange-600 hover:bg-orange-700 text-white" size="lg" disabled={loading}>
+                          {loading ? (
+                            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Opening payment...</>
+                          ) : (
+                            <><Lock className="h-4 w-4 mr-2" />Pay {formatPrice(totalAmount)}</>
+                          )}
+                        </Button>
+                      )}
 
-                      <p className="text-xs text-muted-foreground text-center">
-                        Secured by {activeGateway === "razorpay" ? "Razorpay" : "XPay"} · Safe & Encrypted
-                      </p>
+                      {checkoutStep === 2 && (
+                        <p className="text-xs text-muted-foreground text-center">
+                          Secured by {activeGateway === "razorpay" ? "Razorpay" : "XPay"} · Safe & Encrypted
+                        </p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -555,7 +586,7 @@ export default function CheckoutPage() {
             </div>
           </form>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }
