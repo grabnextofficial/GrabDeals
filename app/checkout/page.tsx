@@ -34,8 +34,6 @@ export default function CheckoutPage() {
   const { items, totalAmount, clearCart } = useCart()
   const { user, refreshUser } = useAuth()
   const [loading, setLoading] = useState(false)
-  const [newAccountInfo, setNewAccountInfo] = useState<{ email: string; password: string } | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
   const [activeGateway, setActiveGateway] = useState<string>("xpay")
 
   // Two-step checkout states
@@ -127,9 +125,6 @@ export default function CheckoutPage() {
     }
 
     if (regData.user?.uid) {
-      if (!regData.isExisting && regData.temporaryPassword) {
-        setNewAccountInfo({ email: formData.email, password: regData.temporaryPassword })
-      }
       await refreshUser()
       return regData.user.uid
     }
@@ -318,54 +313,6 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-background">
       <StoreHeader />
-
-      {/* Account created dialog */}
-      <Dialog open={!!newAccountInfo} onOpenChange={() => setNewAccountInfo(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
-              Success! Your Account is Ready
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 text-sm">
-            <p className="text-muted-foreground">
-              We've created a <strong>Guest Account</strong> for you so you can access your digital downloads instantly.
-            </p>
-            <div className="bg-muted rounded-lg p-4 space-y-2">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Email:</span>
-                <span className="font-medium">{newAccountInfo?.email}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Temporary Password:</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-primary">
-                    {showPassword ? newAccountInfo?.password : "••••••••••"}
-                  </span>
-                  <button type="button" onClick={() => setShowPassword(!showPassword)}>
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-            </div>
-            <p className="text-xs text-blue-600 font-medium bg-blue-50 p-2 rounded border border-blue-100">
-              💡 <strong>Save these details!</strong> You'll need them to download your products from your "My Orders" section anytime.
-            </p>
-            <Button
-              className="w-full"
-              variant="default"
-              onClick={() => {
-                navigator.clipboard.writeText(newAccountInfo?.password || "")
-                toast({ title: "Password copied!" })
-              }}
-            >
-              Copy Password & Continue
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-3xl font-bold mb-2">Checkout</h1>
