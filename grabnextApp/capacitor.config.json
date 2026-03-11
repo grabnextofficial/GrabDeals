@@ -1,0 +1,9 @@
+{
+    "appId": "io.ionic.starter",
+    "appName": "grabnextApp",
+    "webDir": "dist",
+    "server": {
+        "url": "https://grabnext.pages.dev",
+        "cleartext": true
+    }
+}
