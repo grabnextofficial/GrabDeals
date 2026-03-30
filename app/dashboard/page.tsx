@@ -104,6 +104,51 @@ function DownloadAssetRow({ asset, secureUrl }: { asset: any; secureUrl: string 
     )
 }
 
+// ─── Fresh assets fetched from product DB (not stale order snapshot) ──────────
+function FreshDownloadCard({ item }: { item: any }) {
+    const [assets, setAssets] = useState<any[] | null>(null)
+    const [loading, setLoading] = useState(true)
+    const productId = item.productId || item.id
+
+    useEffect(() => {
+        if (!productId) { setLoading(false); return }
+        fetch(`/api/user/product-assets?productId=${productId}`, { credentials: 'include' })
+            .then(r => r.json())
+            .then(d => { setAssets(d.assets || []); setLoading(false) })
+            .catch(() => {
+                // Fallback to order snapshot
+                try {
+                    const snapshotAssets = JSON.parse(item.downloadUrl)
+                    setAssets(Array.isArray(snapshotAssets) ? snapshotAssets : [])
+                } catch {
+                    setAssets([])
+                }
+                setLoading(false)
+            })
+    }, [productId])
+
+    if (loading) return (
+        <div className="flex items-center gap-2 text-xs text-gray-400 py-2">
+            <Loader2 className="h-3 w-3 animate-spin" /> Loading files...
+        </div>
+    )
+
+    if (!assets || assets.length === 0) return (
+        <p className="text-xs text-gray-400 py-2">No files available for this product.</p>
+    )
+
+    return (
+        <div className="flex flex-col gap-2">
+            {assets.map((asset: any) => {
+                const secureUrl = asset.provider === 'external' || asset.type === 'link'
+                    ? asset.url
+                    : `/api/user/secure-asset?productId=${productId}&assetId=${asset.id}`
+                return <DownloadAssetRow key={asset.id} asset={asset} secureUrl={secureUrl} />
+            })}
+        </div>
+    )
+}
+
 function OrderCard({ order, onPay }: { order: any, onPay?: (order: any) => void }) {
     const [expanded, setExpanded] = useState(false)
     let items: any[] = []
@@ -643,20 +688,7 @@ export default function DashboardPage() {
 
                                                                                 {/* Map over digital assets */}
                                                                 <div className="flex flex-col gap-2 bg-gray-50/50 p-3 rounded-xl border border-gray-100">
-                                                                    {(() => {
-                                                                        let assets: any[] = []
-                                                                        try { assets = JSON.parse(item.downloadUrl) }
-                                                                        catch { assets = [{ id: 'legacy', name: item.title, type: 'file', provider: 'external', url: item.downloadUrl }] }
-                                                                        const pId = item.productId || item.id
-
-                                                                        return assets.map((asset: any) => {
-                                                                            const isLegacy = asset.id === 'legacy'
-                                                                            const secureUrl = isLegacy ? asset.url : `/api/user/secure-asset?productId=${pId}&assetId=${asset.id}`
-                                                                            return (
-                                                                                <DownloadAssetRow key={asset.id} asset={asset} secureUrl={secureUrl} />
-                                                                            )
-                                                                        })
-                                                                    })()}
+                                                                    <FreshDownloadCard item={item} />
                                                                 </div>
                                                             </div>
                                                         </div>

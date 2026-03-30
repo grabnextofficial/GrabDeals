@@ -7,7 +7,7 @@ export interface DigitalAsset {
 }
 
 // Landing page section types
-export type LandingSectionType = "hero" | "features" | "text" | "image-text" | "testimonials" | "faq" | "cta"
+export type LandingSectionType = "hero" | "features" | "text" | "image-text" | "testimonials" | "faq" | "cta" | "form"
 
 export interface LandingSection {
   id: string
@@ -31,6 +31,10 @@ export interface LandingSection {
   // Layout/style
   align?: "left" | "center" | "right"
   paddingY?: "sm" | "md" | "lg"
+  animation?: "none" | "fadeIn" | "slideLeft" | "slideRight" | "zoomIn"
+  // Form fields (for 'form' section type)
+  formFields?: { label: string; type: "text" | "email" | "tel" | "textarea"; required: boolean; placeholder?: string }[]
+  formButtonText?: string
 }
 
 export interface Product {

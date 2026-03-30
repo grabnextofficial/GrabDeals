@@ -3,7 +3,6 @@
 export const runtime = 'edge'
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { LandingPageBuilder } from "@/components/landing-page-builder"
@@ -12,10 +11,8 @@ import { ArrowLeft, Loader2, Eye, Save, LayoutTemplate } from "lucide-react"
 import { LandingSection } from "@/lib/types"
 
 export default function LandingPageEditorPage({ params }: { params: { id: string } }) {
-    const router = useRouter()
     const [sections, setSections] = useState<LandingSection[]>([])
-    const [productTitle, setProductTitle] = useState("")
-    const [productSlug, setProductSlug] = useState("")
+    const [product, setProduct] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
 
@@ -23,8 +20,7 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
         fetch(`/api/products/${params.id}`)
             .then(r => r.json())
             .then(p => {
-                setProductTitle(p.title || "")
-                setProductSlug(p.slug || p.id)
+                setProduct(p)
                 if (p.pageCode) {
                     try { setSections(JSON.parse(p.pageCode)) } catch { setSections([]) }
                 }
@@ -39,7 +35,11 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
             const res = await fetch(`/api/products/${params.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ pageCode: JSON.stringify(sections), pageType: "landing" }),
+                body: JSON.stringify({
+                    ...product,
+                    pageCode: JSON.stringify(sections),
+                    pageType: "landing",
+                }),
             })
             if (!res.ok) throw new Error("Save failed")
             toast({ title: "✅ Landing page saved!" })
@@ -56,6 +56,8 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
         </div>
     )
 
+    const productSlug = product?.slug || params.id
+
     return (
         <div className="min-h-screen bg-slate-50">
             {/* Sticky Header */}
@@ -63,50 +65,47 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
                 <div className="container mx-auto px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/admin/products/${params.id}/edit`}>
-                                <ArrowLeft className="h-5 w-5" />
-                            </Link>
+                            <Link href={`/admin/products/${params.id}/edit`}><ArrowLeft className="h-5 w-5" /></Link>
                         </Button>
                         <div>
                             <div className="flex items-center gap-2">
                                 <LayoutTemplate className="h-4 w-4 text-indigo-500" />
                                 <h1 className="text-xl font-bold text-gray-800">Landing Page Editor</h1>
                             </div>
-                            <p className="text-xs text-gray-400 truncate max-w-xs">{productTitle}</p>
+                            <p className="text-xs text-gray-400 truncate max-w-xs">{product?.title || ''}</p>
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        {productSlug && (
-                            <Button variant="outline" size="sm" asChild>
-                                <Link href={`/products/${productSlug}`} target="_blank">
-                                    <Eye className="h-4 w-4 mr-1" /> Preview
-                                </Link>
-                            </Button>
-                        )}
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href={`/products/${productSlug}`} target="_blank">
+                                <Eye className="h-4 w-4 mr-1" /> Preview
+                            </Link>
+                        </Button>
                         <Button onClick={handleSave} disabled={saving}
                             className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white">
-                            {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</> : <><Save className="h-4 w-4 mr-2" />Save Landing Page</>}
+                            {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</> : <><Save className="h-4 w-4 mr-2" />Save</>}
                         </Button>
                     </div>
                 </div>
             </div>
 
             {/* Info Banner */}
-            <div className="bg-indigo-50 border-b border-indigo-100 px-6 py-3">
+            <div className="bg-indigo-50 border-b border-indigo-100 px-6 py-2.5">
                 <div className="container mx-auto flex items-center gap-2 text-sm text-indigo-700">
                     <LayoutTemplate className="h-4 w-4 shrink-0" />
-                    <span>
-                        Add and arrange sections below. When done, click <strong>Save Landing Page</strong>.
-                        The landing page will show when product page type is set to <strong>"Landing Page"</strong>.
-                    </span>
+                    <span>Build your landing page using sections. Use <strong>✨ Generate with AI</strong> for instant pages, or add sections manually.</span>
                 </div>
             </div>
 
             {/* Builder */}
             <div className="container mx-auto px-6 py-6 max-w-4xl">
-                <LandingPageBuilder sections={sections} onChange={setSections} />
-
-                {/* Bottom Save */}
+                <LandingPageBuilder
+                    sections={sections}
+                    onChange={setSections}
+                    productTitle={product?.title}
+                    productPrice={product?.price}
+                    productDescription={product?.description}
+                />
                 {sections.length > 0 && (
                     <div className="mt-6 flex justify-end">
                         <Button onClick={handleSave} disabled={saving}

@@ -50,6 +50,34 @@ ALTER TABLE products ADD COLUMN images TEXT;
 -- Products: add pageType for landing page toggle
 ALTER TABLE products ADD COLUMN pageType TEXT DEFAULT 'shop';
 
+-- =============================================
+-- 5. LANDING PAGE ANALYTICS & FORM SUBMISSIONS
+-- =============================================
+
+-- Landing page analytics events (views, clicks)
+CREATE TABLE IF NOT EXISTS lp_analytics (
+  id TEXT PRIMARY KEY,
+  productId TEXT NOT NULL,
+  productSlug TEXT,
+  event TEXT NOT NULL,
+  data TEXT,
+  ip TEXT,
+  createdAt INTEGER
+);
+
+-- Form submissions from landing pages
+CREATE TABLE IF NOT EXISTS lp_form_submissions (
+  id TEXT PRIMARY KEY,
+  productId TEXT NOT NULL,
+  productTitle TEXT,
+  fields TEXT NOT NULL,
+  ip TEXT,
+  createdAt INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_lp_analytics_productId ON lp_analytics(productId);
+CREATE INDEX IF NOT EXISTS idx_lp_submissions_productId ON lp_form_submissions(productId);
+
 -- Orders: add guest info columns
 ALTER TABLE orders ADD COLUMN userEmail TEXT;
 ALTER TABLE orders ADD COLUMN userName TEXT;
