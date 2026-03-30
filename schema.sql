@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS products (
   isActive INTEGER DEFAULT 1,
   salesCount INTEGER DEFAULT 0,
   pageCode TEXT,
+  pageType TEXT DEFAULT 'shop',
   createdBy TEXT,
   createdAt INTEGER,
   updatedAt INTEGER

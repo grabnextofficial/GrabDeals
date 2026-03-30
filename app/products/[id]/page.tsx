@@ -3,6 +3,7 @@ export const runtime = 'edge'
 import { Metadata, ResolvingMetadata } from 'next'
 import { executeQuery } from '@/lib/db'
 import { ProductDetailView } from './product-detail-view'
+import { LandingPageView } from './landing-page-view'
 import { Product } from '@/lib/types'
 
 type Props = {
@@ -30,6 +31,7 @@ async function getProduct(id: string): Promise<Product | null> {
             price: Number(row.price),
             originalPrice: row.originalPrice ? Number(row.originalPrice) : null,
             salesCount: Number(row.salesCount),
+            pageType: row.pageType || 'shop',
         } as Product
     } catch (error) {
         console.error("Error fetching product:", error)
@@ -80,6 +82,11 @@ export async function generateMetadata(
 
 export default async function Page({ params }: Props) {
     const product = await getProduct(params.id)
+
+    // If pageType is 'landing', render the custom landing page instead of shop page
+    if (product?.pageType === 'landing') {
+        return <LandingPageView product={product} />
+    }
 
     return (
         <>

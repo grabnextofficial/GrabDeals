@@ -6,6 +6,33 @@ export interface DigitalAsset {
   url: string
 }
 
+// Landing page section types
+export type LandingSectionType = "hero" | "features" | "text" | "image-text" | "testimonials" | "faq" | "cta"
+
+export interface LandingSection {
+  id: string
+  type: LandingSectionType
+  // Hero
+  heading?: string
+  subheading?: string
+  buttonText?: string
+  buttonLink?: string
+  bgColor?: string
+  textColor?: string
+  imageUrl?: string
+  // Features
+  features?: { icon?: string; title: string; description: string }[]
+  // Text block
+  content?: string
+  // Testimonials
+  testimonials?: { name: string; text: string; rating?: number }[]
+  // FAQ
+  faqs?: { question: string; answer: string }[]
+  // Layout/style
+  align?: "left" | "center" | "right"
+  paddingY?: "sm" | "md" | "lg"
+}
+
 export interface Product {
   id: string
   title: string
@@ -19,7 +46,8 @@ export interface Product {
   updatedAt: Date
   isActive: boolean
   salesCount: number
-  pageCode?: string
+  pageCode?: string   // JSON: LandingSection[]
+  pageType?: "shop" | "landing"
   createdBy: string // Admin user ID who created this product
 }
 

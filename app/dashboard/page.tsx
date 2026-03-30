@@ -46,6 +46,64 @@ function formatDateTime(ts: number | string) {
     })
 }
 
+// ─── Blob-based download row ─────────────────────────────────────────────────
+function DownloadAssetRow({ asset, secureUrl }: { asset: any; secureUrl: string }) {
+    const [downloading, setDownloading] = useState(false)
+
+    const handleDownload = async () => {
+        if (asset.type === 'link') {
+            window.open(secureUrl, '_blank', 'noopener,noreferrer')
+            return
+        }
+        setDownloading(true)
+        try {
+            const res = await fetch(secureUrl, { credentials: 'include' })
+            if (!res.ok) throw new Error(`Download failed: ${res.statusText}`)
+            const blob = await res.blob()
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = asset.name || 'download'
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+        } catch (err: any) {
+            console.error('Download error:', err)
+        } finally {
+            setDownloading(false)
+        }
+    }
+
+    return (
+        <div className="flex justify-between items-center bg-white p-3 rounded border border-gray-200 shadow-sm">
+            <div className="flex items-center gap-2 pr-4 overflow-hidden">
+                <Download className="h-4 w-4 text-blue-500 shrink-0" />
+                <span className="text-sm font-semibold text-gray-800 truncate">{asset.name}</span>
+                <span className="text-[10px] uppercase bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-medium">
+                    {asset.type}
+                </span>
+            </div>
+            <div className="flex gap-2 shrink-0">
+                {asset.type !== 'link' && (
+                    <DigitalProductViewer assetUrl={secureUrl} title={asset.name} type={asset.type} />
+                )}
+                <button
+                    onClick={handleDownload}
+                    disabled={downloading}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-60 px-4 py-2 rounded-lg transition-all"
+                >
+                    {downloading ? (
+                        <><Loader2 className="h-3 w-3 animate-spin" />Downloading...</>
+                    ) : (
+                        <><Download className="h-3 w-3" />Download</>
+                    )}
+                </button>
+            </div>
+        </div>
+    )
+}
+
 function OrderCard({ order, onPay }: { order: any, onPay?: (order: any) => void }) {
     const [expanded, setExpanded] = useState(false)
     let items: any[] = []
@@ -583,7 +641,7 @@ export default function DashboardPage() {
                                                                     )}
                                                                 </div>
 
-                                                                {/* Map over digital assets */}
+                                                                                {/* Map over digital assets */}
                                                                 <div className="flex flex-col gap-2 bg-gray-50/50 p-3 rounded-xl border border-gray-100">
                                                                     {(() => {
                                                                         let assets: any[] = []
@@ -595,23 +653,7 @@ export default function DashboardPage() {
                                                                             const isLegacy = asset.id === 'legacy'
                                                                             const secureUrl = isLegacy ? asset.url : `/api/user/secure-asset?productId=${pId}&assetId=${asset.id}`
                                                                             return (
-                                                                                <div key={asset.id} className="flex justify-between items-center bg-white p-3 rounded border border-gray-200 shadow-sm">
-                                                                                    <div className="flex items-center gap-2 pr-4 overflow-hidden">
-                                                                                        <Download className="h-4 w-4 text-blue-500 shrink-0" />
-                                                                                        <span className="text-sm font-semibold text-gray-800 truncate">{asset.name}</span>
-                                                                                    </div>
-                                                                                    <div className="flex gap-2 shrink-0">
-                                                                                        {asset.type !== 'link' && <DigitalProductViewer assetUrl={secureUrl} title={asset.name} type={asset.type} />}
-                                                                                        <a
-                                                                                            href={secureUrl}
-                                                                                            target="_blank"
-                                                                                            rel="noopener noreferrer"
-                                                                                            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-4 py-2 rounded-lg transition-all"
-                                                                                        >
-                                                                                            Download
-                                                                                        </a>
-                                                                                    </div>
-                                                                                </div>
+                                                                                <DownloadAssetRow key={asset.id} asset={asset} secureUrl={secureUrl} />
                                                                             )
                                                                         })
                                                                     })()}

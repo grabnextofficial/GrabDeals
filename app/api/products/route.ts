@@ -72,10 +72,10 @@ export async function POST(request: NextRequest) {
     const imageUrl = images[0] || data.imageUrl || ''
 
     await executeQuery(
-      `INSERT INTO products (id, title, description, price, originalPrice, category, tags, imageUrl, images, slug, downloadUrl, isActive, salesCount, pageCode, createdBy, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO products (id, title, description, price, originalPrice, category, tags, imageUrl, images, slug, downloadUrl, isActive, salesCount, pageCode, pageType, createdBy, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [id, data.title || '', data.description || '', data.price || 0, data.originalPrice || null,
         data.category || 'general', JSON.stringify(data.tags || []), imageUrl, JSON.stringify(images), slug,
-        data.downloadUrl || '', data.isActive !== false ? 1 : 0, 0, data.pageCode || null, data.createdBy || 'admin', now, now]
+        data.downloadUrl || '', data.isActive !== false ? 1 : 0, 0, data.pageCode || null, data.pageType || 'shop', data.createdBy || 'admin', now, now]
     )
     return NextResponse.json({ success: true, id, slug }, { status: 201 })
   } catch (error: any) {

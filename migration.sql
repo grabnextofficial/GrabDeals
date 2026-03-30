@@ -44,6 +44,12 @@ ALTER TABLE products ADD COLUMN originalPrice REAL;
 -- Products: add slug for SEO-friendly URLs
 ALTER TABLE products ADD COLUMN slug TEXT;
 
+-- Products: add images JSON column
+ALTER TABLE products ADD COLUMN images TEXT;
+
+-- Products: add pageType for landing page toggle
+ALTER TABLE products ADD COLUMN pageType TEXT DEFAULT 'shop';
+
 -- Orders: add guest info columns
 ALTER TABLE orders ADD COLUMN userEmail TEXT;
 ALTER TABLE orders ADD COLUMN userName TEXT;

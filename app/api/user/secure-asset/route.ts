@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
         // Verify purchase if not admin
         if (!isAdmin) {
             const orders = await executeQuery(
-                "SELECT items FROM orders WHERE userId = ? AND status = 'completed'",
+                "SELECT items FROM orders WHERE userId = ? AND (status = 'completed' OR status = 'paid')",
                 [auth.uid]
             )
 
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
             for (const order of orders || []) {
                 try {
                     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items
-                    if (Array.isArray(items) && items.some((item: any) => item.productId === productId)) {
+                    if (Array.isArray(items) && items.some((item: any) => item.productId === productId || item.id === productId)) {
                         hasPurchased = true;
                         break;
                     }
@@ -87,8 +87,12 @@ export async function GET(request: NextRequest) {
             if (contentType) headers.set('Content-Type', contentType)
             if (contentLength) headers.set('Content-Length', contentLength)
 
-            // Allow native HTML streaming logic
+            // Force browser download (not external redirect)
+            const filename = encodeURIComponent(asset.name || 'download')
+            headers.set('Content-Disposition', `attachment; filename="${filename}"`)
             headers.set('Cache-Control', 'private, max-age=0, must-revalidate')
+            // Allow iframe/popup embedding from same origin
+            headers.set('X-Frame-Options', 'SAMEORIGIN')
 
             return new NextResponse(fileRes.body, {
                 status: 200,

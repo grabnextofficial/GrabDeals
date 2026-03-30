@@ -45,10 +45,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const imageUrl = images[0] || data.imageUrl || ''
 
     await executeQuery(
-      `UPDATE products SET title=?, description=?, price=?, originalPrice=?, category=?, tags=?, imageUrl=?, images=?, slug=?, downloadUrl=?, isActive=?, updatedAt=? WHERE id=?`,
+      `UPDATE products SET title=?, description=?, price=?, originalPrice=?, category=?, tags=?, imageUrl=?, images=?, slug=?, downloadUrl=?, isActive=?, pageCode=?, pageType=?, updatedAt=? WHERE id=?`,
       [data.title, data.description || '', data.price, data.originalPrice || null, data.category,
       JSON.stringify(data.tags || []), imageUrl, JSON.stringify(images), slug,
-      data.downloadUrl || '', data.isActive ? 1 : 0, now, params.id]
+      data.downloadUrl || '', data.isActive ? 1 : 0, data.pageCode || null, data.pageType || 'shop', now, params.id]
     )
     return NextResponse.json({ success: true, slug })
   } catch (error: any) {
