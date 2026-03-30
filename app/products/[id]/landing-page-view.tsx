@@ -260,7 +260,7 @@ function FormSection({ section, product }: { section: LandingSection; product: P
     )
 }
 
-function RenderSection({ section, product }: { section: LandingSection; product: Product }) {
+export function RenderSection({ section, product }: { section: LandingSection; product: Product }) {
     switch (section.type) {
         case 'hero': return <HeroSection section={section} product={product} />
         case 'features': return <FeaturesSection section={section} />

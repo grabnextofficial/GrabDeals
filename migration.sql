@@ -50,6 +50,9 @@ ALTER TABLE products ADD COLUMN images TEXT;
 -- Products: add pageType for landing page toggle
 ALTER TABLE products ADD COLUMN pageType TEXT DEFAULT 'shop';
 
+-- Products: add pageCode for landing page content JSON
+ALTER TABLE products ADD COLUMN pageCode TEXT;
+
 -- =============================================
 -- 5. LANDING PAGE ANALYTICS & FORM SUBMISSIONS
 -- =============================================
