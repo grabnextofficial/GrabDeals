@@ -41,7 +41,8 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
                     pageType: "landing",
                 }),
             })
-            if (!res.ok) throw new Error("Save failed")
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || "Save failed")
             toast({ title: "✅ Landing page saved!" })
         } catch (err: any) {
             toast({ title: "Save failed", description: err.message, variant: "destructive" })
