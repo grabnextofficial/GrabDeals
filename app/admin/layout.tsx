@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useAuth } from "@/contexts/auth-context"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { ADMIN_EMAIL } from "@/lib/auth"
 import { Loader2 } from "lucide-react"
@@ -11,7 +11,10 @@ import { AdminSidebar } from "@/components/admin-sidebar"
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, userProfile, loading } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
   const [isAuthorized, setIsAuthorized] = useState(false)
+
+  const isBuilder = pathname?.includes('/landing-page')
 
   useEffect(() => {
     if (!loading) {
@@ -37,9 +40,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex h-screen bg-slate-50">
-      <div className="hidden md:block">
-        <AdminSidebar />
-      </div>
+      {!isBuilder && (
+        <div className="hidden md:block">
+          <AdminSidebar />
+        </div>
+      )}
       <div className="flex-1 overflow-auto">
         {children}
       </div>
