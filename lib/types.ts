@@ -6,6 +6,19 @@ export interface DigitalAsset {
   url: string
 }
 
+export interface FloatingNode {
+  id: string
+  type: "text" | "image" | "badge"
+  content: string
+  x: number
+  y: number
+  zIndex: number
+  fontSize?: string
+  color?: string
+  width?: number
+  height?: number
+}
+
 // Landing page section types
 export type LandingSectionType = "hero" | "features" | "text" | "image-text" | "testimonials" | "faq" | "cta" | "form"
 
@@ -39,6 +52,10 @@ export interface LandingSection {
   // Form fields (for 'form' section type)
   formFields?: { label: string; type: "text" | "email" | "tel" | "textarea"; required: boolean; placeholder?: string }[]
   formButtonText?: string
+
+  // Advanced Typography & Freeform Elements (Phase 4)
+  fontFamily?: string
+  floatingNodes?: FloatingNode[]
 }
 
 export interface Product {

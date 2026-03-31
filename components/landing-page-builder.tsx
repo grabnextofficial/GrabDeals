@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { LandingSection, LandingSectionType } from "@/lib/types"
+import { LandingSection, LandingSectionType, FloatingNode } from "@/lib/types"
 import {
     Plus, Trash2, ChevronUp, ChevronDown, Layout, Star,
     MessageSquare, HelpCircle, Zap, AlignCenter, Image as ImageIcon, Type,
@@ -145,6 +145,18 @@ function ActiveSectionEditor({ section, onChange, onAIFill, aiLoading }: {
                     <select value={(section as any).animation || 'none'} onChange={e => update({ animation: e.target.value as any } as any)}
                         className="mt-1 w-full border border-gray-200 rounded-md px-2 py-1.5 text-xs bg-white">
                         {ANIMATIONS.map(a => <option key={a.id} value={a.id}>{a.label}</option>)}
+                    </select>
+                </div>
+                <div className="col-span-2">
+                    <Label className="text-xs">Typography (Font)</Label>
+                    <select value={section.fontFamily || ''} onChange={e => update({ fontFamily: e.target.value })}
+                        className="mt-1 w-full border border-gray-200 rounded-md px-2 py-1.5 text-xs bg-white font-semibold">
+                        <option value="">Default (Inter)</option>
+                        <option value="Roboto">Roboto (Sans)</option>
+                        <option value="Playfair Display">Playfair Display (Serif)</option>
+                        <option value="Montserrat">Montserrat (Display)</option>
+                        <option value="Anton">Anton (Bold Focus)</option>
+                        <option value="Courier New">Courier (Mono)</option>
                     </select>
                 </div>
                 <div>
@@ -370,6 +382,26 @@ function ActiveSectionEditor({ section, onChange, onAIFill, aiLoading }: {
                     </div>
                 </div>
             )}
+
+            {/* Floating Widgets Manager */}
+            <div className="mt-6 pt-4 border-t border-gray-100">
+                <Label className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-3 block">Floating Elements</Label>
+                <p className="text-[10px] text-gray-500 mb-2 leading-tight">Add free-dragging absolute elements. Drag them exactly where you want.</p>
+                <div className="flex gap-2">
+                    <Button type="button" size="sm" variant="outline" className="flex-1 h-7 text-[10px]" onClick={() => {
+                        const newNode: FloatingNode = { id: crypto.randomUUID(), type: 'text', content: 'New Text', x: 50, y: 50, zIndex: 50 }
+                        update({ floatingNodes: [...(section.floatingNodes || []), newNode] })
+                    }}>+ Text</Button>
+                    <Button type="button" size="sm" variant="outline" className="flex-1 h-7 text-[10px]" onClick={() => {
+                        const newNode: FloatingNode = { id: crypto.randomUUID(), type: 'image', content: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop', x: 100, y: 50, zIndex: 49 }
+                        update({ floatingNodes: [...(section.floatingNodes || []), newNode] })
+                    }}>+ Image</Button>
+                    <Button type="button" size="sm" variant="outline" className="flex-1 h-7 text-[10px]" onClick={() => {
+                        const newNode: FloatingNode = { id: crypto.randomUUID(), type: 'badge', content: '50% OFF', x: 150, y: 50, zIndex: 51 }
+                        update({ floatingNodes: [...(section.floatingNodes || []), newNode] })
+                    }}>+ Badge</Button>
+                </div>
+            </div>
         </div>
     )
 }
@@ -641,8 +673,13 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
                                             {SECTION_LABELS[section.type as LandingSectionType].label}
                                         </div>
 
-                                        <div className="pointer-events-none">
-                                            <RenderSection section={section} product={fauxProduct} />
+                                        <div className="pointer-events-none group-focus-within:pointer-events-auto hover:pointer-events-auto">
+                                            <RenderSection 
+                                                section={section} 
+                                                product={fauxProduct} 
+                                                isBuilder={true} 
+                                                onChange={(updatedStr) => update(section.id, updatedStr)} 
+                                            />
                                         </div>
                                     </div>
                                 ))}
@@ -692,12 +729,15 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
                 </DialogContent>
             </Dialog>
 
+            {/* ─── MODALS ─── */}
+            ...
             <style dangerouslySetInnerHTML={{__html: `
                 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
                 .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
             `}} />
+            <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;700;900&family=Anton&display=swap" rel="stylesheet" />
         </div>
     )
 }
