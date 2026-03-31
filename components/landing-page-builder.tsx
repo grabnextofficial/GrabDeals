@@ -47,8 +47,9 @@ function ImageUploadInput({ value, onChange, placeholder = "https://..." }: { va
         try {
             const res = await fetch('/api/upload-tdrive', { method: 'POST', body: fd })
             const data = await res.json()
-            if (res.ok && data.url) {
-                onChange(data.url)
+            const imgUrl = data.preview_url || data.url
+            if (res.ok && imgUrl) {
+                onChange(imgUrl)
                 toast({ title: "Image uploaded!" })
             } else {
                 throw new Error(data.error || "Upload failed")
