@@ -31,6 +31,10 @@ export interface LandingSection {
   // Layout/style
   align?: "left" | "center" | "right"
   paddingY?: "sm" | "md" | "lg"
+  paddingTop?: string
+  paddingBottom?: string
+  marginTop?: string
+  marginBottom?: string
   animation?: "none" | "fadeIn" | "slideLeft" | "slideRight" | "zoomIn"
   // Form fields (for 'form' section type)
   formFields?: { label: string; type: "text" | "email" | "tel" | "textarea"; required: boolean; placeholder?: string }[]

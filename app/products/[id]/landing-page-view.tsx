@@ -43,8 +43,16 @@ function AnimatedWrapper({ animation, children }: { animation?: string; children
     return <div ref={ref} className={cls}>{children}</div>
 }
 
-function pad(section: LandingSection) {
-    return section.paddingY === 'sm' ? 'py-8' : section.paddingY === 'lg' ? 'py-24' : 'py-14'
+function getSpacingStyles(section: LandingSection) {
+    const basePadding = section.paddingY === 'sm' ? '2rem' : section.paddingY === 'lg' ? '6rem' : '3.5rem'
+    return {
+        paddingTop: section.paddingTop || basePadding,
+        paddingBottom: section.paddingBottom || basePadding,
+        marginTop: section.marginTop || '0px',
+        marginBottom: section.marginBottom || '0px',
+        backgroundColor: section.bgColor || 'transparent',
+        color: section.textColor || 'inherit'
+    }
 }
 
 // ─── Section renderers ────────────────────────────────────────────────────────
@@ -54,7 +62,7 @@ function HeroSection({ section, product }: { section: LandingSection; product: P
     const fmt = (p: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(p)
     return (
         <AnimatedWrapper animation={(section as any).animation}>
-            <section style={{ backgroundColor: section.bgColor || '#1e40af', color: section.textColor || '#fff' }} className={`${pad(section)} px-4`}>
+            <section style={getSpacingStyles(section as LandingSection)} className="px-4">
                 <div className={`container mx-auto max-w-5xl flex flex-col ${section.imageUrl ? 'md:flex-row gap-10 items-center' : 'items-center text-center'}`}>
                     <div className={`flex-1 text-${section.align || 'center'}`}>
                         {section.heading && <h1 className="text-3xl md:text-5xl font-extrabold leading-tight mb-4">{section.heading}</h1>}
@@ -87,7 +95,7 @@ function FeaturesSection({ section }: { section: LandingSection }) {
     const cols = Math.min(section.features?.length || 3, 3)
     return (
         <AnimatedWrapper animation={(section as any).animation}>
-            <section style={{ backgroundColor: section.bgColor || '#f8fafc', color: section.textColor || '#1a1a2e' }} className={`${pad(section)} px-4`}>
+            <section style={getSpacingStyles(section as LandingSection)} className="px-4">
                 <div className={`container mx-auto max-w-5xl text-${section.align || 'center'}`}>
                     {section.heading && <h2 className="text-2xl md:text-4xl font-bold mb-3">{section.heading}</h2>}
                     {section.subheading && <p className="text-gray-500 mb-10 text-lg">{section.subheading}</p>}
@@ -109,7 +117,7 @@ function FeaturesSection({ section }: { section: LandingSection }) {
 function TextSection({ section }: { section: LandingSection }) {
     return (
         <AnimatedWrapper animation={(section as any).animation}>
-            <section style={{ backgroundColor: section.bgColor || '#fff', color: section.textColor || '#1a1a2e' }} className={`${pad(section)} px-4`}>
+            <section style={getSpacingStyles(section as LandingSection)} className="px-4">
                 <div className={`container mx-auto max-w-3xl text-${section.align || 'center'}`}>
                     {section.heading && <h2 className="text-2xl md:text-3xl font-bold mb-6">{section.heading}</h2>}
                     {section.content && <div className="prose max-w-none leading-relaxed" dangerouslySetInnerHTML={{ __html: section.content }} />}
@@ -122,7 +130,7 @@ function TextSection({ section }: { section: LandingSection }) {
 function ImageTextSection({ section }: { section: LandingSection }) {
     return (
         <AnimatedWrapper animation={(section as any).animation}>
-            <section style={{ backgroundColor: section.bgColor || '#fff', color: section.textColor || '#1a1a2e' }} className={`${pad(section)} px-4`}>
+            <section style={getSpacingStyles(section as LandingSection)} className="px-4">
                 <div className="container mx-auto max-w-5xl flex flex-col md:flex-row gap-10 items-center">
                     {section.imageUrl && <div className="flex-1"><img src={section.imageUrl} alt={section.heading || ''} className="w-full rounded-2xl shadow-lg object-contain max-h-80" /></div>}
                     <div className={`flex-1 text-${section.align || 'left'}`}>
@@ -138,7 +146,7 @@ function ImageTextSection({ section }: { section: LandingSection }) {
 function TestimonialsSection({ section }: { section: LandingSection }) {
     return (
         <AnimatedWrapper animation={(section as any).animation}>
-            <section style={{ backgroundColor: section.bgColor || '#f0f4ff', color: section.textColor || '#1a1a2e' }} className={`${pad(section)} px-4`}>
+            <section style={getSpacingStyles(section as LandingSection)} className="px-4">
                 <div className={`container mx-auto max-w-5xl text-${section.align || 'center'}`}>
                     {section.heading && <h2 className="text-2xl md:text-4xl font-bold mb-10">{section.heading}</h2>}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -159,7 +167,7 @@ function TestimonialsSection({ section }: { section: LandingSection }) {
 function FAQSection({ section }: { section: LandingSection }) {
     return (
         <AnimatedWrapper animation={(section as any).animation}>
-            <section style={{ backgroundColor: section.bgColor || '#fff', color: section.textColor || '#1a1a2e' }} className={`${pad(section)} px-4`}>
+            <section style={getSpacingStyles(section as LandingSection)} className="px-4">
                 <div className={`container mx-auto max-w-3xl text-${section.align || 'center'}`}>
                     {section.heading && <h2 className="text-2xl md:text-4xl font-bold mb-8">{section.heading}</h2>}
                     <div className="space-y-4 text-left">
@@ -186,7 +194,7 @@ function CTASection({ section, product }: { section: LandingSection; product: Pr
     const isCheckout = link === '/checkout' || link === '#buy'
     return (
         <AnimatedWrapper animation={(section as any).animation}>
-            <section style={{ backgroundColor: section.bgColor || '#1e3a8a', color: section.textColor || '#fff' }} className={`${pad(section)} px-4 text-${section.align || 'center'}`}>
+            <section style={getSpacingStyles(section as LandingSection)} className="px-4 text-${section.align || 'center'}">
                 <div className="container mx-auto max-w-3xl">
                     {section.heading && <h2 className="text-2xl md:text-4xl font-extrabold mb-4">{section.heading}</h2>}
                     {section.subheading && <p className="text-lg opacity-90 mb-8">{section.subheading}</p>}
@@ -225,7 +233,7 @@ function FormSection({ section, product }: { section: LandingSection; product: P
 
     return (
         <AnimatedWrapper animation={(section as any).animation}>
-            <section style={{ backgroundColor: section.bgColor || '#f8fafc', color: section.textColor || '#1a1a2e' }} className={`${pad(section)} px-4`}>
+            <section style={getSpacingStyles(section as LandingSection)} className="px-4">
                 <div className={`container mx-auto max-w-lg text-${section.align || 'center'}`}>
                     {section.heading && <h2 className="text-2xl md:text-3xl font-bold mb-6">{section.heading}</h2>}
                     {submitted ? (
