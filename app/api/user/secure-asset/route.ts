@@ -87,9 +87,23 @@ export async function GET(request: NextRequest) {
             if (contentType) headers.set('Content-Type', contentType)
             if (contentLength) headers.set('Content-Length', contentLength)
 
-            // Force browser download (not external redirect)
-            const filename = encodeURIComponent(asset.name || 'download')
-            headers.set('Content-Disposition', `attachment; filename="${filename}"`)
+            // Determine correct filename and extension
+            let baseName = asset.name || 'download'
+            let ext = ''
+            try {
+                const urlPath = new URL(asset.url).pathname
+                const match = urlPath.match(/\.([a-zA-Z0-9]+)$/)
+                if (match) ext = `.${match[1]}`
+            } catch (e) {}
+
+            let finalName = baseName
+            if (ext && !finalName.toLowerCase().endsWith(ext.toLowerCase())) {
+                finalName += ext
+            }
+
+            // Force browser download securely (avoiding encodeURIComponent to keep spaces clean)
+            const safeFilename = finalName.replace(/"/g, '')
+            headers.set('Content-Disposition', `attachment; filename="${safeFilename}"`)
             headers.set('Cache-Control', 'private, max-age=0, must-revalidate')
             // Allow iframe/popup embedding from same origin
             headers.set('X-Frame-Options', 'SAMEORIGIN')
