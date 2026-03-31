@@ -374,7 +374,7 @@ function ActiveSectionEditor({ section, onChange, onAIFill, aiLoading }: {
 }
 
 // ─── Main Builder (Elementor Clone) ──────────────────────────────────────────
-export function LandingPageBuilder({ sections, onChange, productTitle, productPrice, productDescription }: any) {
+export function LandingPageBuilder({ sections, onChange, productTitle, productPrice, productDescription, onSave, saving, exitLink, previewLink }: any) {
     // Layout State
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
@@ -500,29 +500,49 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
     const canvasMaxWidth = previewMode === 'desktop' ? 'max-w-none' : previewMode === 'tablet' ? 'max-w-[768px]' : 'max-w-[375px]'
 
     return (
-        <div className="flex flex-col h-[calc(100vh-73px)] overflow-hidden bg-slate-100 ring-1 ring-gray-200 -mx-6 mb-[-24px]">
+        <div className="flex flex-col h-screen w-full overflow-hidden bg-slate-100 relative">
             
-            {/* ─── BUILDER TOP BAR (Responsive Toggles) ─── */}
-            <div className="h-[48px] bg-white border-b border-gray-200 flex items-center justify-between px-3 z-30 shrink-0 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <Button onClick={() => setSidebarOpen(!sidebarOpen)} variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
-                        {sidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+            {/* ─── BUILDER TOP BAR (Responsive Toggles & Actions) ─── */}
+            <div className="h-[52px] bg-white border-b border-gray-200 flex items-center justify-between px-4 z-30 shrink-0 shadow-sm w-full">
+                <div className="flex items-center gap-4">
+                    {exitLink && (
+                        <Button variant="ghost" size="sm" asChild className="h-8 -ml-2 text-gray-500 hover:text-gray-900 font-semibold px-2">
+                            <a href={exitLink}><ArrowLeft className="h-4 w-4 mr-1" /> Exit</a>
+                        </Button>
+                    )}
+                    <Button onClick={() => setSidebarOpen(!sidebarOpen)} variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" title="Toggle Sidebar">
+                        {sidebarOpen ? <PanelLeftClose className="h-4.5 w-4.5" /> : <PanelLeftOpen className="h-4.5 w-4.5" />}
                     </Button>
-                    <div className="h-4 w-px bg-gray-200" />
-                    <div className="flex bg-slate-100 p-1 rounded-lg border border-gray-200">
+                    <div className="h-5 w-px bg-gray-200 hidden md:block" />
+                    <div className="hidden md:flex bg-slate-100 p-1 rounded-lg border border-gray-200">
                         <button onClick={() => setPreviewMode('desktop')} className={`p-1.5 rounded-md transition-all ${previewMode === 'desktop' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}><Monitor className="h-4 w-4" /></button>
                         <button onClick={() => setPreviewMode('tablet')} className={`p-1.5 rounded-md transition-all ${previewMode === 'tablet' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}><Tablet className="h-4 w-4" /></button>
                         <button onClick={() => setPreviewMode('mobile')} className={`p-1.5 rounded-md transition-all ${previewMode === 'mobile' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}><Smartphone className="h-4 w-4" /></button>
                     </div>
                 </div>
                 
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={undo} disabled={!canUndo} className="h-8 w-8"><Undo className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={redo} disabled={!canRedo} className="h-8 w-8"><Redo className="h-4 w-4" /></Button>
-                    <div className="h-4 w-px bg-gray-200 mx-1" />
-                    <Button size="sm" onClick={() => setAiModalOpen(true)} className="h-8 bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold text-xs border-0 px-3 shadow-sm hover:from-violet-600 hover:to-indigo-600">
+                <div className="flex items-center gap-2 md:gap-3">
+                    <div className="flex items-center gap-1 mr-1">
+                        <Button variant="ghost" size="icon" onClick={undo} disabled={!canUndo} className="h-8 w-8 text-gray-500"><Undo className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" onClick={redo} disabled={!canRedo} className="h-8 w-8 text-gray-500"><Redo className="h-4 w-4" /></Button>
+                    </div>
+                    
+                    <Button size="sm" onClick={() => setAiModalOpen(true)} className="h-8 bg-black text-white hover:bg-gray-800 font-semibold text-xs border-0 px-3 shadow-sm hidden md:flex">
                         <Wand2 className="h-3.5 w-3.5 mr-1.5" /> AI Build
                     </Button>
+
+                    <div className="h-5 w-px bg-gray-200 hidden md:block" />
+
+                    {previewLink && (
+                        <Button variant="outline" size="sm" asChild className="h-8 hidden sm:flex text-xs font-semibold">
+                            <a href={previewLink} target="_blank"><Layout className="h-3.5 w-3.5 mr-1.5" /> Preview</a>
+                        </Button>
+                    )}
+                    {onSave && (
+                        <Button size="sm" onClick={onSave} disabled={saving} className="h-8 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-bold text-xs px-5 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
+                            {saving ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> Saving...</> : 'Save Page'}
+                        </Button>
+                    )}
                 </div>
             </div>
 
