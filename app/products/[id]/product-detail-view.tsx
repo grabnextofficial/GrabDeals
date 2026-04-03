@@ -186,24 +186,24 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <StoreHeader />
 
-            <main className="flex-1 container mx-auto px-4 py-6 space-y-4">
+            <main className="flex-1 container mx-auto px-4 py-2 space-y-4">
 
                 {/* Main Product Card */}
-                <div className="bg-white rounded-2xl shadow-sm p-5 lg:p-8">
-                    <div className="grid lg:grid-cols-2 gap-8">
+                <div className="bg-white rounded-3xl shadow-sm p-4 lg:p-6 border border-gray-100">
+                    <div className="grid lg:grid-cols-[1fr_1.2fr] gap-6">
 
                         {/* Left: Image Gallery */}
-                        <div className="lg:sticky lg:top-24 h-fit space-y-4">
-                            <div className="flex flex-col-reverse md:flex-row gap-4">
+                        <div className="lg:sticky lg:top-20 h-fit space-y-4">
+                            <div className="flex flex-col-reverse md:flex-row gap-3">
                                 {/* Thumbnail strip - Vertical on desktop, horizontal on mobile */}
                                 {images.length > 1 && (
-                                    <div className="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[500px] pb-2 md:pb-0 scrollbar-hide shrink-0 min-w-[64px]">
+                                    <div className="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[400px] pb-2 md:pb-0 scrollbar-hide shrink-0 min-w-[60px]">
                                         {images.map((img, i) => (
                                             <button
                                                 key={i}
                                                 onMouseEnter={() => changeActiveImg(i)}
                                                 onClick={() => changeActiveImg(i)}
-                                                className={`shrink-0 h-16 w-16 rounded-xl border-2 overflow-hidden bg-white transition-all duration-200 ${i === activeImg ? "border-indigo-600 shadow-md ring-2 ring-indigo-100" : "border-gray-100 hover:border-indigo-400"}`}
+                                                className={`shrink-0 h-14 w-14 rounded-xl border-2 overflow-hidden bg-white transition-all duration-200 ${i === activeImg ? "border-indigo-600 shadow-md ring-2 ring-indigo-50" : "border-gray-50 hover:border-gray-200"}`}
                                             >
                                                 <img src={img} alt={`View ${i + 1}`} className="w-full h-full object-contain p-1" />
                                             </button>
@@ -212,170 +212,152 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                 )}
 
                                 {/* Main Image Display */}
-                                <div className="flex-1 relative bg-white border border-gray-100 rounded-3xl overflow-hidden group shadow-sm hover:shadow-md transition-shadow duration-300">
+                                <div className="flex-1 relative bg-gray-50/30 border border-gray-100 rounded-2xl overflow-hidden group max-h-[450px]">
                                     {product.salesCount > 100 && (
-                                        <Badge className="absolute top-4 left-4 z-10 bg-indigo-600 text-white font-bold px-3 py-1 scale-110 shadow-lg">
-                                            Bestseller
+                                        <Badge className="absolute top-3 left-3 z-10 bg-indigo-600 text-[10px] font-bold px-2 py-0.5 shadow-lg border-0">
+                                            BESTSELLER
                                         </Badge>
                                     )}
                                     {discount > 0 && (
-                                        <Badge className="absolute top-4 right-4 z-10 bg-red-500 text-white font-bold px-3 py-1 scale-110 shadow-lg">
-                                            -{discount}%
+                                        <Badge className="absolute top-3 right-3 z-10 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 shadow-lg border-0">
+                                            {discount}% OFF
                                         </Badge>
                                     )}
                                     <div
-                                        className="aspect-square cursor-crosshair"
+                                        className="aspect-square flex items-center justify-center p-2"
                                         style={{
                                             opacity: imgFade ? 1 : 0,
-                                            transition: "opacity 0.25s ease-in-out",
+                                            transition: "opacity 0.2s ease-in-out",
                                         }}
                                     >
                                         <ImageZoom
                                             src={images[activeImg]}
                                             alt={product.title}
-                                            zoomLevel={2.5}
+                                            zoomLevel={2}
                                         />
                                     </div>
                                     
-                                    {/* Quick action buttons on image hover */}
-                                    <div className="absolute bottom-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Button variant="secondary" size="icon" className="rounded-full shadow-md bg-white/80 backdrop-blur-sm hover:bg-white" onClick={() => setWishlisted(!wishlisted)}>
-                                            <Heart className={`h-5 w-5 ${wishlisted ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
+                                    <div className="absolute bottom-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                                        <Button variant="secondary" size="icon" className="h-8 w-8 rounded-xl shadow-md bg-white hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 border-gray-100" onClick={() => setWishlisted(!wishlisted)}>
+                                            <Heart className={`h-4 w-4 ${wishlisted ? "fill-red-500 text-red-500" : ""}`} />
                                         </Button>
-                                        <Button variant="secondary" size="icon" className="rounded-full shadow-md bg-white/80 backdrop-blur-sm hover:bg-white" onClick={() => setZoomIdx(activeImg)}>
-                                            <Share2 className="h-5 w-5 text-gray-600" />
+                                        <Button variant="secondary" size="icon" className="h-8 w-8 rounded-xl shadow-md bg-white hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 border-gray-100" onClick={() => setZoomIdx(activeImg)}>
+                                            <Share2 className="h-4 w-4" />
                                         </Button>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Buy buttons */}
-                            <div className="grid grid-cols-2 gap-4 pt-2">
-                                <Button size="lg" className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold h-14 rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-95"
-                                    onClick={() => { addToCart(product); setDrawerOpen(true); toast({ title: "🛒 Added to cart!" }) }}>
-                                    <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
-                                </Button>
-                                <Button
-                                    size="lg"
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-14 rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-95 border-0"
-                                    disabled={buyingNow}
-                                    onClick={() => {
-                                        setBuyingNow(true)
-                                        addToCart(product)
-                                        router.push("/checkout")
-                                    }}
-                                >
-                                    <Zap className="h-5 w-5 mr-2" />
-                                    {buyingNow ? "Redirecting..." : "Buy Now"}
-                                </Button>
                             </div>
                         </div>
 
                         {/* Right: Info */}
-                        <div className="space-y-6">
+                        <div className="space-y-5">
                             <div>
-                                <Badge variant="secondary" className="text-indigo-600 bg-indigo-50 border-indigo-100 text-[10px] uppercase tracking-wider font-bold mb-3 px-3 py-0.5">
-                                    {product.category}
-                                </Badge>
-                                <h1 className="text-3xl lg:text-4xl font-black text-gray-900 leading-tight tracking-tight">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Badge variant="secondary" className="text-indigo-600 bg-indigo-50/50 border-0 text-[9px] uppercase tracking-widest font-black px-2.5 py-0.5">
+                                        {product.category}
+                                    </Badge>
+                                    {product.isActive ? (
+                                        <Badge variant="outline" className="text-[9px] font-bold text-green-600 border-green-200 bg-green-50/50 px-2 uppercase">In Stock</Badge>
+                                    ) : (
+                                        <Badge variant="outline" className="text-[9px] font-bold text-red-600 border-red-200 bg-red-50/50 px-2 uppercase">Out of Stock</Badge>
+                                    )}
+                                </div>
+                                <h1 className="text-2xl lg:text-3xl font-black text-gray-900 leading-tight tracking-tight">
                                     {product.title}
                                 </h1>
                             </div>
 
-                            {/* Rating row */}
-                            <div className="flex items-center gap-4 flex-wrap">
-                                <div className="flex items-center gap-1.5 bg-yellow-50 px-2 py-1 rounded-lg border border-yellow-100">
-                                    <span className="font-black text-yellow-700 text-sm">{avgRating > 0 ? avgRating.toFixed(1) : "5.0"}</span>
+                            <div className="flex items-center gap-3 flex-wrap">
+                                <div className="flex items-center gap-1.5 bg-yellow-50/50 px-2 py-1 rounded-lg border border-yellow-100/50">
                                     <StarRating rating={Math.round(avgRating) || 5} />
+                                    <span className="font-black text-yellow-700 text-xs ml-1">{avgRating > 0 ? avgRating.toFixed(1) : "5.0"}</span>
                                 </div>
-                                <span className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 cursor-pointer transition-colors">
-                                    {reviewStats.count || 12} customer reviews
+                                <span className="text-[11px] font-bold text-indigo-500 hover:underline cursor-pointer">
+                                    {reviewStats.count || 12} REVIEWS
                                 </span>
-                                <Separator orientation="vertical" className="h-4 bg-gray-200" />
-                                <Badge variant="outline" className="text-xs font-bold text-green-600 border-green-100 bg-green-50 px-2">
-                                    <Truck className="h-3 w-3 mr-1" /> {product.salesCount || 150}+ Sold
-                                </Badge>
+                                <Separator orientation="vertical" className="h-3 bg-gray-200" />
+                                <span className="text-[11px] font-bold text-green-600 flex items-center">
+                                    <Truck className="h-3 w-3 mr-1" /> {product.salesCount || 150}+ SECURE SALES
+                                </span>
                             </div>
 
-                            <div className="bg-gray-50/50 p-6 rounded-3xl border border-gray-100 space-y-4">
-                                {/* Price */}
-                                <div>
-                                    <div className="flex items-baseline gap-3 flex-wrap">
-                                        <span className="text-4xl font-black text-gray-900">{formatPrice(product.price)}</span>
-                                        <span className="text-xl text-gray-400 line-through decoration-red-400/50">{formatPrice(originalPrice)}</span>
-                                        <Badge className="bg-green-500 text-white font-bold px-2 py-0">SAVE {discount}%</Badge>
+                            <div className="bg-slate-50/50 p-4 lg:p-6 rounded-3xl border border-slate-100 space-y-4">
+                                <div className="flex items-center justify-between flex-wrap gap-2">
+                                    <div>
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-4xl font-black text-gray-900">{formatPrice(product.price)}</span>
+                                            <span className="text-lg text-gray-400 line-through font-medium decoration-red-400/30">{formatPrice(originalPrice)}</span>
+                                            <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full ml-1 uppercase shadow-sm">Save {discount}%</span>
+                                        </div>
+                                        <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-wider flex items-center gap-2">
+                                            <Shield className="h-3 w-3 text-green-500" /> Secure checkout • instant access
+                                        </p>
                                     </div>
-                                    <p className="text-[11px] font-medium text-gray-400 mt-2 flex items-center gap-1.5">
-                                        <Shield className="h-3 w-3 text-green-500" /> Inclusive of all taxes • Free Express Delivery
-                                    </p>
                                 </div>
 
-                                <Separator className="bg-gray-200/50" />
+                                <Separator className="bg-slate-200/40" />
 
-                                {/* Description */}
-                                {product.description && (
-                                    <div className="space-y-3">
-                                        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Product Details</h3>
-                                        <div>
-                                            {descIsHtml ? (
-                                                <div
-                                                    className="text-gray-600 text-sm leading-relaxed prose prose-sm max-w-none prose-p:my-2 prose-strong:text-gray-900"
-                                                    dangerouslySetInnerHTML={{ __html: product.description }}
-                                                />
-                                            ) : (
-                                                <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
-                                                    {product.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
+                                {/* Action Buttons Moved Here */}
+                                <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                                    <Button size="lg" className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-black h-12 rounded-xl shadow-md transition-all active:scale-95 text-xs uppercase tracking-wider"
+                                        onClick={() => { addToCart(product); setDrawerOpen(true); toast({ title: "🛒 Added to cart!" }) }}>
+                                        <ShoppingCart className="h-4 w-4 mr-2" /> Add to Cart
+                                    </Button>
+                                    <Button
+                                        size="lg"
+                                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-black h-12 rounded-xl shadow-lg transition-all active:scale-95 text-xs uppercase tracking-wider border-0"
+                                        disabled={buyingNow}
+                                        onClick={() => {
+                                            setBuyingNow(true)
+                                            addToCart(product)
+                                            router.push("/checkout")
+                                        }}
+                                    >
+                                        <Zap className="h-4 w-4 mr-2" />
+                                        {buyingNow ? "Wait..." : "Buy Now"}
+                                    </Button>
+                                </div>
                             </div>
+
+                            {/* Description - Compact */}
+                            {product.description && (
+                                <div className="space-y-3 px-1">
+                                    <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Product Details</h3>
+                                    <div className="text-gray-600 text-[13px] leading-relaxed prose prose-slate prose-sm max-w-none">
+                                        {descIsHtml ? (
+                                            <div dangerouslySetInnerHTML={{ __html: product.description }} />
+                                        ) : (
+                                            <p className="whitespace-pre-line">{product.description}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Tags */}
                             {product.tags && product.tags.length > 0 && (
                                 <div className="flex flex-wrap gap-1.5">
                                     {product.tags.map((tag: string) => (
-                                        <Badge key={tag} className="rounded-full bg-white border-gray-200 text-gray-600 text-[10px] font-bold px-3 py-0.5 hover:border-indigo-300 hover:text-indigo-600 transition-all cursor-default">
-                                            #{tag}
+                                        <Badge key={tag} className="rounded-full bg-white border-gray-100 text-gray-400 text-[9px] font-bold px-2.5 py-0.5 hover:border-indigo-200 hover:text-indigo-500 transition-all cursor-default">
+                                            #{tag.toUpperCase()}
                                         </Badge>
                                     ))}
                                 </div>
                             )}
 
-                            {/* Trust badges */}
-                            <div className="grid grid-cols-3 gap-3">
-                                <div className="flex flex-col items-center gap-2 p-3 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all group">
-                                    <div className="p-2 rounded-full bg-green-50 group-hover:bg-green-100 transition-colors">
-                                        <Shield className="h-5 w-5 text-green-600" />
-                                    </div>
-                                    <span className="text-[10px] font-bold text-gray-700 uppercase tracking-tight">Authentic</span>
+                            {/* Minimal Trust Line */}
+                            <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-5 px-2">
+                                <div className="flex items-center gap-1.5 opacity-60">
+                                    <Shield className="h-3.5 w-3.5 text-green-600" />
+                                    <span className="text-[9px] font-black text-gray-600 uppercase tracking-tighter">Safe & Secure</span>
                                 </div>
-                                <div className="flex flex-col items-center gap-2 p-3 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all group">
-                                    <div className="p-2 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors">
-                                        <Truck className="h-5 w-5 text-blue-600" />
-                                    </div>
-                                    <span className="text-[10px] font-bold text-gray-700 uppercase tracking-tight">Express</span>
+                                <div className="flex items-center gap-1.5 opacity-60">
+                                    <Truck className="h-3.5 w-3.5 text-blue-600" />
+                                    <span className="text-[9px] font-black text-gray-600 uppercase tracking-tighter">Fast Access</span>
                                 </div>
-                                <div className="flex flex-col items-center gap-2 p-3 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all group">
-                                    <div className="p-2 rounded-full bg-purple-50 group-hover:bg-purple-100 transition-colors">
-                                        <RefreshCw className="h-5 w-5 text-purple-600" />
-                                    </div>
-                                    <span className="text-[10px] font-bold text-gray-700 uppercase tracking-tight">7d Return</span>
+                                <div className="flex items-center gap-1.5 opacity-60">
+                                    <RefreshCw className="h-3.5 w-3.5 text-purple-600" />
+                                    <span className="text-[9px] font-black text-gray-600 uppercase tracking-tighter">Verified</span>
                                 </div>
-                            </div>
-
-                            {/* Wishlist & Share */}
-                            <div className="flex gap-4">
-                                <Button variant="outline" className={`flex-1 h-12 rounded-xl text-xs font-bold border-gray-200 transition-all ${wishlisted ? "text-red-500 border-red-100 bg-red-50/50" : "hover:bg-gray-50"}`}
-                                    onClick={() => setWishlisted(!wishlisted)}>
-                                    <Heart className={`h-4 w-4 mr-2 ${wishlisted ? "fill-red-500" : ""}`} />
-                                    {wishlisted ? "SAVED TO WISHLIST" : "WISH LIST"}
-                                </Button>
-                                <Button variant="outline" className="flex-1 h-12 rounded-xl text-xs font-bold border-gray-200 hover:bg-gray-50 transition-all" 
-                                    onClick={() => { navigator.clipboard.writeText(window.location.href); toast({ title: "Link copied!" }) }}>
-                                    <Share2 className="h-4 w-4 mr-2 text-indigo-500" /> SHARE NOW
-                                </Button>
                             </div>
                         </div>
                     </div>
