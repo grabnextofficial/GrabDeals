@@ -17,16 +17,29 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
     const [saving, setSaving] = useState(false)
 
     useEffect(() => {
-        fetch(`/api/products/${params.id}`)
-            .then(r => r.json())
-            .then(p => {
+        const load = async () => {
+            try {
+                const res = await fetch(`/api/products/${params.id}`)
+                if (!res.ok) throw new Error("Product not found")
+                const p = await res.json()
                 setProduct(p)
                 if (p.pageCode) {
-                    try { setSections(JSON.parse(p.pageCode)) } catch { setSections([]) }
+                    try { 
+                        const parsed = JSON.parse(p.pageCode)
+                        setSections(Array.isArray(parsed) ? parsed : []) 
+                    } catch { 
+                        setSections([]) 
+                    }
+                } else {
+                    setSections([])
                 }
+            } catch (err: any) {
+                toast({ title: "Failed to load product", description: err.message, variant: "destructive" })
+            } finally {
                 setLoading(false)
-            })
-            .catch(() => { toast({ title: "Failed to load product", variant: "destructive" }); setLoading(false) })
+            }
+        }
+        load()
     }, [params.id])
 
     const handleSave = async () => {
