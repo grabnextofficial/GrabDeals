@@ -106,6 +106,9 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
     const [wishlisted, setWishlisted] = useState(false)
     const [buyingNow, setBuyingNow] = useState(false)
 
+    const avgRating = Number(reviewStats.avgRating) || 0
+    const salesCount = Number(product.salesCount) || 0
+
     // Image gallery state
     const [activeImg, setActiveImg] = useState(0)
     const [imgFade, setImgFade] = useState(true)
@@ -137,7 +140,11 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
             reviewData.reviews?.forEach((r: any) => { breakdown[r.rating] = (breakdown[r.rating] || 0) + 1 })
             setRatingBreakdown(breakdown)
             setRelatedProducts((allProds as Product[]).filter(p => p.category === initialProduct.category && p.id !== initialProduct.id && p.isActive).slice(0, 4))
-        } catch (e) { console.error(e) }
+        } catch (e) { 
+            console.error(e) 
+            // On error, keep it real (0) rather than showing fake data
+            setReviewStats({ count: 0, avgRating: '0.0' })
+        }
     }
 
     useEffect(() => { loadData() }, [id, initialProduct])
@@ -177,7 +184,6 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
 
     const originalPrice = (product as any).originalPrice || product.price * 1.25
     const discount = Math.round(((originalPrice - product.price) / originalPrice) * 100)
-    const avgRating = parseFloat(reviewStats.avgRating)
 
     // Check if description is HTML
     const descIsHtml = product.description?.includes("<") && product.description?.includes(">")
@@ -269,15 +275,15 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
 
                             <div className="flex items-center gap-3 flex-wrap">
                                 <div className="flex items-center gap-1.5 bg-yellow-50/50 px-2 py-1 rounded-lg border border-yellow-100/50">
-                                    <StarRating rating={Math.round(avgRating) || 5} />
-                                    <span className="font-black text-yellow-700 text-xs ml-1">{avgRating > 0 ? avgRating.toFixed(1) : "5.0"}</span>
+                                    <StarRating rating={Math.round(avgRating)} />
+                                    <span className="font-black text-yellow-700 text-xs ml-1">{avgRating > 0 ? avgRating : "0.0"}</span>
                                 </div>
                                 <span className="text-[11px] font-bold text-indigo-500 hover:underline cursor-pointer">
-                                    {reviewStats.count || 12} REVIEWS
+                                    {reviewStats.count > 0 ? `${reviewStats.count} REVIEWS` : "NO REVIEWS YET"}
                                 </span>
                                 <Separator orientation="vertical" className="h-3 bg-gray-200" />
                                 <span className="text-[11px] font-bold text-green-600 flex items-center">
-                                    <Truck className="h-3 w-3 mr-1" /> {product.salesCount || 150}+ SECURE SALES
+                                    <Truck className="h-3 w-3 mr-1" /> {salesCount > 0 ? `${salesCount}+ SECURE SALES` : "VERIFIED PURCHASE"}
                                 </span>
                             </div>
 
