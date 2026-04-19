@@ -16,7 +16,7 @@ async function getSettings() {
 async function getProducts() {
     try {
         const rows = await executeQuery(
-            'SELECT id, title, description, price, originalPrice, category, tags, imageUrl, slug FROM products WHERE isActive = 1 ORDER BY createdAt DESC LIMIT 50'
+            'SELECT id, title, description, price, originalPrice, category, tags, imageUrl, slug, downloadUrl, isActive, salesCount, createdAt, updatedAt, createdBy FROM products WHERE isActive = 1 ORDER BY createdAt DESC LIMIT 50'
         )
         return Array.isArray(rows) ? rows : []
     } catch { return [] }
@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
 
         if (!apiKey) {
             return NextResponse.json({
-                reply: 'Namaskar! Main GrabNext AI Assistant hoon. Abhi AI configuration complete nahi hui hai. Please admin se contact karein. 🙏'
+                reply: 'Namaskar! Main GrabNext AI Assistant hoon. Abhi AI configuration complete nahi hui hai. Please admin se contact karein. 🙏',
+                products: []
             })
         }
 
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
             const discount = p.originalPrice
                 ? ` | ${Math.round((1 - p.price / p.originalPrice) * 100)}% OFF`
                 : ''
-            return `- ${p.title} | Category: ${p.category} | Price: ${price}${originalPrice}${discount} | ${p.description?.slice(0, 120) || ''}`
+            return `[ID:${p.id}] ${p.title} | Category: ${p.category} | Price: ${price}${originalPrice}${discount} | ${p.description?.slice(0, 120) || ''}`
         }).join('\n')
 
         const SYSTEM_PROMPT = `You are GrabNext AI Shopping Assistant — a friendly, helpful, and knowledgeable assistant for the GrabNext online shopping platform.
@@ -64,19 +65,19 @@ RULES (follow strictly):
 4. Be conversational — reply in the same language the user uses (Hindi/English/Hinglish).
 5. Keep replies concise but helpful — max 3-4 sentences unless detailed info is needed.
 6. Use emojis naturally to be friendly 🛍️✨.
-7. If user asks about a product, check the catalog below and recommend relevant ones with prices.
+7. If user asks about a product or wants to buy something, recommend relevant products from the catalog. List the IDs of recommended products at the END of your reply in this exact format on its own line: PRODUCT_IDS:[id1,id2,id3]
 8. For order/payment issues, ask them to visit their Dashboard or contact support at grabnext.com.
 9. Never make up prices or product details not in the catalog.
-10. Always be positive about GrabNext — never say anything negative about the platform.
+10. Always be positive about GrabNext.
+11. If no products match, do NOT include PRODUCT_IDS line.
 
 GRABNEXT PLATFORM INFO:
 - Website: GrabNext (grabnext.com)
 - Payment: Razorpay, UPI, Cards accepted
-- Delivery: Digital products delivered instantly, physical products as per seller
-- Returns: Contact support within 7 days 
-- Support: Available through website
+- Delivery: Digital products delivered instantly
+- Returns: Contact support within 7 days
 
-CURRENT PRODUCT CATALOG:
+CURRENT PRODUCT CATALOG (use [ID:xxx] to reference):
 ${productList || 'No products available currently. New products coming soon!'}
 
 Remember: You are GrabNext AI — shopping ka sabse accha dost! 🛍️`
@@ -121,18 +122,44 @@ Remember: You are GrabNext AI — shopping ka sabse accha dost! 🛍️`
             const err = await geminiRes.json()
             console.error('[ShopChat Gemini Error]', err)
             return NextResponse.json({
-                reply: 'GrabNext AI abhi thodi der ke liye unavailable hai. Please thodi der baad try karein. 🙏'
+                reply: 'GrabNext AI abhi thodi der ke liye unavailable hai. Please thodi der baad try karein. 🙏',
+                products: []
             })
         }
 
         const data = await geminiRes.json()
-        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'GrabNext AI se koi response nahi mila. Please dobara try karein.'
+        let rawReply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'GrabNext AI se koi response nahi mila. Please dobara try karein.'
 
-        return NextResponse.json({ reply })
+        // Extract product IDs from reply
+        let suggestedProducts: any[] = []
+        const productIdsMatch = rawReply.match(/PRODUCT_IDS:\[([^\]]*)\]/)
+        if (productIdsMatch) {
+            const ids = productIdsMatch[1].split(',').map((id: string) => id.trim()).filter(Boolean)
+            suggestedProducts = products
+                .filter((p: any) => ids.includes(p.id.toString()))
+                .slice(0, 3)
+                .map((p: any) => ({
+                    ...p,
+                    price: Number(p.price),
+                    originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
+                    tags: [],
+                    isActive: true,
+                    salesCount: Number(p.salesCount || 0),
+                    downloadUrl: p.downloadUrl || '',
+                    createdAt: new Date(p.createdAt),
+                    updatedAt: new Date(p.updatedAt),
+                    createdBy: p.createdBy || 'admin',
+                }))
+            // Remove the PRODUCT_IDS line from reply shown to user
+            rawReply = rawReply.replace(/PRODUCT_IDS:\[[^\]]*\]/g, '').trim()
+        }
+
+        return NextResponse.json({ reply: rawReply, products: suggestedProducts })
     } catch (error: any) {
         console.error('[ShopChat Error]', error)
         return NextResponse.json({
-            reply: 'GrabNext AI mein kuch technical issue aa gaya. Please thodi der baad try karein. 🙏'
+            reply: 'GrabNext AI mein kuch technical issue aa gaya. Please thodi der baad try karein. 🙏',
+            products: []
         })
     }
 }

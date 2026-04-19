@@ -1,19 +1,40 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Bot, X, Send, Loader2, ShoppingBag, Sparkles, ChevronDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
+import { Bot, X, Send, Loader2, ShoppingBag, Sparkles, ChevronDown, ShoppingCart, Zap, Star } from "lucide-react"
+import { useCart } from "@/contexts/cart-context"
+import type { Product } from "@/lib/types"
+
+interface SuggestedProduct {
+  id: string
+  title: string
+  description: string
+  price: number
+  originalPrice: number | null
+  category: string
+  imageUrl: string
+  slug: string
+  downloadUrl: string
+  isActive: boolean
+  salesCount: number
+  tags: string[]
+  createdAt: Date
+  updatedAt: Date
+  createdBy: string
+}
 
 interface Message {
   role: "user" | "ai"
   text: string
   timestamp: Date
+  products?: SuggestedProduct[]
 }
 
 const QUICK_QUESTIONS = [
   "Kaunse products available hain?",
   "Best deals kya hain?",
-  "Payment methods kya accept hote hain?",
+  "Payment methods kya hain?",
   "Order kaise track karein?",
 ]
 
@@ -29,8 +50,12 @@ export function ShopAIChat() {
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showBubble, setShowBubble] = useState(true)
+  const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const { addToCart } = useCart()
+  const router = useRouter()
 
   useEffect(() => {
     if (isOpen) {
@@ -40,7 +65,6 @@ export function ShopAIChat() {
   }, [messages, isOpen])
 
   useEffect(() => {
-    // Hide the bubble hint after 5 seconds
     const t = setTimeout(() => setShowBubble(false), 5000)
     return () => clearTimeout(t)
   }, [])
@@ -54,7 +78,6 @@ export function ShopAIChat() {
     setInput("")
     setIsLoading(true)
 
-    // Build history (exclude the initial greeting)
     const history = messages
       .filter((_, i) => i > 0)
       .map((m) => ({ role: m.role === "ai" ? "model" : "user", text: m.text }))
@@ -68,34 +91,73 @@ export function ShopAIChat() {
       const data = await res.json()
       setMessages((prev) => [
         ...prev,
-        { role: "ai", text: data.reply || "Kuch galat ho gaya. Please dobara try karein.", timestamp: new Date() },
+        {
+          role: "ai",
+          text: data.reply || "Kuch galat ho gaya. Please dobara try karein.",
+          timestamp: new Date(),
+          products: data.products || [],
+        },
       ])
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "ai", text: "GrabNext AI se connect nahi ho paa raha. Please internet check karein. 🙏", timestamp: new Date() },
+        {
+          role: "ai",
+          text: "GrabNext AI se connect nahi ho paa raha. Please internet check karein. 🙏",
+          timestamp: new Date(),
+          products: [],
+        },
       ])
     } finally {
       setIsLoading(false)
     }
   }
 
-  const formatText = (text: string) => {
-    // Simple markdown-like bold formatting
-    return text
+  const handleAddToCartAndCheckout = (product: SuggestedProduct) => {
+    // Cast to Product type for cart
+    const cartProduct: Product = {
+      ...product,
+      createdAt: new Date(product.createdAt),
+      updatedAt: new Date(product.updatedAt),
+    }
+    addToCart(cartProduct, 1)
+    setAddedIds((prev) => new Set(prev).add(product.id))
+    // Close chat and redirect to checkout
+    setTimeout(() => {
+      setIsOpen(false)
+      router.push("/checkout")
+    }, 400)
+  }
+
+  const handleAddToCart = (product: SuggestedProduct) => {
+    const cartProduct: Product = {
+      ...product,
+      createdAt: new Date(product.createdAt),
+      updatedAt: new Date(product.updatedAt),
+    }
+    addToCart(cartProduct, 1)
+    setAddedIds((prev) => new Set(prev).add(product.id))
+  }
+
+  const formatText = (text: string) =>
+    text
       .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.*?)\*/g, "<em>$1</em>")
       .replace(/\n/g, "<br/>")
-  }
+
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(price)
+
+  const getDiscount = (price: number, original: number) =>
+    Math.round((1 - price / original) * 100)
 
   return (
     <>
       {/* Floating Button */}
       <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-2">
-        {/* Hint Bubble */}
         {showBubble && !isOpen && (
           <div
-            className="bg-white text-gray-800 text-sm px-4 py-2 rounded-2xl shadow-lg border border-orange-100 animate-bounce-in max-w-[200px] text-center cursor-pointer"
+            className="relative bg-white text-gray-800 text-sm px-4 py-2 rounded-2xl shadow-lg border border-orange-100 animate-bounce-in max-w-[200px] text-center cursor-pointer"
             onClick={() => { setIsOpen(true); setShowBubble(false) }}
           >
             🤖 GrabNext AI se puchein!
@@ -116,14 +178,14 @@ export function ShopAIChat() {
               <span className="absolute -top-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white animate-pulse" />
             </>
           )}
-          {/* Glow ring */}
           <span className="absolute inset-0 rounded-full bg-orange-400 opacity-0 group-hover:opacity-20 transition-opacity" />
         </button>
       </div>
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-[9998] w-[360px] max-w-[calc(100vw-24px)] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden animate-slide-up">
+        <div className="fixed bottom-24 right-6 z-[9998] w-[370px] max-w-[calc(100vw-24px)] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden animate-slide-up">
+
           {/* Header */}
           <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -150,34 +212,106 @@ export function ShopAIChat() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[380px] min-h-[280px] bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[420px] min-h-[280px] bg-gray-50">
             {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} gap-2`}
-              >
-                {msg.role === "ai" && (
-                  <div className="h-7 w-7 rounded-full bg-orange-100 flex items-center justify-center shrink-0 mt-0.5">
-                    <Bot className="h-4 w-4 text-orange-500" />
+              <div key={i} className="space-y-2">
+                <div className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} gap-2`}>
+                  {msg.role === "ai" && (
+                    <div className="h-7 w-7 rounded-full bg-orange-100 flex items-center justify-center shrink-0 mt-0.5">
+                      <Bot className="h-4 w-4 text-orange-500" />
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
+                      msg.role === "user"
+                        ? "bg-orange-500 text-white rounded-br-sm"
+                        : "bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-sm"
+                    }`}
+                  >
+                    <span dangerouslySetInnerHTML={{ __html: formatText(msg.text) }} />
+                    <div className={`text-[10px] mt-1 ${msg.role === "user" ? "text-orange-100" : "text-gray-400"}`}>
+                      {msg.timestamp.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
                   </div>
-                )}
-                <div
-                  className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-orange-500 text-white rounded-br-sm"
-                      : "bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-sm"
-                  }`}
-                >
-                  <span
-                    dangerouslySetInnerHTML={{ __html: formatText(msg.text) }}
-                  />
-                  <div className={`text-[10px] mt-1 ${msg.role === "user" ? "text-orange-100" : "text-gray-400"}`}>
-                    {msg.timestamp.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
-                  </div>
+                  {msg.role === "user" && (
+                    <div className="h-7 w-7 rounded-full bg-orange-500 flex items-center justify-center shrink-0 mt-0.5 text-white text-xs font-bold">
+                      U
+                    </div>
+                  )}
                 </div>
-                {msg.role === "user" && (
-                  <div className="h-7 w-7 rounded-full bg-orange-500 flex items-center justify-center shrink-0 mt-0.5 text-white text-xs font-bold">
-                    U
+
+                {/* Product Cards */}
+                {msg.role === "ai" && msg.products && msg.products.length > 0 && (
+                  <div className="ml-9 space-y-2">
+                    {msg.products.map((product) => {
+                      const isAdded = addedIds.has(product.id)
+                      const discount = product.originalPrice ? getDiscount(product.price, product.originalPrice) : 0
+                      return (
+                        <div
+                          key={product.id}
+                          className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
+                        >
+                          <div className="flex gap-3 p-3">
+                            {/* Product Image */}
+                            <div className="relative shrink-0">
+                              <img
+                                src={product.imageUrl || `/placeholder.svg?height=64&width=64&query=${product.title}`}
+                                alt={product.title}
+                                className="h-16 w-16 object-cover rounded-lg bg-gray-100"
+                              />
+                              {discount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[9px] font-bold px-1 py-0.5 rounded-full">
+                                  -{discount}%
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Product Info */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-tight">
+                                {product.title}
+                              </p>
+                              <div className="flex items-center gap-1 mt-0.5">
+                                <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                                <span className="text-[10px] text-gray-500">GrabNext Verified</span>
+                              </div>
+                              <div className="flex items-baseline gap-1.5 mt-1">
+                                <span className="text-sm font-bold text-orange-600">
+                                  {formatPrice(product.price)}
+                                </span>
+                                {product.originalPrice && (
+                                  <span className="text-[11px] text-gray-400 line-through">
+                                    {formatPrice(product.originalPrice)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="px-3 pb-3 flex gap-2">
+                            {/* Add to Cart only */}
+                            <button
+                              onClick={() => handleAddToCart(product)}
+                              disabled={isAdded}
+                              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-orange-300 text-orange-600 text-xs font-medium hover:bg-orange-50 transition-colors disabled:opacity-60 disabled:cursor-default"
+                            >
+                              <ShoppingCart className="h-3.5 w-3.5" />
+                              {isAdded ? "Added ✓" : "Add to Cart"}
+                            </button>
+
+                            {/* Buy Now → Checkout */}
+                            <button
+                              onClick={() => handleAddToCartAndCheckout(product)}
+                              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all hover:shadow-md"
+                            >
+                              <Zap className="h-3.5 w-3.5" />
+                              Buy Now
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 )}
               </div>
@@ -201,14 +335,14 @@ export function ShopAIChat() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Questions (shown only initially) */}
+          {/* Quick Questions */}
           {messages.length <= 1 && (
             <div className="px-4 py-2 flex flex-wrap gap-1.5 bg-gray-50 border-t border-gray-100">
               {QUICK_QUESTIONS.map((q) => (
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
-                  className="text-[11px] px-2.5 py-1.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-100 transition-colors truncate max-w-full"
+                  className="text-[11px] px-2.5 py-1.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-100 transition-colors"
                 >
                   {q}
                 </button>
