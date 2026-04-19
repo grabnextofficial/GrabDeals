@@ -47,6 +47,8 @@ const QUICK_QUESTIONS = [
 ]
 
 const STORAGE_KEY = "grabnext-ai-chat-v1"
+const DATE_KEY    = "grabnext-ai-date"      // which day chat was saved
+const SESSION_KEY  = "grabnext-ai-session"   // sessionStorage — clears on hard-refresh / new tab
 
 export function ShopAIChat() {
   const [isOpen, setIsOpen] = useState(false)
@@ -75,23 +77,40 @@ export function ShopAIChat() {
     return () => { clearTimeout(initial); clearInterval(interval) }
   }, [])
 
-  // ── Load chat from localStorage ──
+  // ── Load chat — reset on new day OR new browser session ──
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) {
-        const parsed: Message[] = JSON.parse(saved)
-        if (Array.isArray(parsed) && parsed.length > 0) setMessages(parsed)
-      }
-    } catch {}
+    const today      = new Date().toDateString()          // e.g. "Sun Apr 20 2026"
+    const savedDate  = localStorage.getItem(DATE_KEY)
+    const hasSession = typeof sessionStorage !== "undefined" && sessionStorage.getItem(SESSION_KEY)
+
+    const isNewDay     = savedDate !== today
+    const isNewSession = !hasSession                       // new tab / browser close / hard-refresh (Safari+Firefox)
+
+    if (isNewDay || isNewSession) {
+      // ── Fresh start ──
+      localStorage.removeItem(STORAGE_KEY)
+      localStorage.setItem(DATE_KEY, today)
+    } else {
+      // ── Same day + active session → restore chat ──
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY)
+        if (saved) {
+          const parsed: Message[] = JSON.parse(saved)
+          if (Array.isArray(parsed) && parsed.length > 0) setMessages(parsed)
+        }
+      } catch {}
+    }
+
+    // Mark this as an active session
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem(SESSION_KEY, "1")
     setHydrated(true)
   }, [])
 
-  // ── Save chat to localStorage ──
+  // ── Save chat to localStorage (text only, no products) ──
   useEffect(() => {
     if (!hydrated) return
     try {
-      const toSave = messages.slice(-40).map((m) => ({ ...m, products: undefined }))
+      const toSave = messages.slice(-40).map(({ role, text, timestamp }) => ({ role, text, timestamp }))
       localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
     } catch {}
   }, [messages, hydrated])
@@ -130,6 +149,8 @@ export function ShopAIChat() {
     setMessages((prev) => [...prev, userMsg])
     setInput("")
     setIsLoading(true)
+    // Keep input focused immediately after sending
+    requestAnimationFrame(() => inputRef.current?.focus())
 
     const history = messages
       .filter((_, i) => i > 0)
@@ -170,6 +191,8 @@ export function ShopAIChat() {
       ])
     } finally {
       setIsLoading(false)
+      // Refocus input after AI responds
+      setTimeout(() => inputRef.current?.focus(), 60)
     }
   }
 
