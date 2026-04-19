@@ -1,10 +1,12 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { Bot, X, Send, Loader2, ShoppingBag, Sparkles, ChevronDown, ShoppingCart, Zap, Star } from "lucide-react"
+import { Send, Loader2, ShoppingBag, Sparkles, X, ShoppingCart, Zap, Star, ExternalLink, Minimize2 } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import type { Product } from "@/lib/types"
+import Link from "next/link"
+import Image from "next/image"
 
 interface SuggestedProduct {
   id: string
@@ -19,8 +21,8 @@ interface SuggestedProduct {
   isActive: boolean
   salesCount: number
   tags: string[]
-  createdAt: Date
-  updatedAt: Date
+  createdAt: any
+  updatedAt: any
   createdBy: string
 }
 
@@ -29,13 +31,14 @@ interface Message {
   text: string
   timestamp: Date
   products?: SuggestedProduct[]
+  action?: string | null
 }
 
 const QUICK_QUESTIONS = [
-  "Kaunse products available hain?",
-  "Best deals kya hain?",
-  "Payment methods kya hain?",
-  "Order kaise track karein?",
+  "What's available?",
+  "Best deals today?",
+  "How do I order?",
+  "Payment options?",
 ]
 
 export function ShopAIChat() {
@@ -43,7 +46,7 @@ export function ShopAIChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "ai",
-      text: "Namaskar! 🙏 Main **GrabNext AI Assistant** hoon! GrabNext pe shopping ke baare mein koi bhi sawaal puchein — products, price, deals, ya kuch bhi! ✨",
+      text: "Hey! 👋 I'm **GrabNext AI** — your personal shopping assistant! Ask me anything about our products, deals, or orders. I'm here to help! ✨",
       timestamp: new Date(),
     },
   ])
@@ -58,16 +61,39 @@ export function ShopAIChat() {
   const router = useRouter()
 
   useEffect(() => {
-    if (isOpen) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-      setTimeout(() => inputRef.current?.focus(), 100)
+    if (isOpen && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }, [messages, isOpen])
 
   useEffect(() => {
-    const t = setTimeout(() => setShowBubble(false), 5000)
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 150)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    const t = setTimeout(() => setShowBubble(false), 6000)
     return () => clearTimeout(t)
   }, [])
+
+  const toCartProduct = (p: SuggestedProduct): Product => ({
+    ...p,
+    createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
+    updatedAt: p.updatedAt ? new Date(p.updatedAt) : new Date(),
+  })
+
+  const handleAddToCart = useCallback((product: SuggestedProduct) => {
+    addToCart(toCartProduct(product), 1)
+    setAddedIds((prev) => new Set(prev).add(product.id))
+  }, [addToCart])
+
+  const handleBuyNow = useCallback((product: SuggestedProduct) => {
+    addToCart(toCartProduct(product), 1)
+    setAddedIds((prev) => new Set(prev).add(product.id))
+    setIsOpen(false)
+    router.push("/checkout")
+  }, [addToCart, router])
 
   const sendMessage = async (text?: string) => {
     const msg = (text ?? input).trim()
@@ -89,21 +115,40 @@ export function ShopAIChat() {
         body: JSON.stringify({ message: msg, history }),
       })
       const data = await res.json()
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "ai",
-          text: data.reply || "Kuch galat ho gaya. Please dobara try karein.",
-          timestamp: new Date(),
-          products: data.products || [],
-        },
-      ])
+      const aiProducts: SuggestedProduct[] = data.products || []
+      const action: string | null = data.action || null
+
+      const aiMsg: Message = {
+        role: "ai",
+        text: data.reply || "Something went wrong. Please try again.",
+        timestamp: new Date(),
+        products: aiProducts,
+        action,
+      }
+      setMessages((prev) => [...prev, aiMsg])
+
+      // Handle autonomous actions
+      if (action === "add_to_cart" && aiProducts.length > 0) {
+        aiProducts.forEach((p) => {
+          addToCart(toCartProduct(p), 1)
+          setAddedIds((prev) => new Set(prev).add(p.id))
+        })
+      } else if (action === "checkout" && aiProducts.length > 0) {
+        aiProducts.forEach((p) => {
+          addToCart(toCartProduct(p), 1)
+          setAddedIds((prev) => new Set(prev).add(p.id))
+        })
+        setTimeout(() => {
+          setIsOpen(false)
+          router.push("/checkout")
+        }, 800)
+      }
     } catch {
       setMessages((prev) => [
         ...prev,
         {
           role: "ai",
-          text: "GrabNext AI se connect nahi ho paa raha. Please internet check karein. 🙏",
+          text: "GrabNext AI is offline. Please check your connection and try again! 🙏",
           timestamp: new Date(),
           products: [],
         },
@@ -111,32 +156,6 @@ export function ShopAIChat() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleAddToCartAndCheckout = (product: SuggestedProduct) => {
-    // Cast to Product type for cart
-    const cartProduct: Product = {
-      ...product,
-      createdAt: new Date(product.createdAt),
-      updatedAt: new Date(product.updatedAt),
-    }
-    addToCart(cartProduct, 1)
-    setAddedIds((prev) => new Set(prev).add(product.id))
-    // Close chat and redirect to checkout
-    setTimeout(() => {
-      setIsOpen(false)
-      router.push("/checkout")
-    }, 400)
-  }
-
-  const handleAddToCart = (product: SuggestedProduct) => {
-    const cartProduct: Product = {
-      ...product,
-      createdAt: new Date(product.createdAt),
-      updatedAt: new Date(product.updatedAt),
-    }
-    addToCart(cartProduct, 1)
-    setAddedIds((prev) => new Set(prev).add(product.id))
   }
 
   const formatText = (text: string) =>
@@ -153,157 +172,166 @@ export function ShopAIChat() {
 
   return (
     <>
-      {/* Floating Button */}
-      <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-2">
+      {/* Floating Trigger Button */}
+      <div className="fixed bottom-5 right-5 z-[9999] flex flex-col items-end gap-2">
+        {/* Hint bubble */}
         {showBubble && !isOpen && (
           <div
-            className="relative bg-white text-gray-800 text-sm px-4 py-2 rounded-2xl shadow-lg border border-orange-100 animate-bounce-in max-w-[200px] text-center cursor-pointer"
             onClick={() => { setIsOpen(true); setShowBubble(false) }}
+            className="relative cursor-pointer bg-white text-gray-700 text-xs font-medium px-3 py-2 rounded-xl shadow-lg border border-blue-100 whitespace-nowrap animate-[bounceIn_0.4s_ease]"
           >
-            🤖 GrabNext AI se puchein!
-            <div className="absolute bottom-[-6px] right-6 w-3 h-3 bg-white border-b border-r border-orange-100 rotate-45" />
+            💬 Chat with GrabNext AI!
+            <span className="absolute -bottom-1.5 right-5 w-3 h-3 bg-white border-b border-r border-blue-100 rotate-45 block" />
           </div>
         )}
 
         <button
-          onClick={() => { setIsOpen(!isOpen); setShowBubble(false) }}
-          className="relative h-14 w-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 flex items-center justify-center text-white group"
-          aria-label="GrabNext AI Chat"
+          onClick={() => { setIsOpen((o) => !o); setShowBubble(false) }}
+          aria-label="Open GrabNext AI Chat"
+          className="relative h-14 w-14 rounded-full bg-blue-600 hover:bg-blue-700 shadow-xl hover:shadow-blue-300 hover:scale-110 transition-all duration-300 flex items-center justify-center text-white group overflow-hidden"
         >
           {isOpen ? (
             <X className="h-6 w-6" />
           ) : (
             <>
-              <Bot className="h-6 w-6" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white animate-pulse" />
+              {/* GrabNext Logo */}
+              <img src="/logo.png" alt="GrabNext AI" className="h-8 w-8 object-contain rounded-full" />
+              <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 bg-green-400 rounded-full border-2 border-white animate-pulse" />
             </>
           )}
-          <span className="absolute inset-0 rounded-full bg-orange-400 opacity-0 group-hover:opacity-20 transition-opacity" />
+          <span className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
         </button>
       </div>
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-[9998] w-[370px] max-w-[calc(100vw-24px)] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden animate-slide-up">
-
-          {/* Header */}
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3 flex items-center justify-between">
+        <div className="fixed z-[9998] flex flex-col bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-[slideUp_0.3s_cubic-bezier(0.34,1.56,0.64,1)_forwards]"
+          style={{
+            bottom: "90px",
+            right: "20px",
+            width: "min(380px, calc(100vw - 32px))",
+            maxHeight: "calc(100dvh - 110px)",
+          }}
+        >
+          {/* ── Header ── */}
+          <div className="bg-blue-600 px-4 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-white/20 flex items-center justify-center">
-                <Bot className="h-5 w-5 text-white" />
+              <div className="relative h-9 w-9 rounded-full bg-white flex items-center justify-center shadow">
+                <img src="/logo.png" alt="GrabNext" className="h-7 w-7 object-contain rounded-full" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 bg-green-400 rounded-full border-2 border-white" />
               </div>
               <div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   <span className="font-bold text-white text-sm">GrabNext AI</span>
                   <Sparkles className="h-3 w-3 text-yellow-300" />
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-[10px] text-orange-100">Shopping Assistant • Online</span>
-                </div>
+                <span className="text-[10px] text-blue-200">Shopping Assistant • Always Online</span>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
               className="h-7 w-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
             >
-              <ChevronDown className="h-4 w-4 text-white" />
+              <Minimize2 className="h-3.5 w-3.5 text-white" />
             </button>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[420px] min-h-[280px] bg-gray-50">
+          {/* ── Messages ── */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-4 bg-[#f5f7fb]">
             {messages.map((msg, i) => (
               <div key={i} className="space-y-2">
-                <div className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} gap-2`}>
+                <div className={`flex items-end gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                  {/* AI Avatar */}
                   {msg.role === "ai" && (
-                    <div className="h-7 w-7 rounded-full bg-orange-100 flex items-center justify-center shrink-0 mt-0.5">
-                      <Bot className="h-4 w-4 text-orange-500" />
+                    <div className="h-7 w-7 rounded-full bg-blue-600 flex items-center justify-center shrink-0 mb-0.5 shadow">
+                      <img src="/logo.png" alt="GrabNext" className="h-5 w-5 object-contain rounded-full" />
                     </div>
                   )}
+
+                  {/* Bubble */}
                   <div
-                    className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
+                    className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
                       msg.role === "user"
-                        ? "bg-orange-500 text-white rounded-br-sm"
-                        : "bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-sm"
+                        ? "bg-blue-600 text-white rounded-br-sm"
+                        : "bg-white text-gray-800 rounded-bl-sm border border-gray-100"
                     }`}
                   >
                     <span dangerouslySetInnerHTML={{ __html: formatText(msg.text) }} />
-                    <div className={`text-[10px] mt-1 ${msg.role === "user" ? "text-orange-100" : "text-gray-400"}`}>
+                    <div className={`text-[10px] mt-1 ${msg.role === "user" ? "text-blue-200" : "text-gray-400"}`}>
                       {msg.timestamp.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                     </div>
                   </div>
+
+                  {/* User Avatar */}
                   {msg.role === "user" && (
-                    <div className="h-7 w-7 rounded-full bg-orange-500 flex items-center justify-center shrink-0 mt-0.5 text-white text-xs font-bold">
-                      U
+                    <div className="h-7 w-7 rounded-full bg-blue-600 flex items-center justify-center shrink-0 mb-0.5 shadow text-white text-[11px] font-bold">
+                      You
                     </div>
                   )}
                 </div>
 
-                {/* Product Cards */}
+                {/* ── Product Cards ── */}
                 {msg.role === "ai" && msg.products && msg.products.length > 0 && (
                   <div className="ml-9 space-y-2">
                     {msg.products.map((product) => {
                       const isAdded = addedIds.has(product.id)
                       const discount = product.originalPrice ? getDiscount(product.price, product.originalPrice) : 0
+                      const productUrl = product.slug ? `/products/${product.slug}` : `/products/${product.id}`
+
                       return (
                         <div
                           key={product.id}
-                          className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
+                          className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200"
                         >
-                          <div className="flex gap-3 p-3">
-                            {/* Product Image */}
+                          {/* Card clickable top → product page */}
+                          <Link href={productUrl} onClick={() => setIsOpen(false)} className="flex gap-3 p-3 group">
                             <div className="relative shrink-0">
                               <img
-                                src={product.imageUrl || `/placeholder.svg?height=64&width=64&query=${product.title}`}
+                                src={product.imageUrl || `/placeholder.svg?height=64&width=64`}
                                 alt={product.title}
-                                className="h-16 w-16 object-cover rounded-lg bg-gray-100"
+                                className="h-16 w-16 object-cover rounded-lg bg-gray-100 group-hover:scale-105 transition-transform"
                               />
                               {discount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[9px] font-bold px-1 py-0.5 rounded-full">
+                                <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
                                   -{discount}%
                                 </span>
                               )}
                             </div>
-
-                            {/* Product Info */}
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-tight">
+                              <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
                                 {product.title}
                               </p>
-                              <div className="flex items-center gap-1 mt-0.5">
+                              <div className="flex items-center gap-1 mt-1">
                                 <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                                <span className="text-[10px] text-gray-500">GrabNext Verified</span>
+                                <span className="text-[10px] text-gray-400">GrabNext Certified</span>
                               </div>
                               <div className="flex items-baseline gap-1.5 mt-1">
-                                <span className="text-sm font-bold text-orange-600">
-                                  {formatPrice(product.price)}
-                                </span>
+                                <span className="text-sm font-bold text-blue-600">{formatPrice(product.price)}</span>
                                 {product.originalPrice && (
-                                  <span className="text-[11px] text-gray-400 line-through">
-                                    {formatPrice(product.originalPrice)}
-                                  </span>
+                                  <span className="text-[11px] text-gray-400 line-through">{formatPrice(product.originalPrice)}</span>
                                 )}
                               </div>
                             </div>
-                          </div>
+                            <ExternalLink className="h-3.5 w-3.5 text-gray-300 group-hover:text-blue-400 shrink-0 mt-1 transition-colors" />
+                          </Link>
 
                           {/* Action Buttons */}
-                          <div className="px-3 pb-3 flex gap-2">
-                            {/* Add to Cart only */}
+                          <div className="px-3 pb-3 grid grid-cols-2 gap-2">
                             <button
                               onClick={() => handleAddToCart(product)}
                               disabled={isAdded}
-                              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-orange-300 text-orange-600 text-xs font-medium hover:bg-orange-50 transition-colors disabled:opacity-60 disabled:cursor-default"
+                              className={`flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all border ${
+                                isAdded
+                                  ? "bg-green-50 text-green-600 border-green-200 cursor-default"
+                                  : "border-blue-200 text-blue-600 hover:bg-blue-50"
+                              }`}
                             >
                               <ShoppingCart className="h-3.5 w-3.5" />
                               {isAdded ? "Added ✓" : "Add to Cart"}
                             </button>
-
-                            {/* Buy Now → Checkout */}
                             <button
-                              onClick={() => handleAddToCartAndCheckout(product)}
-                              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all hover:shadow-md"
+                              onClick={() => handleBuyNow(product)}
+                              className="flex items-center justify-center gap-1.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow hover:shadow-md"
                             >
                               <Zap className="h-3.5 w-3.5" />
                               Buy Now
@@ -317,16 +345,17 @@ export function ShopAIChat() {
               </div>
             ))}
 
+            {/* Typing indicator */}
             {isLoading && (
-              <div className="flex items-center gap-2">
-                <div className="h-7 w-7 rounded-full bg-orange-100 flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-orange-500" />
+              <div className="flex items-end gap-2">
+                <div className="h-7 w-7 rounded-full bg-blue-600 flex items-center justify-center shrink-0 shadow">
+                  <img src="/logo.png" alt="GrabNext" className="h-5 w-5 object-contain rounded-full" />
                 </div>
-                <div className="bg-white px-4 py-2.5 rounded-2xl rounded-bl-sm shadow-sm border border-gray-100">
-                  <div className="flex gap-1 items-center">
-                    <span className="h-2 w-2 rounded-full bg-orange-400 animate-bounce [animation-delay:0ms]" />
-                    <span className="h-2 w-2 rounded-full bg-orange-400 animate-bounce [animation-delay:150ms]" />
-                    <span className="h-2 w-2 rounded-full bg-orange-400 animate-bounce [animation-delay:300ms]" />
+                <div className="bg-white rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm border border-gray-100">
+                  <div className="flex gap-1.5 items-center">
+                    <span className="h-2 w-2 rounded-full bg-blue-400 animate-bounce [animation-delay:0ms]" />
+                    <span className="h-2 w-2 rounded-full bg-blue-400 animate-bounce [animation-delay:150ms]" />
+                    <span className="h-2 w-2 rounded-full bg-blue-400 animate-bounce [animation-delay:300ms]" />
                   </div>
                 </div>
               </div>
@@ -335,14 +364,14 @@ export function ShopAIChat() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Questions */}
-          {messages.length <= 1 && (
-            <div className="px-4 py-2 flex flex-wrap gap-1.5 bg-gray-50 border-t border-gray-100">
+          {/* ── Quick Chips ── */}
+          {messages.length <= 1 && !isLoading && (
+            <div className="px-3 py-2 flex flex-wrap gap-1.5 bg-white border-t border-gray-100 shrink-0">
               {QUICK_QUESTIONS.map((q) => (
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
-                  className="text-[11px] px-2.5 py-1.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-100 transition-colors"
+                  className="text-[11px] px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-colors font-medium"
                 >
                   {q}
                 </button>
@@ -350,57 +379,48 @@ export function ShopAIChat() {
             </div>
           )}
 
-          {/* Input Area */}
-          <div className="p-3 bg-white border-t border-gray-100">
+          {/* ── Input ── */}
+          <div className="p-3 bg-white border-t border-gray-100 shrink-0">
             <form
               onSubmit={(e) => { e.preventDefault(); sendMessage() }}
               className="flex gap-2 items-center"
             >
-              <div className="flex-1 flex items-center bg-gray-50 border border-gray-200 rounded-full px-4 py-2 gap-2 focus-within:border-orange-400 focus-within:bg-white transition-all">
+              <div className="flex-1 flex items-center bg-gray-50 border border-gray-200 rounded-full px-3.5 py-2 gap-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
                 <ShoppingBag className="h-4 w-4 text-gray-400 shrink-0" />
                 <input
                   ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Koi sawaal puchein..."
-                  className="flex-1 text-sm bg-transparent outline-none text-gray-800 placeholder:text-gray-400"
+                  placeholder="Ask anything about our products..."
+                  className="flex-1 text-xs bg-transparent outline-none text-gray-800 placeholder:text-gray-400"
                   disabled={isLoading}
+                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
                 />
               </div>
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="h-9 w-9 rounded-full bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-white transition-all shrink-0 shadow-md hover:shadow-lg"
+                className="h-9 w-9 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-white transition-all shadow hover:shadow-md shrink-0"
               >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </button>
             </form>
-            <p className="text-[10px] text-gray-400 text-center mt-2">
-              Powered by <strong className="text-orange-500">GrabNext AI</strong> × Gemini
+            <p className="text-[10px] text-gray-400 text-center mt-1.5">
+              <span className="text-blue-500 font-semibold">GrabNext AI</span> · Powered by Gemini
             </p>
           </div>
         </div>
       )}
 
       <style jsx global>{`
-        @keyframes slide-up {
-          from { opacity: 0; transform: translateY(20px) scale(0.95); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(16px) scale(0.96); }
+          to   { opacity: 1; transform: translateY(0)   scale(1);    }
         }
-        @keyframes bounce-in {
-          0% { opacity: 0; transform: scale(0.8); }
-          70% { transform: scale(1.05); }
+        @keyframes bounceIn {
+          0%   { opacity: 0; transform: scale(0.8); }
+          70%  { transform: scale(1.05); }
           100% { opacity: 1; transform: scale(1); }
-        }
-        .animate-slide-up {
-          animation: slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        .animate-bounce-in {
-          animation: bounce-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
       `}</style>
     </>
