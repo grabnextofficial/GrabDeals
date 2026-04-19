@@ -62,15 +62,18 @@ export function ShopAIChat() {
   const { addToCart } = useCart()
   const router = useRouter()
 
-  // ── Icon spin every 5 seconds ──
+  // ── Icon spin on start + every 5 seconds ──
   useEffect(() => {
-    if (isOpen) return
-    const interval = setInterval(() => {
+    const triggerSpin = () => {
       setIconSpin(true)
-      setTimeout(() => setIconSpin(false), 800)
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [isOpen])
+      setTimeout(() => setIconSpin(false), 850)
+    }
+    // Spin once on mount after 1 second
+    const initial = setTimeout(triggerSpin, 1000)
+    // Then every 5 seconds
+    const interval = setInterval(triggerSpin, 5000)
+    return () => { clearTimeout(initial); clearInterval(interval) }
+  }, [])
 
   // ── Load chat from localStorage ──
   useEffect(() => {
