@@ -22,6 +22,22 @@ async function getProducts() {
     } catch { return [] }
 }
 
+async function callGemini(apiKey: string, model: string, systemPrompt: string, contents: any[]) {
+    const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                contents,
+                generationConfig: { temperature: 0.75, maxOutputTokens: 600 }
+            })
+        }
+    )
+    return res
+}
+
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
@@ -32,112 +48,100 @@ export async function POST(request: NextRequest) {
         }
 
         const settings = await getSettings()
-        const apiKey = settings.gemini_api_key
-        const model = settings.gemini_model || 'gemini-2.0-flash'
+        const apiKey = settings.gemini_api_key?.trim()
 
         if (!apiKey) {
             return NextResponse.json({
-                reply: "Hello! I'm GrabNext AI Assistant. AI configuration hasn't been set up yet. Please contact admin. 🙏",
+                reply: "Hey! I'm GrabNext AI. 👋 It looks like the AI hasn't been configured yet. Please contact the admin to set up the Gemini API key in Admin → Settings.",
                 products: [],
                 action: null
             })
         }
 
+        // Model priority: settings → gemini-1.5-flash (stable default) → gemini-2.0-flash (fallback)
+        const preferredModel = settings.gemini_model?.trim() || 'gemini-1.5-flash'
+        const fallbackModel = preferredModel === 'gemini-1.5-flash' ? 'gemini-2.0-flash' : 'gemini-1.5-flash'
+
         const products = await getProducts()
+
         const productList = products.map((p: any) => {
             const price = `₹${Number(p.price).toLocaleString('en-IN')}`
             const origPrice = p.originalPrice ? ` | Original: ₹${Number(p.originalPrice).toLocaleString('en-IN')}` : ''
             const discount = p.originalPrice ? ` | ${Math.round((1 - p.price / p.originalPrice) * 100)}% OFF` : ''
-            const slug = p.slug || ''
-            return `[ID:${p.id}|SLUG:${slug}] ${p.title} | Category: ${p.category} | Price: ${price}${origPrice}${discount} | ${p.description?.slice(0, 100) || ''}`
+            return `[ID:${p.id}|SLUG:${p.slug || ''}] ${p.title} | Category: ${p.category} | Price: ${price}${origPrice}${discount} | ${p.description?.slice(0, 100) || ''}`
         }).join('\n')
 
-        const SYSTEM_PROMPT = `You are GrabNext AI — a premium, intelligent shopping assistant for GrabNext, India's leading online store.
+        const SYSTEM_PROMPT = `You are GrabNext AI — a premium, intelligent shopping assistant for GrabNext, India's trusted online store.
 
-PERSONALITY:
-- Friendly, smart, helpful — like a knowledgeable shopping companion
-- Confident and enthusiastic about GrabNext's products
-- Modern, trendy tone — not robotic or overly formal
+PERSONALITY & TONE:
+- Friendly, smart, enthusiastic — like a knowledgeable shopping companion
+- Modern and trendy — not robotic or stiff
+- Always make users excited to shop at GrabNext!
 
-LANGUAGE RULES (VERY IMPORTANT):
-- Default language: English
-- If user writes in Hinglish (Hindi + English mix) → reply in Hinglish naturally
-- If user writes in pure Hindi → reply in Hindi
+LANGUAGE RULES (follow strictly):
+- DEFAULT language: English
+- If user writes in Hinglish → reply in Hinglish naturally and warmly
+- If user writes in Hindi → reply in Hindi
 - If user writes in English → reply in English only
-- Match the user's vibe and energy!
+- Match the user's energy and language!
 
 STRICT SCOPE:
 - ONLY answer about GrabNext products, shopping, orders, payments, delivery, returns, and the GrabNext platform
-- If asked anything off-topic (politics, recipes, general knowledge, etc.), say: "I'm GrabNext AI and I only help with shopping on GrabNext! Ask me about our amazing products 🛍️"
+- If off-topic (politics, recipes, general knowledge etc.): "I'm GrabNext AI and I only help with shopping here! Ask me about our amazing products 🛍️"
 - Never make up product details not in the catalog
 
-RESPONSE FORMAT RULES:
-1. Always mention "GrabNext" naturally in every reply
-2. Keep replies concise — 2-3 sentences max unless explaining something complex
+EVERY REPLY MUST:
+1. Mention "GrabNext" naturally 
+2. Be concise — 2-3 sentences max (unless explaining something)
 3. Use emojis naturally ✨🛍️⚡
-4. If recommending products, list product IDs at the END in this EXACT format (hidden from user): PRODUCT_IDS:[id1,id2,id3]
-5. If no products match the query, do NOT include PRODUCT_IDS
-6. If user asks to add a product to cart, include ACTION:ADD_TO_CART in your response (only when user explicitly asks)
-7. If user asks to go to checkout or buy now, include ACTION:CHECKOUT in your response
-8. Actions go at the very end after PRODUCT_IDS on a new line
-
-CART COMMANDS (user may say things like):
-- "add this to cart" / "cart mein add karo" / "add kar do" → include ACTION:ADD_TO_CART
-- "buy now" / "checkout" / "buy karna hai" → include ACTION:CHECKOUT
-- "show me products" / "kya available hai" → recommmend products with PRODUCT_IDS
+4. End with PRODUCT_IDS:[id1,id2] on a NEW LINE if you're recommending products (max 3)
+5. If user says "add to cart" / "cart mein dalo" / "add kar do" → end with ACTION:ADD_TO_CART on new line
+6. If user says "buy now" / "checkout" / "kharidna hai" → end with ACTION:CHECKOUT on new line
+7. Never include PRODUCT_IDS if no products match
+8. Actions always go after PRODUCT_IDS
 
 GRABNEXT INFO:
-- Platform: GrabNext — India's trusted digital products store
 - Payment: Razorpay, UPI, Credit/Debit Cards, Net Banking
-- Delivery: Digital products — instant delivery after payment
-- Returns: 7-day return policy — contact support
-- Support: Available on grabnext.com
+- Delivery: Digital products → instant; Physical → as per seller
+- Returns: 7-day return policy
+- Support: grabnext.com
 
-CURRENT PRODUCT CATALOG:
-${productList || 'No products available currently. Check back soon!'}
+PRODUCT CATALOG:
+${productList || 'No products available right now. Check back soon!'}
 
-Be the best shopping assistant — make every user feel valued and excited to shop at GrabNext! 🚀`
+Be the BEST shopping assistant — make every user feel valued! 🚀`
 
         const contents: any[] = []
-
         if (Array.isArray(history)) {
             for (const msg of history) {
                 if (msg.role && msg.text) {
-                    contents.push({
-                        role: msg.role === 'user' ? 'user' : 'model',
-                        parts: [{ text: msg.text }]
-                    })
+                    contents.push({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] })
                 }
             }
         }
-
         contents.push({ role: 'user', parts: [{ text: message }] })
 
-        const geminiRes = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-                    contents,
-                    generationConfig: { temperature: 0.75, maxOutputTokens: 600 }
-                })
-            }
-        )
+        // Try preferred model first, then fallback
+        let geminiRes = await callGemini(apiKey, preferredModel, SYSTEM_PROMPT, contents)
 
         if (!geminiRes.ok) {
-            const err = await geminiRes.json()
-            console.error('[ShopChat Gemini Error]', err)
+            console.warn(`[ShopChat] Model ${preferredModel} failed, trying ${fallbackModel}`)
+            geminiRes = await callGemini(apiKey, fallbackModel, SYSTEM_PROMPT, contents)
+        }
+
+        if (!geminiRes.ok) {
+            let errMsg = 'Unknown error'
+            try { const errData = await geminiRes.json(); errMsg = errData?.error?.message || errMsg } catch {}
+            console.error('[ShopChat] Both models failed:', errMsg)
             return NextResponse.json({
-                reply: "GrabNext AI is temporarily unavailable. Please try again in a moment! 🙏",
+                reply: `GrabNext AI couldn't respond right now. (${errMsg.slice(0, 80)}) Please try again! 🙏`,
                 products: [],
                 action: null
             })
         }
 
         const data = await geminiRes.json()
-        let rawReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "GrabNext AI couldn't respond. Please try again."
+        let rawReply: string = data.candidates?.[0]?.content?.parts?.[0]?.text || "Couldn't get a response. Please try again."
 
         // Extract product IDs
         let suggestedProducts: any[] = []
@@ -178,10 +182,11 @@ Be the best shopping assistant — make every user feel valued and excited to sh
         }
 
         return NextResponse.json({ reply: rawReply, products: suggestedProducts, action })
+
     } catch (error: any) {
         console.error('[ShopChat Error]', error)
         return NextResponse.json({
-            reply: "GrabNext AI ran into a technical issue. Please try again! 🙏",
+            reply: "GrabNext AI ran into an issue. Please try again! 🙏",
             products: [],
             action: null
         })
