@@ -5,6 +5,7 @@ import { AuthProvider } from "@/contexts/auth-context"
 import { CartProvider } from "@/contexts/cart-context"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
+import { ShopAIChat } from "@/components/shop-ai-chat"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -92,6 +93,7 @@ html {
             <CartProvider>
               {children}
               <Toaster />
+              <ShopAIChat />
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>
