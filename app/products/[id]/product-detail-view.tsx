@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
-    Star, ShoppingCart, Zap, Shield,
+    Star, Zap, Shield,
     Heart, Share2, Loader2, X, ChevronLeft, ChevronRight, Clock, CheckCircle2
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -264,23 +264,12 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                 <p className="text-xs text-gray-400 mt-0.5">Inclusive of all taxes. Free Delivery.</p>
                             </div>
 
-                            {/* ── CTA BUTTONS ── */}
-                            <div className="flex flex-col gap-2.5 mt-1">
-                                {/* Add to Cart */}
-                                <button
-                                    id="add-to-cart-btn"
-                                    className="w-full flex items-center justify-center gap-2 h-12 rounded-xl font-semibold text-sm border-2 border-blue-600 text-blue-600 bg-white hover:bg-blue-600 hover:text-white transition-all duration-200 active:scale-[0.98]"
-                                    onClick={() => { addToCart(product); toast({ title: "🛒 Added to cart!" }) }}
-                                >
-                                    <ShoppingCart className="h-5 w-5 shrink-0" />
-                                    Add to Cart
-                                </button>
-
-                                {/* Buy Now */}
+                            {/* ── BUY NOW BUTTON ── */}
+                            <div className="mt-1">
                                 <button
                                     id="buy-now-btn"
                                     disabled={buyingNow}
-                                    className="w-full flex items-center justify-center gap-2 h-12 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-red-600 shadow-md shadow-orange-200 transition-all duration-200 active:scale-[0.98] disabled:opacity-70"
+                                    className="w-full flex items-center justify-center gap-2 h-13 py-3.5 rounded-xl font-bold text-base text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-red-600 shadow-md shadow-orange-200 transition-all duration-200 active:scale-[0.98] disabled:opacity-70"
                                     onClick={() => {
                                         setBuyingNow(true)
                                         addToCart(product)
