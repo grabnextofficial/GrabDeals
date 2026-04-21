@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { RichTextEditor } from "@/components/rich-text-editor"
 import { toast } from "@/hooks/use-toast"
-import { ArrowLeft, Upload, Loader2, X, ImageIcon, Plus, GripVertical, FileText, Video, Link as LinkIcon, File, Globe, LayoutTemplate } from "lucide-react"
+import { ArrowLeft, Upload, Loader2, X, ImageIcon, Plus, GripVertical, FileText, Video, Link as LinkIcon, File } from "lucide-react"
 import { fetchCategories } from "@/lib/d1-client"
 import { DigitalAsset } from "@/lib/types"
 
@@ -21,7 +21,6 @@ interface ProductFormProps {
 const EMPTY = {
     title: "", description: "", price: "", originalPrice: "", category: "",
     tags: "", downloadUrl: "", isActive: true, images: [] as string[],
-    pageType: "shop" as "shop" | "landing",
 }
 
 export function AdminProductForm({ mode, productId }: ProductFormProps) {
@@ -65,7 +64,6 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
                     downloadUrl: p.downloadUrl || "",
                     isActive: p.isActive !== false,
                     images: Array.isArray(p.images) ? p.images : (p.imageUrl ? [p.imageUrl] : []),
-                    pageType: (p.pageType as "shop" | "landing") || "shop",
                 })
                 setDigitalAssets(parsedAssets)
                 setLoading(false)
@@ -169,7 +167,7 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
                 imageUrl: form.images[0] || "",
                 downloadUrl: JSON.stringify(digitalAssets), // Store assets as JSON
                 isActive: form.isActive,
-                pageType: form.pageType,
+                pageType: "shop",
             }
             const url = mode === "edit" ? `/api/products/${productId}` : "/api/products"
             const method = mode === "edit" ? "PUT" : "POST"
@@ -472,52 +470,7 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
                             </div>
                         </div>
 
-                        {/* Page Settings Card */}
-                        <div className="bg-white rounded-2xl p-5 border shadow-sm space-y-3">
-                            <h2 className="font-semibold text-gray-800 border-b pb-2 flex items-center gap-2">
-                                <LayoutTemplate className="h-4 w-4 text-indigo-500" />
-                                Page Settings
-                            </h2>
-                            <p className="text-xs text-gray-400">Choose what page opens when someone visits this product's URL.</p>
-                            <div className="space-y-2">
-                                <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                                    form.pageType === 'shop' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-                                }`}>
-                                    <input type="radio" name="pageType" value="shop" className="hidden"
-                                        checked={form.pageType === 'shop'}
-                                        onChange={() => setForm(f => ({ ...f, pageType: 'shop' }))} />
-                                    <Globe className={`h-5 w-5 shrink-0 ${form.pageType === 'shop' ? 'text-blue-600' : 'text-gray-400'}`} />
-                                    <div>
-                                        <p className="text-sm font-semibold text-gray-800">Shop Page</p>
-                                        <p className="text-xs text-gray-500">Normal product page with cart, reviews, etc.</p>
-                                    </div>
-                                </label>
-                                <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                                    form.pageType === 'landing' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-gray-300'
-                                }`}>
-                                    <input type="radio" name="pageType" value="landing" className="hidden"
-                                        checked={form.pageType === 'landing'}
-                                        onChange={() => setForm(f => ({ ...f, pageType: 'landing' }))} />
-                                    <LayoutTemplate className={`h-5 w-5 shrink-0 ${form.pageType === 'landing' ? 'text-indigo-600' : 'text-gray-400'}`} />
-                                    <div>
-                                        <p className="text-sm font-semibold text-gray-800">Landing Page</p>
-                                        <p className="text-xs text-gray-500">Custom landing page you design manually.</p>
-                                    </div>
-                                </label>
-                            </div>
-                            {form.pageType === 'landing' && mode === 'edit' && productId && (
-                                <Link href={`/admin/products/${productId}/landing-page`}
-                                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-sm font-semibold rounded-xl transition-all shadow-sm">
-                                    <LayoutTemplate className="h-4 w-4" />
-                                    Edit Landing Page
-                                </Link>
-                            )}
-                            {form.pageType === 'landing' && mode === 'create' && (
-                                <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-2">
-                                    💡 Save the product first, then come back to edit the landing page.
-                                </p>
-                            )}
-                        </div>
+
                     </div>
                 </div>
             </form>
