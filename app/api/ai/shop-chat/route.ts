@@ -58,9 +58,9 @@ export async function POST(request: NextRequest) {
             })
         }
 
-        // Use same model as landing page route (proven working)
-        const preferredModel = settings.gemini_model?.trim() || 'gemini-2.0-flash'
-        const fallbackModel  = 'gemini-2.0-flash-exp'
+        // gemini-2.5-flash (fast) → fallback to gemini-2.5-pro
+        const preferredModel = settings.gemini_model?.trim() || 'gemini-2.5-flash-preview-04-17'
+        const fallbackModel  = 'gemini-2.5-pro-preview-03-25'
 
         const products = await getProducts()
 
