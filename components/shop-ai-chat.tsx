@@ -191,8 +191,8 @@ export function ShopAIChat() {
       ])
     } finally {
       setIsLoading(false)
-      // Refocus input after AI responds
-      setTimeout(() => inputRef.current?.focus(), 60)
+      // Refocus input after AI responds to ensure seamless experience
+      setTimeout(() => inputRef.current?.focus(), 10)
     }
   }
 
@@ -401,7 +401,6 @@ export function ShopAIChat() {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask anything about our products..."
                   className="flex-1 text-xs bg-transparent outline-none text-gray-800 placeholder:text-gray-400"
-                  disabled={isLoading}
                 />
               </div>
               <button
