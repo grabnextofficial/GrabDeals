@@ -12,11 +12,13 @@ import { toast } from "@/hooks/use-toast"
 import { Bot, Loader2, Save, CheckCircle2, Eye, EyeOff, Zap, Shield } from "lucide-react"
 
 const GEMINI_MODELS = [
-    { id: "gemini-2.0-flash", label: "Gemini 2.0 Flash", desc: "Fast & smart (recommended)" },
-    { id: "gemini-2.0-flash-lite", label: "Gemini 2.0 Flash Lite", desc: "Very fast, lower cost" },
-    { id: "gemini-1.5-flash", label: "Gemini 1.5 Flash", desc: "Reliable & fast" },
-    { id: "gemini-1.5-pro", label: "Gemini 1.5 Pro", desc: "Most capable" },
-    { id: "gemini-2.0-pro-exp", label: "Gemini 2.0 Pro (Exp)", desc: "Experimental, most powerful" },
+    { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash", desc: "Stable June 2025 (Fast & Smart)" },
+    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", desc: "Stable release (Most capable)" },
+    { id: "gemini-2.0-flash", label: "Gemini 2.0 Flash", desc: "Reliable & fast multimodal" },
+    { id: "gemini-2.0-flash-001", label: "Gemini 2.0 Flash 001", desc: "Stable Jan 2025" },
+    { id: "gemini-2.0-flash-lite", label: "Gemini 2.0 Flash-Lite", desc: "Very fast, cost efficient" },
+    { id: "gemini-2.0-flash-lite-001", label: "Gemini 2.0 Flash-Lite 001", desc: "Stable 2.0 Lite" },
+    { id: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite", desc: "Stable July 2025" },
     { id: "custom", label: "Custom Model", desc: "Enter your own model name" },
 ]
 
@@ -170,7 +172,7 @@ export default function AISettingsPage() {
                                                     <p className="text-sm font-semibold text-gray-800">{model.label}</p>
                                                     <p className="text-xs text-gray-500">{model.desc}</p>
                                                 </div>
-                                                {model.id === "gemini-2.0-flash" && (
+                                                {model.id === "gemini-2.5-flash" && (
                                                     <span className="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-bold">Recommended</span>
                                                 )}
                                             </label>

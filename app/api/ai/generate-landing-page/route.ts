@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         // Get settings from DB (or use provided keys for test mode)
         const settings = await getSettings()
         const apiKey = bodyApiKey || settings.gemini_api_key
-        const model = bodyModel || settings.gemini_model || 'gemini-2.0-flash'
+        const model = bodyModel || settings.gemini_model || 'gemini-2.5-flash'
 
         if (!apiKey) {
             return NextResponse.json({ error: 'Gemini API key not configured. Go to Admin → AI Settings.' }, { status: 400 })

@@ -59,8 +59,8 @@ export async function POST(request: NextRequest) {
         }
 
         // gemini-2.5-flash (fast) → fallback to gemini-2.5-pro
-        const preferredModel = settings.gemini_model?.trim() || 'gemini-2.5-flash-preview-04-17'
-        const fallbackModel  = 'gemini-2.5-pro-preview-03-25'
+        const preferredModel = settings.gemini_model?.trim() || 'gemini-2.5-flash'
+        const fallbackModel  = 'gemini-2.5-pro'
 
         const products = await getProducts()
 
