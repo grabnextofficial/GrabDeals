@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { 
   Lock, Mail, User, Phone, CheckCircle2, Loader2, Package, 
   ShieldCheck, CreditCard, Truck, ArrowLeft, ChevronRight, 
-  Award, ShoppingBag, Shield 
+  Award, ShoppingBag, Shield, Zap 
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
