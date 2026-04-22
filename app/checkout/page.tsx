@@ -3,13 +3,18 @@
 import type React from "react"
 import { useState, useCallback, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Lock, Mail, User, Phone, Eye, EyeOff, CheckCircle2, Loader2, Package } from "lucide-react"
+import { 
+  Lock, Mail, User, Phone, CheckCircle2, Loader2, Package, 
+  ShieldCheck, CreditCard, Truck, ArrowLeft, ChevronRight, 
+  Award, ShoppingBag, Shield 
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
 import { StoreHeader } from "@/components/store-header"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
@@ -295,247 +300,390 @@ export default function CheckoutPage() {
     }
   }
 
+  // Helper component for the progress stepper
+  const Stepper = ({ currentStep }: { currentStep: number }) => (
+    <div className="flex items-center justify-between w-full max-w-2xl mx-auto mb-10 relative">
+      <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-100 -translate-y-1/2 z-0" />
+      <div className="absolute top-1/2 left-0 h-0.5 bg-primary -translate-y-1/2 z-0 transition-all duration-500" style={{ width: currentStep === 1 ? '50%' : '100%' }} />
+      
+      {[
+        { step: 1, label: "Information", icon: User },
+        { step: 2, label: "Payment", icon: CreditCard },
+        { step: 3, label: "Success", icon: CheckCircle2 },
+      ].map((s) => (
+        <div key={s.step} className="relative z-10 flex flex-col items-center">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+            currentStep >= s.step ? "bg-primary text-white shadow-lg shadow-primary/30" : "bg-white border-2 border-gray-200 text-gray-400"
+          }`}>
+            <s.icon className="h-5 w-5" />
+          </div>
+          <span className={`text-[10px] sm:text-xs font-bold mt-2 uppercase tracking-wider ${
+            currentStep >= s.step ? "text-primary" : "text-gray-400"
+          }`}>
+            {s.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50/50">
         <StoreHeader />
-        <div className="container mx-auto px-4 py-8">
-          <Card className="max-w-md mx-auto">
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <div className="text-6xl mb-4">🛒</div>
-              <h2 className="text-2xl font-semibold mb-2">Your cart is empty</h2>
-              <p className="text-muted-foreground mb-6">Add some products to proceed with checkout.</p>
-              <Button asChild size="lg">
-                <Link href="/products">Browse Products</Link>
-              </Button>
-            </CardContent>
-          </Card>
+        <div className="container mx-auto px-4 py-20">
+          <div className="max-w-md mx-auto text-center space-y-6">
+            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm border">
+               <ShoppingBag className="h-10 w-10 text-gray-300" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Your cart is empty</h2>
+              <p className="text-gray-500">Looks like you haven't added anything to your cart yet.</p>
+            </div>
+            <Button asChild size="lg" className="rounded-full px-8 shadow-md">
+              <Link href="/products">Browse products</Link>
+            </Button>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <StoreHeader />
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">Checkout</h1>
-
-          {/* Active gateway badge */}
-          <div className="mb-4 inline-flex items-center gap-2 text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded-full px-3 py-1">
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            Paying via <strong>{activeGateway === "razorpay" ? "Razorpay" : "XPay"}</strong>
-          </div>
-
-          {!user && checkoutStep === 1 && (
-            <p className="text-sm text-muted-foreground mb-6">
-              Already have an account?{" "}
-              <Link href="/auth/login" className="text-primary hover:underline">Sign in</Link>{" "}
-              to load your details. Or continue as guest.
-            </p>
-          )}
-
-          <form onSubmit={checkoutStep === 1 ? handleContinueToPayment : (e) => e.preventDefault()}>
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* Left: Forms */}
-              <div className="space-y-6">
-                {/* Contact Information */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Mail className="h-5 w-5" />
-                      Contact Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="email">Email Address *</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                        disabled={!!user?.email}
-                        placeholder="your@email.com"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Billing Information */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="h-5 w-5" />
-                      Billing Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="firstName">First Name *</Label>
-                        <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required />
-                      </div>
-                      <div>
-                        <Label htmlFor="lastName">Last Name</Label>
-                        <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Mobile Number *</Label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} required className="pl-10" placeholder="+91 XXXXX XXXXX" disabled={checkoutStep === 2} />
-                      </div>
-                    </div>
-
-                    {!isDigitalOnly && (
-                      <div className="space-y-4 pt-2">
-                        <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 text-xs text-blue-700 flex gap-2">
-                          <Package className="h-4 w-4 shrink-0" />
-                          <span>We need your address for shipping physical products.</span>
-                        </div>
-                        <div>
-                          <Label htmlFor="address">Address</Label>
-                          <Input id="address" name="address" value={formData.address} onChange={handleInputChange} />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="city">City</Label>
-                            <Input id="city" name="city" value={formData.city} onChange={handleInputChange} />
-                          </div>
-                          <div>
-                            <Label htmlFor="state">State</Label>
-                            <Input id="state" name="state" value={formData.state} onChange={handleInputChange} />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="zipCode">ZIP Code</Label>
-                            <Input id="zipCode" name="zipCode" value={formData.zipCode} onChange={handleInputChange} />
-                          </div>
-                          <div>
-                            <Label htmlFor="country">Country</Label>
-                            <Input id="country" name="country" value={formData.country} onChange={handleInputChange} />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {isDigitalOnly && (
-                      <div className="bg-green-50 p-4 rounded-lg border border-green-100 mt-2">
-                        <p className="text-sm text-green-700 font-medium flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4" />
-                          Digital Delivery Selected
-                        </p>
-                        <p className="text-xs text-green-600 mt-1">
-                          Since you're buying digital products, we don't need your shipping address. You'll get your download link instantly after payment.
-                        </p>
-                      </div>
-                    )}
-
-                    {(!user || checkoutStep === 2) && checkoutStep === 1 && (
-                      <div className="pt-2 border-t mt-4">
-                        <div className="flex items-center gap-2 bg-yellow-50 p-3 rounded-lg border border-yellow-100">
-                          <Checkbox id="createAccount" checked disabled className="cursor-default" />
-                          <div className="grid gap-1.5 leading-none">
-                            <label htmlFor="createAccount" className="text-sm font-medium leading-none">
-                              Save my details for next time
-                            </label>
-                            <p className="text-xs text-muted-foreground">
-                              We'll create a guest account automatically so you can access your downloads anytime.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Right: Order Summary */}
-              <div>
-                <Card className="sticky top-24">
-                  <CardHeader>
-                    <CardTitle>Order Summary</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      {items.map((item) => (
-                        <div key={item.productId} className="flex justify-between items-start gap-3">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-sm line-clamp-2">{item.product.title}</h4>
-                            <p className="text-muted-foreground text-xs">Qty: {item.quantity}</p>
-                          </div>
-                          <span className="font-medium text-sm shrink-0">
-                            {formatPrice(item.product.price * item.quantity)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    <Separator />
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Subtotal</span><span>{formatPrice(totalAmount)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Tax</span><span>Included</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Shipping</span><span className="text-green-600 font-medium">Free</span>
-                      </div>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between text-lg font-bold">
-                      <span>Total</span>
-                      <span className="text-primary">{formatPrice(totalAmount)}</span>
-                    </div>
-
-                    <div className="space-y-4 pt-2">
-                      <div className="flex items-start gap-2">
-                        <Checkbox id="terms" required className="mt-0.5" disabled={checkoutStep === 2} />
-                        <Label htmlFor="terms" className="text-sm font-normal leading-relaxed">
-                          I agree to the{" "}
-                          <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link>
-                          {" "}and{" "}
-                          <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
-                        </Label>
-                      </div>
-
-                      {checkoutStep === 1 ? (
-                        <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md transition-all" size="lg" disabled={loading}>
-                          {loading ? (
-                            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Processing...</>
-                          ) : (
-                            <>Continue & Pay Securely <Lock className="h-4 w-4 ml-2" /></>
-                          )}
-                        </Button>
-                      ) : (
-                        <Button type="button" onClick={handlePayNow} className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg transition-all" size="lg" disabled={loading}>
-                          {loading ? (
-                            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Opening payment...</>
-                          ) : (
-                            <><Lock className="h-4 w-4 mr-2" />Try Payment Again</>
-                          )}
-                        </Button>
-                      )}
-
-                      {checkoutStep === 2 && (
-                        <p className="text-xs text-muted-foreground text-center">
-                          Secured by {activeGateway === "razorpay" ? "Razorpay" : "XPay"} · Safe & Encrypted
-                        </p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </form>
+    <div className="min-h-screen bg-[#FDFDFF]">
+      {/* Mini Checkout Header */}
+      <header className="bg-white border-b sticky top-0 z-[50]">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <Link href="/" className="font-black text-xl tracking-tighter hover:opacity-80 transition-opacity">
+            GRABNEXT<span className="text-primary">.</span>
+          </Link>
+          <Link href="/cart" className="text-sm font-medium text-gray-500 hover:text-primary flex items-center gap-1.5 transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            Back to cart
+          </Link>
         </div>
-      </div >
-    </div >
+      </header>
+
+      <main className="container mx-auto px-4 py-10">
+        <div className="max-w-6xl mx-auto">
+          {/* Stepper Header */}
+          <div className="text-center mb-4">
+             <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2">Secure Checkout</h1>
+             <p className="text-sm text-gray-500">Complete your purchase securely in just two steps</p>
+          </div>
+          
+          <Stepper currentStep={checkoutStep} />
+
+          <div className="grid lg:grid-cols-[1fr_380px] gap-10 items-start">
+            {/* Left Column: Checkout Forms */}
+            <form onSubmit={checkoutStep === 1 ? handleContinueToPayment : (e) => e.preventDefault()} className="space-y-8">
+              
+              {/* Login Promotion (Guest mode) */}
+              {!user && checkoutStep === 1 && (
+                <div className="bg-primary/5 border border-primary/10 rounded-2xl p-4 flex gap-4 items-center">
+                  <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0">
+                    <User className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-700 leading-tight">
+                      <strong>Already have an account?</strong> Login to checkout faster and track your orders.
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm" asChild className="rounded-full bg-white">
+                    <Link href="/auth/login">Login</Link>
+                  </Button>
+                </div>
+              )}
+
+              {/* Step 1: Information */}
+              <div className={`space-y-6 transition-all duration-500 ${checkoutStep === 2 ? "opacity-50 pointer-events-none grayscale-[0.5]" : ""}`}>
+                {/* Section: Personal Details */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-gray-900 flex items-center justify-center text-white text-sm font-bold">1</div>
+                    <h2 className="text-lg font-bold text-gray-900">Personal Details</h2>
+                  </div>
+                  
+                  <Card className="border-none shadow-sm ring-1 ring-gray-200 overflow-hidden rounded-2xl">
+                    <CardContent className="p-6 space-y-5">
+                      <div className="grid gap-5">
+                        <div className="space-y-2">
+                          <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-gray-500 ml-1">Email Address</Label>
+                          <div className="relative">
+                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Input
+                              id="email"
+                              name="email"
+                              type="email"
+                              value={formData.email}
+                              onChange={handleInputChange}
+                              required
+                              disabled={!!user?.email}
+                              placeholder="janedoe@example.com"
+                              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-primary/20 rounded-xl transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-5">
+                          <div className="space-y-2">
+                            <Label htmlFor="firstName" className="text-xs font-bold uppercase tracking-wider text-gray-500 ml-1">First Name</Label>
+                            <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required className="h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-primary/20 rounded-xl transition-all" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="lastName" className="text-xs font-bold uppercase tracking-wider text-gray-500 ml-1">Last Name</Label>
+                            <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} className="h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-primary/20 rounded-xl transition-all" />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wider text-gray-500 ml-1">Phone Number</Label>
+                          <div className="relative">
+                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Input
+                              id="phone"
+                              name="phone"
+                              type="tel"
+                              value={formData.phone}
+                              onChange={handleInputChange}
+                              required
+                              placeholder="+91 00000 00000"
+                              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-primary/20 rounded-xl transition-all"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Section: Shipping (If not digital) */}
+                {!isDigitalOnly && (
+                  <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-500">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-gray-900 flex items-center justify-center text-white text-sm font-bold">2</div>
+                      <h2 className="text-lg font-bold text-gray-900">Shipping Address</h2>
+                    </div>
+                    
+                    <Card className="border-none shadow-sm ring-1 ring-gray-200 overflow-hidden rounded-2xl">
+                      <CardContent className="p-6 space-y-5">
+                        <div className="space-y-2">
+                          <Label htmlFor="address" className="text-xs font-bold uppercase tracking-wider text-gray-500 ml-1">Street Address</Label>
+                          <Input id="address" name="address" value={formData.address} onChange={handleInputChange} required className="h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-primary/20 rounded-xl transition-all" />
+                        </div>
+                        
+                        <div className="grid sm:grid-cols-2 gap-5">
+                          <div className="space-y-2">
+                            <Label htmlFor="city" className="text-xs font-bold uppercase tracking-wider text-gray-500 ml-1">City</Label>
+                            <Input id="city" name="city" value={formData.city} onChange={handleInputChange} required className="h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-primary/20 rounded-xl transition-all" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="state" className="text-xs font-bold uppercase tracking-wider text-gray-500 ml-1">State</Label>
+                            <Input id="state" name="state" value={formData.state} onChange={handleInputChange} required className="h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-primary/20 rounded-xl transition-all" />
+                          </div>
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-5">
+                          <div className="space-y-2">
+                            <Label htmlFor="zipCode" className="text-xs font-bold uppercase tracking-wider text-gray-500 ml-1">ZIP / Postal Code</Label>
+                            <Input id="zipCode" name="zipCode" value={formData.zipCode} onChange={handleInputChange} required className="h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-primary/20 rounded-xl transition-all" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="country" className="text-xs font-bold uppercase tracking-wider text-gray-500 ml-1">Country</Label>
+                            <Input id="country" name="country" value={formData.country} onChange={handleInputChange} required className="h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-primary/20 rounded-xl transition-all" />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Digital Perks Box */}
+                {isDigitalOnly && (
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 flex gap-4">
+                    <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0">
+                      <Zap className="h-6 w-6 text-emerald-500" fill="currentColor" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-emerald-900 text-sm">Instant Digital Delivery</h3>
+                      <p className="text-xs text-emerald-700/80 mt-0.5 leading-relaxed">
+                        Since your order contains only digital items, you'll receive your download links immediately after payment is confirmed. No shipping required!
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Step 2: Payment (Visible when on step 2) */}
+              {checkoutStep === 2 && (
+                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-white text-sm font-bold">3</div>
+                      <h2 className="text-lg font-bold text-gray-900">Payment Selection</h2>
+                    </div>
+
+                    <Card className="border-none shadow-sm ring-2 ring-primary overflow-hidden rounded-2xl bg-primary/[0.02]">
+                       <CardContent className="p-8 text-center space-y-6">
+                          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm border border-primary/10">
+                            <Lock className="h-8 w-8 text-primary" />
+                          </div>
+                          <div className="space-y-2">
+                             <h3 className="text-xl font-black text-gray-900">Ready to Secure Order?</h3>
+                             <p className="text-sm text-gray-500 max-w-sm mx-auto">
+                               Click below to complete your purchase using <strong>{activeGateway === "razorpay" ? "Razorpay" : "XPay"}</strong>. Our checkout is 100% safe and encrypted.
+                             </p>
+                          </div>
+                          <Button 
+                            type="button" 
+                            onClick={handlePayNow} 
+                            disabled={loading}
+                            className="w-full h-14 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-[0.98]"
+                          >
+                            {loading ? (
+                              <><Loader2 className="h-5 w-5 mr-3 animate-spin" />Connecting Gateway...</>
+                            ) : (
+                              <><ShieldCheck className="h-5 w-5 mr-2" /> Pay Now {formatPrice(totalAmount)}</>
+                            )}
+                          </Button>
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                            Verified Secure · PCI-DSS Compliant
+                          </p>
+                       </CardContent>
+                    </Card>
+                 </div>
+              )}
+            </form>
+
+            {/* Right Column: Sticky Summary */}
+            <aside className="space-y-6 sticky top-24">
+              <Card className="border-none shadow-xl ring-1 ring-gray-100 rounded-3xl overflow-hidden bg-white">
+                <CardHeader className="bg-gray-50/50 border-b p-6">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-black text-gray-900">Order Summary</CardTitle>
+                    <Badge variant="secondary" className="rounded-full bg-gray-200 text-gray-700 border-none font-bold">
+                      {items.length} {items.length === 1 ? 'Item' : 'Items'}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="p-6 space-y-6">
+                  {/* Item List */}
+                  <div className="space-y-5 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
+                    {items.map((item) => (
+                      <div key={item.productId} className="flex gap-4">
+                        <div className="h-16 w-16 rounded-xl bg-gray-50 border border-gray-100 flex-shrink-0 overflow-hidden group">
+                           <img 
+                            src={item.product.imageUrl || "/placeholder.svg"} 
+                            alt={item.product.title} 
+                            className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                           />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                           <h4 className="text-sm font-bold text-gray-900 line-clamp-1 mb-0.5">{item.product.title}</h4>
+                           <div className="flex items-center justify-between">
+                              <span className="text-xs text-gray-500 font-medium">Qty: {item.quantity}</span>
+                              <span className="text-sm font-black text-gray-900">{formatPrice(item.product.price * item.quantity)}</span>
+                           </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Separator className="bg-gray-100" />
+
+                  {/* Calculations */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm text-gray-500 font-medium tracking-tight">
+                      <span>Subtotal</span>
+                      <span className="text-gray-900">{formatPrice(totalAmount)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-500 font-medium tracking-tight">
+                      <span>Shipping</span>
+                      <span className="text-emerald-600 font-bold">FREE</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-500 font-medium tracking-tight">
+                      <span>Processing Fee</span>
+                      <span className="text-gray-900">₹0.00</span>
+                    </div>
+                    <div className="pt-2 flex justify-between items-baseline">
+                      <span className="text-base font-black text-gray-900">Total</span>
+                      <div className="text-right">
+                        <span className="text-2xl font-black text-primary tracking-tighter">
+                          {formatPrice(totalAmount)}
+                        </span>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter -mt-1">Inc. of all taxes</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Checkout Actions */}
+                  {checkoutStep === 1 && (
+                    <div className="pt-4 space-y-4">
+                       <Button 
+                        onClick={handleContinueToPayment} 
+                        disabled={loading}
+                        className="w-full h-14 rounded-2xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-base shadow-lg transition-all animate-pulse-subtle"
+                       >
+                        {loading ? (
+                          <><Loader2 className="h-5 w-5 mr-3 animate-spin" />Please wait...</>
+                        ) : (
+                          <>Checkout & Pay <ChevronRight className="h-5 w-5 ml-1" /></>
+                        )}
+                       </Button>
+                       
+                       <div className="flex items-center justify-center gap-6 pt-2">
+                          <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" className="h-5 grayscale opacity-50 contrast-125" />
+                          <img src="https://img.icons8.com/color/48/mastercard.png" alt="Mastercard" className="h-5 grayscale opacity-50 contrast-125" />
+                          <img src="https://img.icons8.com/color/48/upi.png" alt="UPI" className="h-5 grayscale opacity-50 contrast-200" />
+                       </div>
+                    </div>
+                  )}
+
+                  {/* Trust Factors */}
+                  <div className="grid grid-cols-2 gap-4 pt-6 border-t mt-6">
+                    <div className="flex flex-col items-center text-center p-3 rounded-2xl bg-gray-50/50 space-y-2 border border-gray-100">
+                      <ShieldCheck className="h-6 w-6 text-primary" />
+                      <span className="text-[9px] font-black uppercase text-gray-600 tracking-tighter">100% Secure Checkout</span>
+                    </div>
+                    <div className="flex flex-col items-center text-center p-3 rounded-2xl bg-gray-50/50 space-y-2 border border-gray-100">
+                      <Award className="h-6 w-6 text-primary" />
+                      <span className="text-[9px] font-black uppercase text-gray-600 tracking-tighter">GrabNext Verified Seller</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Need help footer */}
+              <div className="px-6 text-center">
+                 <p className="text-[11px] text-gray-400 leading-relaxed">
+                   By completing your purchase you agree to our <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy Policy</Link>. All transactions are secured using bank-level encryption.
+                 </p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </main>
+
+      {/* Global CSS for checkout */}
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #E5E7EB;
+          border-radius: 10px;
+        }
+        .animate-pulse-subtle {
+          animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-subtle {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.95; }
+        }
+      `}</style>
+    </div>
   )
 }
