@@ -208,269 +208,307 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
                 </div>
             </div>
 
-            <form id="product-form" onSubmit={handleSubmit} className="container mx-auto px-6 py-6">
-                <div className="grid lg:grid-cols-3 gap-6">
-                    {/* Left: Main Info */}
-                    <div className="lg:col-span-2 space-y-5">
-
-                        {/* Basic Info Card */}
-                        <div className="bg-white rounded-2xl p-6 border shadow-sm space-y-4">
-                            <h2 className="font-semibold text-gray-800 border-b pb-2">Product Information</h2>
-                            <div>
-                                <Label>Product Title *</Label>
-                                <Input
-                                    value={form.title}
-                                    onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                                    placeholder="e.g. Samsung Galaxy S24 Ultra 256GB"
-                                    className="mt-1 text-base"
-                                    required
-                                />
-                                {form.title && (
-                                    <p className="text-xs text-gray-400 mt-1">
-                                        URL: <span className="text-primary">/products/{form.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '-')}-xxxxxx</span>
-                                    </p>
-                                )}
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <Label>Selling Price (₹) *</Label>
-                                    <Input type="number" min="0" step="0.01" value={form.price}
-                                        onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
-                                        placeholder="999" className="mt-1" required />
+            <form id="product-form" onSubmit={handleSubmit} className="max-w-[1400px] mx-auto px-6 py-6 pb-20">
+                <div className="space-y-6">
+                    {/* Top Section: Info & Sidebar */}
+                    <div className="grid lg:grid-cols-3 gap-6 items-start">
+                        {/* Info Column */}
+                        <div className="lg:col-span-2 space-y-6">
+                            {/* Basic Info Card */}
+                            <div className="bg-white rounded-2xl p-6 border shadow-sm space-y-5">
+                                <div className="flex items-center gap-2 border-b pb-3">
+                                    <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">1</div>
+                                    <h2 className="font-semibold text-gray-800">Basic Information</h2>
                                 </div>
-                                <div>
-                                    <Label>Original Price (₹) <span className="text-gray-400 text-xs">for strikethrough</span></Label>
-                                    <Input type="number" min="0" step="0.01" value={form.originalPrice}
-                                        onChange={e => setForm(f => ({ ...f, originalPrice: e.target.value }))}
-                                        placeholder="1499" className="mt-1" />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <Label>Category *</Label>
-                                    <select
-                                        value={form.category}
-                                        onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                                        className="mt-1 w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"
-                                    >
-                                        <option value="">-- Select Category --</option>
-                                        {categories.map(c => <option key={c.id} value={c.slug}>{c.name}</option>)}
-                                        <option value="general">General</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <Label>Tags <span className="text-gray-400 text-xs">comma separated</span></Label>
-                                    <Input value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
-                                        placeholder="electronics, gadget, phone" className="mt-1" />
-                                </div>
-                            </div>
-                            {/* Digital Assets Section */}
-                            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-4">
-                                <div>
-                                    <h3 className="font-semibold text-sm">Digital Assets ({digitalAssets.length})</h3>
-                                    <p className="text-xs text-gray-400">Add PDFs, Videos, or Files to this product. They will be securely provided to buyers.</p>
-                                </div>
-
-                                {digitalAssets.length > 0 && (
-                                    <div className="space-y-2">
-                                        {digitalAssets.map(asset => (
-                                            <div key={asset.id} className="flex items-center justify-between p-2 bg-white border rounded">
-                                                <div className="flex items-center gap-2">
-                                                    {asset.type === 'pdf' ? <FileText className="h-4 w-4 text-red-500" /> :
-                                                        asset.type === 'video' ? <Video className="h-4 w-4 text-blue-500" /> :
-                                                            asset.type === 'link' ? <LinkIcon className="h-4 w-4 text-green-500" /> :
-                                                                <File className="h-4 w-4 text-gray-500" />}
-                                                    <span className="text-sm font-medium">{asset.name}</span>
-                                                    <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 uppercase">{asset.provider}</span>
-                                                </div>
-                                                <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-red-500" onClick={() => removeDigitalAsset(asset.id)}>
-                                                    <X className="h-3 w-3" />
-                                                </Button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-3">
-                                    <div className="grid grid-cols-2 gap-3 mt-1.5">
-                                        <div>
-                                            <Label className="text-xs">Asset Name *</Label>
-                                            <Input value={digitalAssetName} onChange={e => setDigitalAssetName(e.target.value)} placeholder="e.g. Chapter 1 Video" className="h-8 text-xs mt-1" />
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs">Asset Type</Label>
-                                            <select
-                                                value={digitalAssetType}
-                                                onChange={e => setDigitalAssetType(e.target.value as any)}
-                                                className="w-full h-8 mt-1 border border-gray-200 rounded-md px-2 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-primary"
-                                            >
-                                                <option value="file">Generic File</option>
-                                                <option value="pdf">PDF Document</option>
-                                                <option value="video">Video</option>
-                                                <option value="link">External Link</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
+                                <div className="space-y-4">
                                     <div>
-                                        <Label className="flex justify-between items-center text-xs mb-1">
-                                            <span>Upload / Link Source</span>
-                                            <select
-                                                value={digitalStorageProvider}
-                                                onChange={e => setDigitalStorageProvider(e.target.value as any)}
-                                                className="border border-gray-200 rounded-md px-2 py-0.5 text-[10px] bg-white focus:outline-none focus:ring-1 focus:ring-primary"
-                                            >
-                                                <option value="tdrive">T-Drive API (Secure)</option>
-                                                <option value="vercel">Vercel Blob</option>
-                                                <option value="external">Enter External URL</option>
-                                            </select>
-                                        </Label>
-
-                                        {digitalStorageProvider === 'external' ? (
-                                            <div className="flex gap-2">
-                                                <Input value={form.downloadUrl} onChange={e => setForm(f => ({ ...f, downloadUrl: e.target.value }))}
-                                                    placeholder="https://..." type="url" className="flex-1 h-8 text-xs" />
-                                                <Button type="button" size="sm" className="h-8 text-xs" onClick={addExternalDigitalLink} disabled={!digitalAssetName || !form.downloadUrl}>
-                                                    Add Link
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            <div className="flex gap-2">
-                                                <Button type="button" variant="outline" className="w-full text-xs h-8" onClick={() => {
-                                                    if (!digitalAssetName.trim()) {
-                                                        toast({ title: "Name required", description: "Enter a name first", variant: "destructive" })
-                                                    } else {
-                                                        digitalFileRef.current?.click()
-                                                    }
-                                                }} disabled={digitalUploading}>
-                                                    {digitalUploading ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Upload className="h-3 w-3 mr-1" />}
-                                                    {digitalUploading ? "Uploading..." : `Upload to ${digitalStorageProvider === 'tdrive' ? 'T-Drive' : 'Vercel'}`}
-                                                </Button>
-                                                <input ref={digitalFileRef} type="file" className="hidden" onChange={e => handleDigitalUpload(e.target.files)} />
-                                            </div>
+                                        <Label>Product Title *</Label>
+                                        <Input
+                                            value={form.title}
+                                            onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                                            placeholder="e.g. Samsung Galaxy S24 Ultra 256GB"
+                                            className="mt-1.5 text-base h-11 border-gray-200 focus:ring-primary/20 transition-all"
+                                            required
+                                        />
+                                        {form.title && (
+                                            <p className="text-[10px] text-gray-400 mt-1.5 flex items-center gap-1">
+                                                <LinkIcon className="h-2.5 w-2.5" /> URL: <span className="text-primary font-medium">/products/{form.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '-')}-xxxxxx</span>
+                                            </p>
                                         )}
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Label>Selling Price (₹) *</Label>
+                                            <div className="relative mt-1.5">
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">₹</span>
+                                                <Input type="number" min="0" step="0.01" value={form.price}
+                                                    onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
+                                                    placeholder="999" className="pl-7 h-11 border-gray-200" required />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <Label>Original Price (₹) <span className="text-gray-400 text-[10px] font-normal">(optional)</span></Label>
+                                            <div className="relative mt-1.5">
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">₹</span>
+                                                <Input type="number" min="0" step="0.01" value={form.originalPrice}
+                                                    onChange={e => setForm(f => ({ ...f, originalPrice: e.target.value }))}
+                                                    placeholder="1499" className="pl-7 h-11 border-gray-200" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Label>Category *</Label>
+                                            <select
+                                                value={form.category}
+                                                onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                                                className="mt-1.5 h-11 w-full border border-gray-200 rounded-md px-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                                            >
+                                                <option value="">-- Select Category --</option>
+                                                {categories.map(c => <option key={c.id} value={c.slug}>{c.name}</option>)}
+                                                <option value="general">General</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <Label>Tags <span className="text-gray-400 text-[10px] font-normal">(comma separated)</span></Label>
+                                            <Input value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
+                                                placeholder="electronics, gadget, phone" className="mt-1.5 h-11 border-gray-200" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+ 
+                            {/* Digital Assets Section */}
+                            <div className="bg-white rounded-2xl p-6 border shadow-sm space-y-5">
+                                <div className="flex items-center gap-2 border-b pb-3">
+                                    <div className="h-8 w-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold">2</div>
+                                    <h2 className="font-semibold text-gray-800">Digital Assets</h2>
+                                </div>
+                                <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 space-y-4">
+                                    {digitalAssets.length > 0 && (
+                                        <div className="grid gap-2">
+                                            {digitalAssets.map(asset => (
+                                                <div key={asset.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="h-8 w-8 rounded bg-slate-50 flex items-center justify-center">
+                                                            {asset.type === 'pdf' ? <FileText className="h-4 w-4 text-red-500" /> :
+                                                                asset.type === 'video' ? <Video className="h-4 w-4 text-blue-500" /> :
+                                                                    asset.type === 'link' ? <LinkIcon className="h-4 w-4 text-green-500" /> :
+                                                                        <File className="h-4 w-4 text-gray-500" />}
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-sm font-semibold text-slate-800">{asset.name}</div>
+                                                            <div className="text-[10px] text-slate-400 uppercase font-bold tracking-tight">{asset.provider} • {asset.type}</div>
+                                                        </div>
+                                                    </div>
+                                                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => removeDigitalAsset(asset.id)}>
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+ 
+                                    <div className="p-4 bg-white border border-slate-200 rounded-xl space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Asset Name *</Label>
+                                                <Input value={digitalAssetName} onChange={e => setDigitalAssetName(e.target.value)} placeholder="e.g. Chapter 1 Video" className="h-10 mt-1.5" />
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Asset Type</Label>
+                                                <select
+                                                    value={digitalAssetType}
+                                                    onChange={e => setDigitalAssetType(e.target.value as any)}
+                                                    className="w-full h-10 mt-1.5 border border-gray-200 rounded-md px-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                                >
+                                                    <option value="file">Generic File</option>
+                                                    <option value="pdf">PDF Document</option>
+                                                    <option value="video">Video</option>
+                                                    <option value="link">External Link</option>
+                                                </select>
+                                            </div>
+                                        </div>
+ 
+                                        <div className="space-y-2">
+                                            <Label className="flex justify-between items-center text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                                <span>Source Provider</span>
+                                                <select
+                                                    value={digitalStorageProvider}
+                                                    onChange={e => setDigitalStorageProvider(e.target.value as any)}
+                                                    className="border border-gray-200 rounded px-2 py-1 text-[10px] bg-slate-50"
+                                                >
+                                                    <option value="tdrive">T-Drive (Secure)</option>
+                                                    <option value="vercel">Vercel Blob</option>
+                                                    <option value="external">External Link</option>
+                                                </select>
+                                            </Label>
+ 
+                                            {digitalStorageProvider === 'external' ? (
+                                                <div className="flex gap-2">
+                                                    <Input value={form.downloadUrl} onChange={e => setForm(f => ({ ...f, downloadUrl: e.target.value }))}
+                                                        placeholder="https://..." type="url" className="flex-1 h-10" />
+                                                    <Button type="button" onClick={addExternalDigitalLink} disabled={!digitalAssetName || !form.downloadUrl} className="h-10 px-6">
+                                                        Add Link
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <div className="flex gap-2">
+                                                    <Button type="button" variant="outline" className="w-full h-11 border-dashed border-2 hover:bg-slate-50 transition-all" onClick={() => {
+                                                        if (!digitalAssetName.trim()) {
+                                                            toast({ title: "Name required", description: "Enter a name first", variant: "destructive" })
+                                                        } else {
+                                                            digitalFileRef.current?.click()
+                                                        }
+                                                    }} disabled={digitalUploading}>
+                                                        {digitalUploading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
+                                                        {digitalUploading ? "Uploading..." : `Click to upload to ${digitalStorageProvider === 'tdrive' ? 'T-Drive' : 'Vercel'}`}
+                                                    </Button>
+                                                    <input ref={digitalFileRef} type="file" className="hidden" onChange={e => handleDigitalUpload(e.target.files)} />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        {/* Description Card */}
-                        <div className="bg-white rounded-2xl p-6 border shadow-sm space-y-3">
-                            <h2 className="font-semibold text-gray-800 border-b pb-2">Product Description</h2>
-                            <p className="text-xs text-gray-400">Use the toolbar to format: bold, lists, colors, highlights. This shows on the product page.</p>
+ 
+                        {/* Sidebar Column */}
+                        <div className="space-y-6">
+                            {/* Images Card */}
+                            <div className="bg-white rounded-2xl p-6 border shadow-sm space-y-5">
+                                <div className="flex items-center gap-2 border-b pb-3">
+                                    <div className="h-8 w-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center font-bold">3</div>
+                                    <h2 className="font-semibold text-gray-800">Media</h2>
+                                </div>
+ 
+                                <div className="grid grid-cols-2 gap-2">
+                                    {form.images.map((url, i) => (
+                                        <div key={i} className="relative group rounded-xl overflow-hidden border border-gray-100 aspect-square bg-slate-50 transition-all hover:ring-2 hover:ring-primary/20">
+                                            <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-contain p-2" />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all" />
+                                            {i === 0 && (
+                                                <div className="absolute top-2 left-2 bg-primary text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wider">Main</div>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(i)}
+                                                className="absolute top-2 right-2 h-6 w-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all shadow-md"
+                                            >
+                                                <X className="h-3.5 w-3.5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {form.images.length === 0 && (
+                                        <div className="col-span-2 h-32 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center gap-2 text-slate-400 bg-slate-50">
+                                            <ImageIcon className="h-8 w-8 stroke-[1.5px]" />
+                                            <p className="text-xs font-medium">No images uploaded</p>
+                                        </div>
+                                    )}
+                                </div>
+ 
+                                <div className="space-y-3 pt-2">
+                                    <div>
+                                        <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Add by URL</Label>
+                                        <div className="flex gap-2 mt-1.5">
+                                            <Input
+                                                placeholder="https://..."
+                                                id="img-url-input"
+                                                className="h-10 text-xs border-gray-200"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        e.preventDefault()
+                                                        const val = (e.target as HTMLInputElement).value.trim()
+                                                        if (val) { setForm(f => ({ ...f, images: [...f.images, val] })); (e.target as HTMLInputElement).value = "" }
+                                                    }
+                                                }}
+                                            />
+                                            <Button type="button" variant="outline" className="h-10 px-3 border-gray-200" onClick={() => {
+                                                const inp = document.getElementById("img-url-input") as HTMLInputElement
+                                                if (inp?.value.trim()) { setForm(f => ({ ...f, images: [...f.images, inp.value.trim()] })); inp.value = "" }
+                                            }}>
+                                                <Plus className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+ 
+                                    <div className="relative flex items-center py-2">
+                                        <div className="flex-grow border-t border-slate-100"></div>
+                                        <span className="flex-shrink mx-4 text-[10px] text-slate-300 font-bold uppercase tracking-widest text-center">or upload</span>
+                                        <div className="flex-grow border-t border-slate-100"></div>
+                                    </div>
+ 
+                                    <div className="space-y-2">
+                                        <select
+                                            value={imageStorageProvider}
+                                            onChange={e => setImageStorageProvider(e.target.value as any)}
+                                            className="w-full border border-gray-200 rounded-md px-3 py-1.5 text-xs bg-slate-50"
+                                        >
+                                            <option value="vercel">Vercel Blob Storage</option>
+                                            <option value="tdrive">T-Drive API Storage</option>
+                                        </select>
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            className="w-full h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 border-none transition-all"
+                                            onClick={() => fileRef.current?.click()}
+                                            disabled={uploading}
+                                        >
+                                            {uploading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
+                                            {uploading ? "Uploading..." : "Upload from Device"}
+                                        </Button>
+                                        <input ref={fileRef} type="file" accept="image/*" multiple className="hidden"
+                                            onChange={e => handleUpload(e.target.files)} />
+                                    </div>
+                                </div>
+                            </div>
+ 
+                            {/* Status Card */}
+                            <div className="bg-white rounded-2xl p-6 border shadow-sm space-y-4">
+                                <div className="flex items-center gap-2 border-b pb-3">
+                                    <div className="h-8 w-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center font-bold">4</div>
+                                    <h2 className="font-semibold text-gray-800">Publishing</h2>
+                                </div>
+                                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <div className="space-y-0.5">
+                                        <p className="text-sm font-semibold text-slate-800">Visibility</p>
+                                        <p className="text-[10px] text-slate-400 font-medium">Show in store instantly</p>
+                                    </div>
+                                    <Switch
+                                        checked={form.isActive}
+                                        onCheckedChange={v => setForm(f => ({ ...f, isActive: v }))}
+                                    />
+                                </div>
+                                <div className={`flex items-center justify-center gap-2 text-xs font-bold py-3 rounded-xl transition-all ${form.isActive ? "bg-green-50 text-green-700 border border-green-100" : "bg-slate-100 text-slate-400 border border-slate-200"}`}>
+                                    <div className={`h-2 w-2 rounded-full ${form.isActive ? "bg-green-500 animate-pulse" : "bg-slate-300"}`} />
+                                    {form.isActive ? "PUBLISHED & LIVE" : "SAVED AS DRAFT"}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+ 
+                    {/* Bottom Section: Full Width Description */}
+                    <div className="bg-white rounded-2xl p-8 border shadow-sm space-y-6">
+                        <div className="flex items-center justify-between border-b pb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-lg">
+                                    <FileText className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h2 className="font-bold text-xl text-gray-900 tracking-tight">Full Product Description</h2>
+                                    <p className="text-sm text-gray-400 mt-0.5">Write a compelling story about your product. Use headings and tools for better formatting.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="min-h-[400px]">
                             <RichTextEditor
                                 value={form.description}
                                 onChange={val => setForm(f => ({ ...f, description: val }))}
-                                placeholder="Write a detailed, formatted product description..."
-                                minHeight={280}
+                                placeholder="Describe your product in detail here..."
+                                minHeight={400}
                             />
                         </div>
-                    </div>
-
-                    {/* Right: Images + Status */}
-                    <div className="space-y-5">
-                        {/* Images Card */}
-                        <div className="bg-white rounded-2xl p-5 border shadow-sm space-y-4">
-                            <h2 className="font-semibold text-gray-800 border-b pb-2">Product Images</h2>
-                            <p className="text-xs text-gray-400">First image = main image. Hover on product card will cycle through all images.</p>
-
-                            {/* Image Grid */}
-                            <div className="grid grid-cols-2 gap-2">
-                                {form.images.map((url, i) => (
-                                    <div key={i} className="relative group rounded-lg overflow-hidden border border-gray-200 aspect-square bg-gray-50">
-                                        <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-contain p-1" />
-                                        {i === 0 && (
-                                            <div className="absolute top-1 left-1 bg-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded">Main</div>
-                                        )}
-                                        <button
-                                            type="button"
-                                            onClick={() => removeImage(i)}
-                                            className="absolute top-1 right-1 h-5 w-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </button>
-                                    </div>
-                                ))}
-                                {form.images.length === 0 && (
-                                    <div className="col-span-2 h-32 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 text-gray-400">
-                                        <ImageIcon className="h-8 w-8" />
-                                        <p className="text-xs">No images yet</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* URL input */}
-                            <div>
-                                <Label className="text-xs">Add image by URL</Label>
-                                <div className="flex gap-2 mt-1">
-                                    <Input
-                                        placeholder="https://..."
-                                        id="img-url-input"
-                                        className="text-xs"
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter") {
-                                                e.preventDefault()
-                                                const val = (e.target as HTMLInputElement).value.trim()
-                                                if (val) { setForm(f => ({ ...f, images: [...f.images, val] })); (e.target as HTMLInputElement).value = "" }
-                                            }
-                                        }}
-                                    />
-                                    <Button type="button" variant="outline" size="sm" onClick={() => {
-                                        const inp = document.getElementById("img-url-input") as HTMLInputElement
-                                        if (inp?.value.trim()) { setForm(f => ({ ...f, images: [...f.images, inp.value.trim()] })); inp.value = "" }
-                                    }}>
-                                        <Plus className="h-3.5 w-3.5" />
-                                    </Button>
-                                </div>
-                            </div>
-
-                            {/* File Upload */}
-                            <div>
-                                <div className="flex gap-2 items-center justify-between mb-2">
-                                    <Label className="text-xs">Storage Provider:</Label>
-                                    <select
-                                        value={imageStorageProvider}
-                                        onChange={e => setImageStorageProvider(e.target.value as any)}
-                                        className="border border-gray-200 rounded-md px-2 py-1 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-primary"
-                                    >
-                                        <option value="vercel">Vercel Blob</option>
-                                        <option value="tdrive">T-Drive API</option>
-                                    </select>
-                                </div>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="w-full"
-                                    onClick={() => fileRef.current?.click()}
-                                    disabled={uploading}
-                                >
-                                    {uploading ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Uploading...</> : <><Upload className="h-4 w-4 mr-2" />Upload Images</>}
-                                </Button>
-                                <input ref={fileRef} type="file" accept="image/*" multiple className="hidden"
-                                    onChange={e => handleUpload(e.target.files)} />
-                                <p className="text-[10px] text-gray-400 mt-1 text-center">Select multiple images at once</p>
-                            </div>
-                        </div>
-
-                        {/* Status Card */}
-                        <div className="bg-white rounded-2xl p-5 border shadow-sm space-y-3">
-                            <h2 className="font-semibold text-gray-800 border-b pb-2">Product Status</h2>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium">Active</p>
-                                    <p className="text-xs text-gray-400">Visible in store when active</p>
-                                </div>
-                                <Switch
-                                    checked={form.isActive}
-                                    onCheckedChange={v => setForm(f => ({ ...f, isActive: v }))}
-                                />
-                            </div>
-                            <div className={`text-xs font-semibold px-3 py-1.5 rounded-full text-center ${form.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                                {form.isActive ? "🟢 Published" : "⚫ Draft"}
-                            </div>
-                        </div>
-
-
                     </div>
                 </div>
             </form>

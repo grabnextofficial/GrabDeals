@@ -65,18 +65,12 @@ export function StoreHeader() {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 shrink-0 group">
-            <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-lg overflow-hidden group-hover:scale-110 transition-transform">
-              <img
-                src="/logo.png"
-                alt="Grabnext"
-                className="h-9 w-9 object-contain"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-2xl text-white leading-none italic tracking-tight">Grabnext</span>
-              <span className="text-[10px] text-white/80 tracking-widest font-semibold">Explore Plus</span>
-            </div>
+          <Link href="/" className="flex items-center gap-2 shrink-0 group">
+            <img
+              src="/logo.png"
+              alt="Grabnext"
+              className="h-12 w-auto object-contain brightness-0 invert"
+            />
           </Link>
 
           {/* Search Bar - Wide & Central */}
