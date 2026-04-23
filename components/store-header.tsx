@@ -69,7 +69,7 @@ export function StoreHeader() {
             <img
               src="/logo.png"
               alt="Grabnext"
-              className="h-12 w-auto object-contain brightness-0 invert"
+              className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
             />
           </Link>
 
