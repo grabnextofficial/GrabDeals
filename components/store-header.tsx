@@ -60,8 +60,8 @@ export function StoreHeader() {
         </div>
       )}
 
-      {/* Top Bar - Orange Primary Brand */}
-      <header className="bg-primary text-primary-foreground border-b">
+      {/* Top Bar - Warm White Elegant Brand */}
+      <header className="bg-[#fdfaf6] text-slate-900 border-b border-orange-100/50 shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
 
           {/* Logo */}
@@ -105,8 +105,8 @@ export function StoreHeader() {
             {mounted && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="hidden md:flex gap-1 text-white hover:bg-white/10 font-medium relative">
-                    <User className="h-4 w-4" />
+                  <Button variant="ghost" className="hidden md:flex gap-1 text-slate-700 hover:bg-black/5 font-medium relative">
+                    <User className="h-4 w-4 text-primary" />
                     <span className="max-w-[100px] truncate">{user.displayName || "Account"}</span>
                     {isGuest && (
                       <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-primary"></span>
@@ -156,7 +156,7 @@ export function StoreHeader() {
               </DropdownMenu>
             ) : (
               <div className="hidden md:block">
-                <Button asChild className="bg-white text-primary border border-white hover:bg-gray-100 px-8 font-semibold shadow-lg">
+                <Button asChild className="bg-primary text-white hover:bg-primary/90 px-8 font-semibold shadow-md">
                   <Link href="/auth/login">
                     Login
                   </Link>
@@ -166,9 +166,9 @@ export function StoreHeader() {
 
             {/* Cart */}
             <CartDrawer>
-              <Button variant="ghost" className="flex items-center gap-2 text-white hover:bg-white/10">
+              <Button variant="ghost" className="flex items-center gap-2 text-slate-700 hover:bg-black/5">
                 <div className="relative">
-                  <ShoppingCart className="h-5 w-5" />
+                  <ShoppingCart className="h-5 w-5 text-primary" />
                   {mounted && totalItems > 0 && (
                     <Badge className="absolute -top-2 -right-2 h-4 w-4 min-w-[16px] p-0 flex items-center justify-center text-[10px] bg-red-600 text-white border-2 border-primary">
                       {totalItems}
@@ -182,7 +182,7 @@ export function StoreHeader() {
             {/* Mobile Menu Trigger */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden text-white hover:bg-white/10">
+                <Button variant="ghost" size="icon" className="md:hidden text-slate-700 hover:bg-black/5">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
