@@ -11,6 +11,7 @@ import { CartDrawer } from "./cart-drawer"
 import { useAuth } from "@/contexts/auth-context"
 import { useCart } from "@/contexts/cart-context"
 import { ADMIN_EMAIL } from "@/lib/auth"
+import { Logo } from "@/components/logo"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,14 +66,7 @@ export function StoreHeader() {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0 group">
-            <div className="bg-yellow-400 text-slate-900 p-1.5 rounded-lg flex items-center justify-center shadow-sm">
-                <ShoppingCart className="h-6 w-6" />
-            </div>
-            <span className="text-2xl font-black tracking-tight text-slate-900 drop-shadow-sm group-hover:text-blue-700 transition-colors">
-                Grab<span className="text-yellow-500">Next</span>
-            </span>
-          </Link>
+          <Logo />
 
           {/* Search Bar - Wide & Central */}
           <div className="hidden md:flex flex-1 max-w-2xl mx-4">

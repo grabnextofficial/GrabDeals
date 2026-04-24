@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Logo } from "@/components/logo"
 
 export function Footer() {
     const currentYear = new Date().getFullYear()
@@ -10,12 +11,9 @@ export function Footer() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                     {/* Brand */}
                     <div className="col-span-2 md:col-span-1">
-                        <Link href="/" className="flex items-center gap-2 mb-4">
-                            <div className="h-8 w-8 rounded-lg bg-white flex items-center justify-center overflow-hidden">
-                                <img src="/logo.png" alt="Grabnext" className="h-7 w-7 object-contain" />
-                            </div>
-                            <span className="text-white font-bold text-xl">Grabnext</span>
-                        </Link>
+                        <div className="mb-4">
+                            <Logo textClassName="text-white group-hover:text-gray-200" />
+                        </div>
                         <p className="text-sm text-gray-400 leading-relaxed">
                             India's digital marketplace for software, templates, courses, and more.
                         </p>

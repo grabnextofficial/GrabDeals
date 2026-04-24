@@ -26,11 +26,11 @@ export function AdminSidebar() {
   return (
     <div className="flex flex-col h-full border-r bg-white w-64">
       <div className="p-6 border-b">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-white border flex items-center justify-center overflow-hidden">
-            <img src="/logo.png" alt="logo" className="h-7 w-7 object-contain" />
+        <Link href="/admin" className="flex items-center gap-2 shrink-0 group">
+          <div className="bg-slate-900 text-white p-1.5 rounded-lg flex items-center justify-center shadow-sm">
+            <Store className="h-5 w-5" />
           </div>
-          <span className="font-bold text-xl">Admin Panel</span>
+          <span className="font-bold text-xl group-hover:text-primary transition-colors">Admin Panel</span>
         </Link>
       </div>
 

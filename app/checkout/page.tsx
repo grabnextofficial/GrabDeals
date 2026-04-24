@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Logo } from "@/components/logo"
 
 declare global {
   interface Window {
@@ -350,19 +351,12 @@ export default function CheckoutPage() {
       {/* Mini Header with Site Branding */}
       <header className="bg-white border-b sticky top-0 z-[50]">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-3 shrink-0 group">
-            <div className="h-10 w-10 rounded-lg bg-primary/5 flex items-center justify-center overflow-hidden border border-primary/10">
-              <img
-                src="/logo.png"
-                alt="Grabnext"
-                className="h-8 w-8 object-contain"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-2xl text-primary tracking-tight">Grabnext</span>
-              <span className="text-[10px] text-gray-400 tracking-[0.2em] font-medium uppercase">Premium Shopping</span>
-            </div>
-          </Link>
+          <Logo 
+            className="group" 
+            textClassName="text-primary group-hover:text-primary/90" 
+            iconContainerClassName="bg-primary/10 text-primary border-primary/20 h-10 w-10" 
+            iconClassName="h-6 w-6" 
+          />
           <Link href="/cart" className="text-sm font-medium text-gray-500 hover:text-primary flex items-center gap-2 transition-colors">
             <ArrowLeft className="h-4 w-4" />
             Back to Cart
