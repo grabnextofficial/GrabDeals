@@ -23,6 +23,15 @@ interface RichTextEditorProps {
 
 const COLORS = ["#000000", "#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"]
 const HIGHLIGHTS = ["#fef08a", "#bbf7d0", "#bfdbfe", "#ffedd5", "#fce7f3"]
+const FONTS = [
+    { name: "Default", value: "inherit" },
+    { name: "Arial", value: "Arial, sans-serif" },
+    { name: "Georgia", value: "Georgia, serif" },
+    { name: "Courier New", value: "'Courier New', monospace" },
+    { name: "Comic Sans MS", value: "'Comic Sans MS', cursive" },
+    { name: "Trebuchet MS", value: "'Trebuchet MS', sans-serif" },
+    { name: "Impact", value: "Impact, sans-serif" }
+]
 
 export function RichTextEditor({ value, onChange, placeholder = "Write description...", minHeight = 280 }: RichTextEditorProps) {
     const editorRef = useRef<HTMLDivElement>(null)
@@ -70,6 +79,23 @@ export function RichTextEditor({ value, onChange, placeholder = "Write descripti
                         <DropdownMenuItem onClick={() => exec("formatBlock", "h1")} className="font-bold text-lg">Heading 1</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => exec("formatBlock", "h2")} className="font-bold text-md">Heading 2</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => exec("formatBlock", "h3")} className="font-bold text-sm">Heading 3</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                <div className="w-px h-5 bg-gray-300 mx-1" />
+
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button type="button" className="flex items-center gap-1 px-2 py-1 text-xs font-medium border border-gray-200 rounded-lg bg-white hover:bg-gray-50">
+                            Fonts <ChevronDown className="h-3 w-3" />
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="max-h-[300px] overflow-y-auto">
+                        {FONTS.map(font => (
+                            <DropdownMenuItem key={font.name} onClick={() => exec("fontName", font.value)} style={{ fontFamily: font.value === 'inherit' ? 'inherit' : font.value }}>
+                                {font.name}
+                            </DropdownMenuItem>
+                        ))}
                     </DropdownMenuContent>
                 </DropdownMenu>
 

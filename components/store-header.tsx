@@ -66,11 +66,12 @@ export function StoreHeader() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0 group">
-            <img
-              src="/logo.png"
-              alt="Grabnext"
-              className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
-            />
+            <div className="bg-yellow-400 text-slate-900 p-1.5 rounded-lg flex items-center justify-center shadow-sm">
+                <ShoppingCart className="h-6 w-6" />
+            </div>
+            <span className="text-2xl font-black tracking-tight text-slate-900 drop-shadow-sm group-hover:text-blue-700 transition-colors">
+                Grab<span className="text-yellow-500">Next</span>
+            </span>
           </Link>
 
           {/* Search Bar - Wide & Central */}

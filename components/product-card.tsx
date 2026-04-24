@@ -138,7 +138,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 </>
               )}
             </div>
-            <div className="text-[10px] text-green-700 font-medium">Free Delivery</div>
+            <div className="text-[10px] text-green-700 font-medium mt-0.5">Instant Delivery</div>
           </div>
 
           <Button
@@ -146,7 +146,7 @@ export function ProductCard({ product }: ProductCardProps) {
             onClick={handleAddToCart}
           >
             <ShoppingCart className="h-3.5 w-3.5 mr-1.5" />
-            {added ? "✓ Added!" : "Add to Cart"}
+            {added ? "✓ Added!" : "Download"}
           </Button>
         </CardContent>
       </Card>

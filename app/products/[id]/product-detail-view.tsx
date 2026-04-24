@@ -261,7 +261,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                         {discount}% off
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-400 mt-0.5">Inclusive of all taxes. Free Delivery.</p>
+                                <p className="text-xs text-gray-400 mt-0.5">Inclusive of all taxes. Instant Delivery.</p>
                             </div>
 
                             {/* ── BUY NOW BUTTON ── */}
@@ -277,7 +277,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                     }}
                                 >
                                     <Zap className="h-5 w-5 shrink-0" />
-                                    {buyingNow ? "Redirecting..." : "Buy Now"}
+                                    {buyingNow ? "Redirecting..." : "Pay and Download"}
                                 </button>
                             </div>
 
