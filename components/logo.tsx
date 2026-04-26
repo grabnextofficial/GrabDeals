@@ -18,7 +18,7 @@ export function Logo({
             <img 
                 src="/logo.png" 
                 alt="GrabNext Logo" 
-                className="h-10 sm:h-12 w-auto object-contain drop-shadow-sm border-none outline-none dark:invert transition-all" 
+                className="h-10 sm:h-12 w-auto object-contain drop-shadow-sm border-none outline-none" 
             />
         </Link>
     )
