@@ -23,7 +23,9 @@ export default function AdminDashboard() {
           fetchAllUsers()
         ])
 
-        const revenue = orders.reduce((sum: number, order: any) => sum + (order.totalAmount || 0), 0)
+        const revenue = orders
+          .filter((order: any) => order.status === "paid" || order.status === "completed")
+          .reduce((sum: number, order: any) => sum + (order.totalAmount || 0), 0)
 
         setStats({
           orders: orders.length,

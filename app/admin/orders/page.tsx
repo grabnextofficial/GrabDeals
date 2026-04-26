@@ -325,7 +325,7 @@ export default function AdminOrdersPage() {
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o))
   }
 
-  const totalRevenue = orders.filter(o => o.status !== "cancelled" && o.status !== "refunded")
+  const totalRevenue = orders.filter(o => o.status === "paid" || o.status === "completed")
     .reduce((sum, o) => sum + Number(o.totalAmount), 0)
 
   return (
