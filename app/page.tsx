@@ -97,43 +97,34 @@ export default function HomePage() {
 
         {/* Banner Carousel — only if admin added banners */}
         {banners.length > 0 && (
-          <div className="relative rounded-2xl overflow-hidden h-44 md:h-64 shadow-md">
+          <div className="relative rounded-2xl overflow-hidden w-full aspect-[2/1] md:max-h-[512px] shadow-md group">
             {banners.map((b, i) => {
               const isHex = b.bgColor?.startsWith("#")
               return (
-                <div
+                <Link
                   key={b.id}
-                  className={`absolute inset-0 transition-all duration-700 ${i === idx ? "opacity-100 z-10" : "opacity-0 z-0"} ${!isHex ? `bg-gradient-to-r ${b.bgColor || "from-blue-600 to-indigo-700"}` : ""}`}
+                  href={b.linkUrl || "/products"}
+                  className={`block absolute inset-0 transition-opacity duration-700 cursor-pointer ${i === idx ? "opacity-100 z-10" : "opacity-0 z-0"} ${!isHex ? `bg-gradient-to-r ${b.bgColor || "from-blue-600 to-indigo-700"}` : ""}`}
                   style={isHex ? { background: b.bgColor } : {}}
                 >
                   {b.imageUrl && (
-                    <img src={b.imageUrl} alt={b.title} className="absolute inset-0 w-full h-full object-cover" />
+                    <img src={b.imageUrl} alt={b.title || "Banner"} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-[1.01]" />
                   )}
-                  <div className="absolute inset-0 bg-black/30" />
-                  <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-14 gap-2">
-                    <h2 className="text-xl md:text-3xl font-extrabold text-white leading-tight drop-shadow">{b.title}</h2>
-                    {b.subtitle && <p className="text-white/90 text-sm md:text-base max-w-lg">{b.subtitle}</p>}
-                    <Link href={b.linkUrl || "/products"}>
-                      <Button className="mt-1 bg-white text-gray-900 hover:bg-gray-100 font-bold shadow-lg w-fit text-sm h-9">
-                        {b.buttonText || "Shop Now"} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
+                </Link>
               )
             })}
             {banners.length > 1 && (
               <>
-                <button onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 z-20 h-7 w-7 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow">
-                  <ChevronLeft className="h-4 w-4" />
+                <button onClick={(e) => { e.preventDefault(); prev(); }} className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow transition-colors">
+                  <ChevronLeft className="h-5 w-5" />
                 </button>
-                <button onClick={next} className="absolute right-2 top-1/2 -translate-y-1/2 z-20 h-7 w-7 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow">
-                  <ChevronRight className="h-4 w-4" />
+                <button onClick={(e) => { e.preventDefault(); next(); }} className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow transition-colors">
+                  <ChevronRight className="h-5 w-5" />
                 </button>
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-2">
                   {banners.map((_, i) => (
-                    <button key={i} onClick={() => setIdx(i)}
-                      className={`h-1.5 rounded-full transition-all ${i === idx ? "w-5 bg-white" : "w-1.5 bg-white/50"}`}
+                    <button key={i} onClick={(e) => { e.preventDefault(); setIdx(i); }}
+                      className={`h-2 rounded-full transition-all ${i === idx ? "w-6 bg-white shadow-sm" : "w-2 bg-white/50 hover:bg-white/70"}`}
                     />
                   ))}
                 </div>
