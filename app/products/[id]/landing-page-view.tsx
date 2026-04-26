@@ -179,6 +179,13 @@ function HeroSection({ section, product, isBuilder, onChange }: { section: Landi
                                     onChange={(v: string) => onChange?.({ ...section, buttonText: v })} isBuilder={isBuilder} placeholder="Buy Now" />
                             </Button>
                         </div>
+                        <div className={`mt-4 w-full flex ${section.align === 'center' ? 'justify-center' : 'justify-start'} hover:opacity-95 transition-opacity px-1`}>
+                            <img 
+                                src="/images/upi.webp" 
+                                alt="Guaranteed Safe and Secure Payments" 
+                                className="w-full h-auto object-contain max-w-[280px] sm:max-w-xs drop-shadow-sm"
+                            />
+                        </div>
                     </div>
                     {section.imageUrl && (
                         <div className="flex-1 max-w-sm">

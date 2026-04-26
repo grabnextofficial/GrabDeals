@@ -281,6 +281,15 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                 </button>
                             </div>
 
+                            {/* Trust Image */}
+                            <div className="mt-2.5 w-full flex justify-center rounded-xl overflow-hidden hover:opacity-95 transition-opacity px-1">
+                                <img 
+                                    src="/images/upi.webp" 
+                                    alt="Guaranteed Safe and Secure Payments" 
+                                    className="w-full h-auto object-contain max-w-sm drop-shadow-sm"
+                                />
+                            </div>
+
                             {/* Trust strip */}
                             <div className="flex items-center justify-around bg-gray-50 rounded-xl p-2.5 border border-gray-100">
                                 <div className="flex flex-col items-center gap-1">
