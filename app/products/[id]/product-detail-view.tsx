@@ -238,14 +238,9 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
 
                             {/* Ratings */}
                             <div className="flex items-center gap-2 flex-wrap">
-                                <div className="flex items-center gap-1 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded">
+                                <button onClick={() => setActiveTab("reviews")} className="flex items-center gap-1 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded hover:bg-green-700 transition">
                                     {avgRating > 0 ? avgRating.toFixed(1) : "New"} <Star className="h-3 w-3 fill-white ml-0.5" />
-                                </div>
-                                <button className="text-xs text-blue-600 underline" onClick={() => setActiveTab("reviews")}>
-                                    {reviewStats.count} ratings
                                 </button>
-                                <span className="text-gray-300 text-xs">|</span>
-                                <span className="text-xs text-gray-500">{product.salesCount} sold</span>
                             </div>
 
                             <Separator />
