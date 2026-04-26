@@ -61,8 +61,8 @@ export function StoreHeader() {
         </div>
       )}
 
-      {/* Top Bar - Warm White Elegant Brand */}
-      <header className="bg-[#fdfaf6] text-slate-900 border-b border-orange-100/50 shadow-sm">
+      {/* Top Bar - Dynamic Theme Base */}
+      <header className="bg-background text-foreground border-b border-border shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
 
           {/* Logo */}
@@ -85,9 +85,9 @@ export function StoreHeader() {
               <Input
                 name="q"
                 placeholder="Search for products, brands and more"
-                className="pl-10 rounded-r-none bg-white text-gray-900 border-r-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-500 h-10"
+                className="pl-10 rounded-r-none bg-background text-foreground border-r-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground h-10"
               />
-              <Button type="submit" className="rounded-l-none bg-yellow-400 text-gray-900 hover:bg-yellow-500 border border-l-0 font-medium px-6 h-10">
+              <Button type="submit" className="rounded-l-none bg-primary text-primary-foreground hover:opacity-90 border border-l-0 font-medium px-6 h-10">
                 Search
               </Button>
             </form>
@@ -100,11 +100,11 @@ export function StoreHeader() {
             {mounted && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="hidden md:flex gap-1 text-slate-700 hover:bg-black/5 font-medium relative">
+                  <Button variant="ghost" className="hidden md:flex gap-1 text-foreground hover:bg-black/5 dark:hover:bg-white/10 font-medium relative">
                     <User className="h-4 w-4 text-primary" />
                     <span className="max-w-[100px] truncate">{user.displayName || "Account"}</span>
                     {isGuest && (
-                      <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-primary"></span>
+                      <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-destructive border-2 border-primary"></span>
                     )}
                     <ChevronDown className="h-3 w-3" />
                   </Button>
@@ -112,7 +112,7 @@ export function StoreHeader() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
                     {isGuest ? (
-                      <span className="text-red-600 flex items-center gap-1">
+                      <span className="text-destructive flex items-center gap-1">
                         <AlertTriangle className="h-3 w-3" /> Guest Account
                       </span>
                     ) : "My Account"}
@@ -132,7 +132,7 @@ export function StoreHeader() {
                   {isGuest && (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild className="text-red-600 font-medium bg-red-50">
+                      <DropdownMenuItem asChild className="text-destructive font-medium bg-destructive/10">
                         <Link href="/dashboard/confirm-account">🔑 Set Permanent Password</Link>
                       </DropdownMenuItem>
                     </>
@@ -142,7 +142,7 @@ export function StoreHeader() {
                   {isAdmin && (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild className="text-blue-600 font-medium bg-blue-50">
+                      <DropdownMenuItem asChild className="text-primary font-medium bg-primary/10">
                         <Link href="/admin">Admin Panel</Link>
                       </DropdownMenuItem>
                     </>
@@ -151,7 +151,7 @@ export function StoreHeader() {
               </DropdownMenu>
             ) : (
               <div className="hidden md:block">
-                <Button asChild className="bg-primary text-white hover:bg-primary/90 px-8 font-semibold shadow-md">
+                <Button asChild className="bg-primary text-primary-foreground hover:opacity-90 px-8 font-semibold shadow-md">
                   <Link href="/auth/login">
                     Login
                   </Link>
@@ -161,7 +161,7 @@ export function StoreHeader() {
 
             {/* Cart */}
             <CartDrawer>
-              <Button variant="ghost" className="flex items-center gap-2 text-slate-700 hover:bg-black/5">
+              <Button variant="ghost" className="flex items-center gap-2 text-foreground hover:bg-black/5 dark:hover:bg-white/10">
                 <div className="relative">
                   <ShoppingCart className="h-5 w-5 text-primary" />
                   {mounted && totalItems > 0 && (

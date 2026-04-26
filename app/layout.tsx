@@ -88,7 +88,7 @@ html {
             src="https://www.facebook.com/tr?id=864520106659183&ev=PageView&noscript=1"
           />
         </noscript>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
           <AuthProvider>
             <CartProvider>
               {children}
