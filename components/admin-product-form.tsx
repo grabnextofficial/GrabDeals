@@ -51,7 +51,7 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
                 let parsedAssets: DigitalAsset[] = []
                 if (p.downloadUrl) {
                     try { parsedAssets = JSON.parse(p.downloadUrl) }
-                    catch { parsedAssets = [{ id: crypto.randomUUID(), name: "Legacy Download", type: "file", provider: "external", url: p.downloadUrl }] }
+                    catch { parsedAssets = [{ id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2), name: "Legacy Download", type: "file", provider: "external", url: p.downloadUrl }] }
                 }
 
                 setForm({
@@ -110,7 +110,7 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
             const downloadUrl = digitalStorageProvider === "vercel" ? data.url : data.download_url
 
             const newAsset: DigitalAsset = {
-                id: crypto.randomUUID(),
+                id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2),
                 name: digitalAssetName.trim(),
                 type: digitalAssetType,
                 provider: digitalStorageProvider as any,
@@ -131,7 +131,7 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
     const addExternalDigitalLink = () => {
         if (!digitalAssetName.trim() || !form.downloadUrl.trim()) return
         const newAsset: DigitalAsset = {
-            id: crypto.randomUUID(),
+            id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2),
             name: digitalAssetName.trim(),
             type: digitalAssetType,
             provider: "external",
