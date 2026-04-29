@@ -96,14 +96,22 @@ export async function GET(request: NextRequest) {
                 if (match) ext = `.${match[1]}`
             } catch (e) {}
 
+            if (!ext) {
+                if (asset.type === 'pdf' || (contentType && contentType.includes('pdf'))) ext = '.pdf'
+                else if (asset.type === 'video' || (contentType && contentType.includes('video'))) ext = '.mp4'
+            }
+
             let finalName = baseName
             if (ext && !finalName.toLowerCase().endsWith(ext.toLowerCase())) {
                 finalName += ext
             }
 
+            const isInline = searchParams.get('inline') === '1'
+            const disposition = isInline ? 'inline' : 'attachment'
+
             // Force browser download securely (avoiding encodeURIComponent to keep spaces clean)
             const safeFilename = finalName.replace(/"/g, '')
-            headers.set('Content-Disposition', `attachment; filename="${safeFilename}"`)
+            headers.set('Content-Disposition', `${disposition}; filename="${safeFilename}"`)
             headers.set('Cache-Control', 'private, max-age=0, must-revalidate')
             // Allow iframe/popup embedding from same origin
             headers.set('X-Frame-Options', 'SAMEORIGIN')

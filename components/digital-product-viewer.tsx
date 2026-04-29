@@ -68,7 +68,7 @@ export function DigitalProductViewer({
                         </video>
                     ) : (
                         <iframe
-                            src={type === 'pdf' ? `${assetUrl}#toolbar=0` : assetUrl}
+                            src={type === 'pdf' ? `${assetUrl}${assetUrl.includes('?') ? '&' : '?'}inline=1#toolbar=0` : `${assetUrl}${assetUrl.includes('?') ? '&' : '?'}inline=1`}
                             className="w-full h-full border-0 absolute inset-0 z-0 bg-white"
                             onLoad={() => setLoading(false)}
                             allow="fullscreen; autoplay; encrypted-media"

@@ -57,13 +57,24 @@ function DownloadAssetRow({ asset, secureUrl }: { asset: any; secureUrl: string 
         }
         setDownloading(true)
         try {
-            const res = await fetch(secureUrl, { credentials: 'include' })
+            const res = await fetch(`${secureUrl}&download=1`, { credentials: 'include' })
             if (!res.ok) throw new Error(`Download failed: ${res.statusText}`)
             const blob = await res.blob()
             const url = URL.createObjectURL(blob)
             const a = document.createElement('a')
             a.href = url
-            a.download = asset.name || 'download'
+            
+            let filename = asset.name || 'download'
+            const cd = res.headers.get('content-disposition')
+            if (cd) {
+                const match = cd.match(/filename="([^"]+)"/)
+                if (match && match[1]) filename = match[1]
+            } else {
+                if (asset.type === 'pdf' && !filename.toLowerCase().endsWith('.pdf')) filename += '.pdf'
+                else if (asset.type === 'video' && !filename.toLowerCase().endsWith('.mp4')) filename += '.mp4'
+            }
+            a.download = filename
+            
             document.body.appendChild(a)
             a.click()
             document.body.removeChild(a)
