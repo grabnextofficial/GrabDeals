@@ -1,6 +1,6 @@
-
 export const runtime = 'edge'
 import { Metadata, ResolvingMetadata } from 'next'
+import { notFound } from 'next/navigation'
 import { executeQuery } from '@/lib/db'
 import { ProductDetailView } from './product-detail-view'
 import { LandingPageView } from './landing-page-view'
@@ -53,15 +53,17 @@ export async function generateMetadata(
         }
     }
 
-    const images = Array.isArray((product as any).images) ? (product as any).images : (product.imageUrl ? [product.imageUrl] : [])
+    const images = Array.isArray((product as any).images)
+        ? (product as any).images
+        : (product.imageUrl ? [product.imageUrl] : [])
     const previousImages = (await parent).openGraph?.images || []
 
-    // Strip HTML tags for clean description
+    // Strip HTML tags for a clean plain-text description
     const cleanDescription = product.description
         ? product.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 160)
         : `Buy ${product.title} at the best price on Grabnext. Instant digital delivery. 100% secure payment.`
 
-    // Build rich keyword list for AI and search discovery
+    // Build keyword list for AI and search discovery
     const keywordParts = [
         product.title,
         product.category,
@@ -129,7 +131,6 @@ export async function generateMetadata(
             'product:availability': product.isActive ? 'in stock' : 'out of stock',
             'product:condition': 'new',
             'product:category': product.category || '',
-            // AI assistant discovery tags
             'ai:summary': cleanDescription,
             'ai:price': priceStr,
             'ai:category': product.category || '',
@@ -140,60 +141,72 @@ export async function generateMetadata(
 export default async function Page({ params }: Props) {
     const product = await getProduct(params.id)
 
-    // If pageType is 'landing', render the custom landing page instead of shop page
-    if (product?.pageType === 'landing') {
+    // ── CRITICAL NULL GUARD ─────────────────────────────────────────────────
+    // Without this, passing null to ProductDetailView crashes with:
+    // "TypeError: Cannot read properties of null (reading 'images')"
+    if (!product) {
+        notFound()
+    }
+
+    // If pageType is 'landing', render the custom landing page
+    if (product.pageType === 'landing') {
         return <LandingPageView product={product} />
     }
 
-    // Build clean description for structured data
-    const cleanDesc = product?.description
+    // Strip HTML for clean structured data description
+    const cleanDesc = product.description
         ? product.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
         : ''
 
-    const productImages = Array.isArray((product as any)?.images) ? (product as any).images : [product?.imageUrl].filter(Boolean)
+    const productImages: string[] =
+        Array.isArray((product as any).images) && (product as any).images.length > 0
+            ? (product as any).images.filter(Boolean)
+            : product.imageUrl
+                ? [product.imageUrl]
+                : []
 
     return (
         <>
-            {product && (
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{
-                        __html: JSON.stringify({
-                            "@context": "https://schema.org/",
-                            "@type": "Product",
-                            "name": product.title,
-                            "description": cleanDesc,
-                            "image": productImages,
-                            "sku": (product as any).slug || product.id,
-                            "mpn": product.id,
-                            "brand": {
-                                "@type": "Brand",
-                                "name": "Grabnext"
-                            },
-                            "category": product.category,
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org/",
+                        "@type": "Product",
+                        "name": product.title,
+                        "description": cleanDesc,
+                        "image": productImages,
+                        "sku": (product as any).slug || product.id,
+                        "mpn": product.id,
+                        "brand": {
+                            "@type": "Brand",
+                            "name": "Grabnext"
+                        },
+                        "category": product.category,
+                        "url": `https://grabnext.in/products/${(product as any).slug || product.id}`,
+                        "offers": {
+                            "@type": "Offer",
                             "url": `https://grabnext.in/products/${(product as any).slug || product.id}`,
-                            "offers": {
-                                "@type": "Offer",
-                                "url": `https://grabnext.in/products/${(product as any).slug || product.id}`,
-                                "priceCurrency": "INR",
-                                "price": product.price,
-                                "priceValidUntil": new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                                "availability": product.isActive ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-                                "itemCondition": "https://schema.org/NewCondition",
-                                "seller": {
-                                    "@type": "Organization",
-                                    "name": "Grabnext",
-                                    "url": "https://grabnext.in"
-                                }
-                            },
-                            ...(product.tags && Array.isArray(product.tags) && product.tags.length > 0 ? {
-                                "keywords": product.tags.join(', ')
-                            } : {})
-                        })
-                    }}
-                />
-            )}
-            <ProductDetailView product={product as Product} id={params.id} />
+                            "priceCurrency": "INR",
+                            "price": product.price,
+                            "priceValidUntil": new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                            "availability": product.isActive
+                                ? "https://schema.org/InStock"
+                                : "https://schema.org/OutOfStock",
+                            "itemCondition": "https://schema.org/NewCondition",
+                            "seller": {
+                                "@type": "Organization",
+                                "name": "Grabnext",
+                                "url": "https://grabnext.in"
+                            }
+                        },
+                        ...(product.tags && Array.isArray(product.tags) && product.tags.length > 0
+                            ? { "keywords": product.tags.join(', ') }
+                            : {})
+                    })
+                }}
+            />
+            <ProductDetailView product={product} id={params.id} />
         </>
     )
 }
