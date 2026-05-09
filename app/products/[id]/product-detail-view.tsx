@@ -369,13 +369,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                 ) : product.description ? (
                                     descIsHtml ? (
                                         <div
-                                            className="prose prose-sm sm:prose max-w-none
-                                                prose-headings:text-gray-900 prose-headings:font-bold prose-headings:mt-4 prose-headings:mb-2
-                                                prose-p:text-gray-600 prose-p:leading-relaxed
-                                                prose-li:text-gray-600 prose-li:my-1
-                                                prose-strong:text-gray-800
-                                                prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
-                                                prose-ul:pl-5 prose-ol:pl-5"
+                                            className="product-description max-w-none"
                                             dangerouslySetInnerHTML={{ __html: product.description }}
                                         />
                                     ) : (

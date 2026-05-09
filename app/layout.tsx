@@ -9,9 +9,65 @@ import { ShopAIChat } from "@/components/shop-ai-chat"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Grabnext - Online Shopping Site for Mobiles, Electronics, Furniture, Grocery, Lifestyle, Books & More. Best Offers!",
-  description: "Shop for electronics, apparels & more using our Flipkart-like e-commerce platform Grabnext.",
-  generator: "v0.app",
+  title: {
+    default: "Grabnext - Buy Digital Products, Software, Courses & Templates Online India",
+    template: "%s | Grabnext",
+  },
+  description:
+    "Grabnext is India's trusted digital marketplace. Buy software, online courses, design templates, ebooks & more at the best prices with instant delivery and secure UPI payment.",
+  keywords: [
+    "grabnext",
+    "buy digital products india",
+    "software buy online india",
+    "online courses india",
+    "design templates",
+    "ebooks india",
+    "digital download india",
+    "instant delivery digital goods",
+    "buy software cheap india",
+    "digital marketplace india",
+  ],
+  authors: [{ name: "Grabnext", url: "https://grabnext.in" }],
+  creator: "Grabnext",
+  publisher: "Grabnext",
+  metadataBase: new URL("https://grabnext.in"),
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://grabnext.in",
+    siteName: "Grabnext",
+    title: "Grabnext - Buy Digital Products Online India",
+    description:
+      "India's trusted digital store. Software, courses, templates & more at the best prices with instant delivery.",
+    images: [
+      {
+        url: "/favicon.png",
+        width: 512,
+        height: 512,
+        alt: "Grabnext - Digital Marketplace India",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@grabnext",
+    creator: "@grabnext",
+    title: "Grabnext - Buy Digital Products Online India",
+    description:
+      "India's trusted digital store. Software, courses, templates & more with instant delivery.",
+    images: ["/favicon.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   verification: {
     google: "a6IFtvu-QdswT63axIr-jp_-vPxu2OYz5dpN6y8CZmk",
   },
@@ -19,6 +75,9 @@ export const metadata: Metadata = {
     icon: "/favicon.png",
     shortcut: "/favicon.png",
     apple: "/favicon.png",
+  },
+  alternates: {
+    canonical: "https://grabnext.in",
   },
 }
 
@@ -78,6 +137,44 @@ html {
 }
         `
         }} />
+        {/* ── WebSite + Organization Structured Data (AI & Search Discovery) ── */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "Grabnext",
+                "url": "https://grabnext.in",
+                "description": "India's trusted digital marketplace. Buy software, online courses, design templates, ebooks & more with instant delivery.",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": "https://grabnext.in/products?q={search_term_string}"
+                  },
+                  "query-input": "required name=search_term_string"
+                }
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "Grabnext",
+                "url": "https://grabnext.in",
+                "logo": "https://grabnext.in/favicon.png",
+                "description": "Grabnext is India's trusted digital marketplace for software, courses, templates & digital downloads with instant delivery.",
+                "contactPoint": {
+                  "@type": "ContactPoint",
+                  "contactType": "customer support",
+                  "url": "https://grabnext.in/contact",
+                  "availableLanguage": ["English", "Hindi"]
+                },
+                "sameAs": []
+              }
+            ])
+          }}
+        />
       </head>
       <body>
         <noscript>
