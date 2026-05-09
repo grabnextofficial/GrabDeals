@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, ShoppingBag, List, ShoppingCart, Store, Users, Image, CreditCard, Bot, BarChart2 } from "lucide-react"
+import { LayoutDashboard, ShoppingBag, List, ShoppingCart, Store, Users, Image, CreditCard, Bot, BarChart2, Activity } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -16,6 +16,7 @@ const sidebarItems = [
   { name: "Analytics", href: "/admin/analytics", icon: BarChart2 },
   { name: "Payment Settings", href: "/admin/payment-settings", icon: CreditCard },
   { name: "AI Settings", href: "/admin/ai-settings", icon: Bot },
+  { name: "AI Test", href: "/admin/ai-test", icon: Activity },
 ]
 
 
