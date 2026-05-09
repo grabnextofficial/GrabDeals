@@ -4,6 +4,11 @@ import { executeQuery } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
+// ─── NVIDIA API key (MiniMax M2.7) — primary model ───────────────────────────
+const NVIDIA_API_KEY = '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'
+const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1'
+const NVIDIA_MODEL = 'minimaxai/minimax-m1-40k'
+
 async function getSettings() {
     try {
         const rows = await executeQuery('SELECT key, value FROM settings')
@@ -22,6 +27,36 @@ async function getProducts() {
     } catch { return [] }
 }
 
+// ─── PRIMARY: NVIDIA (MiniMax M2.7) — OpenAI-compatible ──────────────────────
+async function callNvidia(systemPrompt: string, history: any[], userMessage: string) {
+    const messages = [
+        { role: 'system', content: systemPrompt },
+        ...history.map((m: any) => ({
+            role: m.role === 'user' ? 'user' : 'assistant',
+            content: m.text,
+        })),
+        { role: 'user', content: userMessage },
+    ]
+
+    const res = await fetch(`${NVIDIA_BASE_URL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${NVIDIA_API_KEY}`,
+        },
+        body: JSON.stringify({
+            model: NVIDIA_MODEL,
+            messages,
+            temperature: 0.75,
+            top_p: 0.95,
+            max_tokens: 600,
+            stream: false,
+        }),
+    })
+    return res
+}
+
+// ─── FALLBACK: Gemini ─────────────────────────────────────────────────────────
 async function callGemini(apiKey: string, model: string, systemPrompt: string, contents: any[]) {
     const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -48,20 +83,6 @@ export async function POST(request: NextRequest) {
         }
 
         const settings = await getSettings()
-        const apiKey = settings.gemini_api_key?.trim()
-
-        if (!apiKey) {
-            return NextResponse.json({
-                reply: "Hey! I'm GrabNext AI. 👋 It looks like the AI hasn't been configured yet. Please contact the admin to set up the Gemini API key in Admin → Settings.",
-                products: [],
-                action: null
-            })
-        }
-
-        // gemini-2.5-flash (fast) → fallback to gemini-2.5-pro
-        const preferredModel = settings.gemini_model?.trim() || 'gemini-2.5-flash'
-        const fallbackModel  = 'gemini-2.5-pro'
-
         const products = await getProducts()
 
         const productList = products.map((p: any) => {
@@ -104,46 +125,78 @@ GRABNEXT INFO:
 - Payment: Razorpay, UPI, Credit/Debit Cards, Net Banking
 - Delivery: Digital products → instant; Physical → as per seller
 - Returns: 7-day return policy
-- Support: grabnext.com
+- Support: grabnext.in/contact
 
 PRODUCT CATALOG:
 ${productList || 'No products available right now. Check back soon!'}
 
 Be the BEST shopping assistant — make every user feel valued! 🚀`
 
-        const contents: any[] = []
-        if (Array.isArray(history)) {
-            for (const msg of history) {
-                if (msg.role && msg.text) {
-                    contents.push({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] })
+        let rawReply = ''
+        let usedModel = 'nvidia'
+
+        // ── STEP 1: Try NVIDIA MiniMax M2.7 (primary) ─────────────────────────
+        try {
+            const nvidiaRes = await callNvidia(SYSTEM_PROMPT, history || [], message)
+
+            if (nvidiaRes.ok) {
+                const nvidiaData = await nvidiaRes.json()
+                const content = nvidiaData?.choices?.[0]?.message?.content
+                if (content) {
+                    rawReply = content
+                    usedModel = 'nvidia-minimax'
+                }
+            } else {
+                const errText = await nvidiaRes.text()
+                console.warn('[ShopChat] NVIDIA failed:', nvidiaRes.status, errText.slice(0, 200))
+            }
+        } catch (e) {
+            console.warn('[ShopChat] NVIDIA error:', e)
+        }
+
+        // ── STEP 2: Fallback to Gemini if NVIDIA failed ───────────────────────
+        if (!rawReply) {
+            const geminiKey = settings.gemini_api_key?.trim()
+            if (geminiKey) {
+                const preferredModel = settings.gemini_model?.trim() || 'gemini-2.5-flash'
+                const fallbackModel  = 'gemini-2.5-pro'
+
+                const contents: any[] = []
+                if (Array.isArray(history)) {
+                    for (const msg of history) {
+                        if (msg.role && msg.text) {
+                            contents.push({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] })
+                        }
+                    }
+                }
+                contents.push({ role: 'user', parts: [{ text: message }] })
+
+                let geminiRes = await callGemini(geminiKey, preferredModel, SYSTEM_PROMPT, contents)
+                if (!geminiRes.ok) {
+                    console.warn(`[ShopChat] Gemini ${preferredModel} failed, trying ${fallbackModel}`)
+                    geminiRes = await callGemini(geminiKey, fallbackModel, SYSTEM_PROMPT, contents)
+                }
+
+                if (geminiRes.ok) {
+                    const geminiData = await geminiRes.json()
+                    rawReply = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || ''
+                    usedModel = 'gemini'
                 }
             }
         }
-        contents.push({ role: 'user', parts: [{ text: message }] })
 
-        // Try preferred model first, then fallback
-        let geminiRes = await callGemini(apiKey, preferredModel, SYSTEM_PROMPT, contents)
-
-        if (!geminiRes.ok) {
-            console.warn(`[ShopChat] Model ${preferredModel} failed, trying ${fallbackModel}`)
-            geminiRes = await callGemini(apiKey, fallbackModel, SYSTEM_PROMPT, contents)
-        }
-
-        if (!geminiRes.ok) {
-            let errMsg = 'Unknown error'
-            try { const errData = await geminiRes.json(); errMsg = errData?.error?.message || errMsg } catch {}
-            console.error('[ShopChat] Both models failed:', errMsg)
+        // ── STEP 3: Final fallback message if all models failed ───────────────
+        if (!rawReply) {
             return NextResponse.json({
-                reply: `GrabNext AI couldn't respond right now. (${errMsg.slice(0, 80)}) Please try again! 🙏`,
+                reply: "GrabNext AI is taking a quick break 🙏 Please try again in a moment!",
                 products: [],
                 action: null
             })
         }
 
-        const data = await geminiRes.json()
-        let rawReply: string = data.candidates?.[0]?.content?.parts?.[0]?.text || "Couldn't get a response. Please try again."
+        console.log(`[ShopChat] Responded via: ${usedModel}`)
 
-        // Extract product IDs
+        // ── Parse PRODUCT_IDS ──────────────────────────────────────────────────
         let suggestedProducts: any[] = []
         const productIdsMatch = rawReply.match(/PRODUCT_IDS:\[([^\]]*)\]/)
         if (productIdsMatch) {
@@ -171,7 +224,7 @@ Be the BEST shopping assistant — make every user feel valued! 🚀`
             rawReply = rawReply.replace(/PRODUCT_IDS:\[[^\]]*\]/g, '').trim()
         }
 
-        // Extract action
+        // ── Parse ACTION ───────────────────────────────────────────────────────
         let action: string | null = null
         if (rawReply.includes('ACTION:ADD_TO_CART')) {
             action = 'add_to_cart'
