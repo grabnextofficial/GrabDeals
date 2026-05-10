@@ -100,11 +100,15 @@ export function ShopAIChat() {
     setHydrated(true)
   }, [])
 
-  // ── Save chat to localStorage ──
+  // ── Save chat to localStorage (include products so cards persist) ──
   useEffect(() => {
     if (!hydrated) return
     try {
-      const toSave = messages.slice(-40).map(({ role, text, timestamp }) => ({ role, text, timestamp }))
+      const toSave = messages.slice(-40).map(({ role, text, timestamp, products, action }) => ({
+        role, text, timestamp,
+        products: products || [],
+        action: action || null,
+      }))
       localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
     } catch {}
   }, [messages, hydrated])
@@ -263,8 +267,17 @@ export function ShopAIChat() {
     }
   }
 
-  const formatText = (text: string) =>
-    text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\*(.*?)\*/g, "<em>$1</em>").replace(/\n/g, "<br/>")
+  // Strip raw PRODUCT_IDS / ACTION markers so they never show as code in the bubble
+  const formatText = (text: string) => {
+    const clean = text
+      .replace(/PRODUCT_IDS:\[[^\]]*\]/g, '')
+      .replace(/ACTION:(ADD_TO_CART|CHECKOUT)/g, '')
+      .trim()
+    return clean
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\n/g, '<br/>')
+  }
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(price)
