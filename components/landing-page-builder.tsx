@@ -807,8 +807,8 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
                                 <Layout className="h-5 w-5 text-indigo-400" />
                             </div>
                             <div className="min-w-0">
-                                <p className="text-xs font-bold text-gray-800 line-clamp-1">{fauxProduct.title}</p>
-                                <p className="text-[11px] text-gray-500 font-medium">₹{fauxProduct.price}</p>
+                                <p className="text-xs font-bold text-gray-800 line-clamp-1">{currentProduct.title}</p>
+                                <p className="text-[11px] text-gray-500 font-medium">₹{currentProduct.price}</p>
                             </div>
                         </div>
 
