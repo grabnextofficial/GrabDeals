@@ -5,6 +5,7 @@ export const runtime = 'edge'
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { LandingPageBuilder } from "@/components/landing-page-builder"
+import { CartProvider } from "@/contexts/cart-context"
 import { toast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 import { LandingSection } from "@/lib/types"
@@ -87,22 +88,24 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
 
     return (
         <div className="h-screen w-full bg-slate-100 overflow-hidden">
-            <LandingPageBuilder
-                sections={sections}
-                onChange={setSections}
-                productTitle={page?.title}
-                productPrice={null}
-                productDescription={null}
-                onSave={handleSave}
-                saving={saving}
-                exitLink="/admin/landing-pages"
-                previewLink={page?.slug ? `/lp/${page.slug}` : undefined}
-                isPublished={!!page?.isPublished}
-                pageTitle={page?.title}
-                pageSlug={page?.slug}
-                onTitleChange={handleTitleChange}
-                storeProducts={products}
-            />
+            <CartProvider>
+                <LandingPageBuilder
+                    sections={sections}
+                    onChange={setSections}
+                    productTitle={page?.title}
+                    productPrice={null}
+                    productDescription={null}
+                    onSave={handleSave}
+                    saving={saving}
+                    exitLink="/admin/landing-pages"
+                    previewLink={page?.slug ? `/lp/${page.slug}` : undefined}
+                    isPublished={!!page?.isPublished}
+                    pageTitle={page?.title}
+                    pageSlug={page?.slug}
+                    onTitleChange={handleTitleChange}
+                    storeProducts={products}
+                />
+            </CartProvider>
         </div>
     )
 }
