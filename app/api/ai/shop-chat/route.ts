@@ -4,10 +4,9 @@ import { executeQuery } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
-// ─── NVIDIA API key (MiniMax M2.7) — primary model ───────────────────────────
-const NVIDIA_API_KEY = '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'
+// ─── NVIDIA config is now loaded from DB settings (nvidia_api_key, nvidia_model) ──
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1'
-const NVIDIA_MODEL = 'minimaxai/minimax-m1-40k'
+const NVIDIA_MODEL_DEFAULT = 'minimaxai/minimax-m1-40k'
 
 async function getSettings() {
     try {
@@ -27,8 +26,8 @@ async function getProducts() {
     } catch { return [] }
 }
 
-// ─── PRIMARY: NVIDIA (MiniMax M2.7) — OpenAI-compatible ──────────────────────
-async function callNvidia(systemPrompt: string, history: any[], userMessage: string) {
+// ─── PRIMARY: NVIDIA — OpenAI-compatible ─────────────────────────────────────
+async function callNvidia(apiKey: string, model: string, systemPrompt: string, history: any[], userMessage: string) {
     const messages = [
         { role: 'system', content: systemPrompt },
         ...history.map((m: any) => ({
@@ -42,10 +41,10 @@ async function callNvidia(systemPrompt: string, history: any[], userMessage: str
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${NVIDIA_API_KEY}`,
+            'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-            model: NVIDIA_MODEL,
+            model,
             messages,
             temperature: 0.75,
             top_p: 0.95,
@@ -135,23 +134,29 @@ Be the BEST shopping assistant — make every user feel valued! 🚀`
         let rawReply = ''
         let usedModel = 'nvidia'
 
-        // ── STEP 1: Try NVIDIA MiniMax M2.7 (primary) ─────────────────────────
-        try {
-            const nvidiaRes = await callNvidia(SYSTEM_PROMPT, history || [], message)
+        // ── STEP 1: Try NVIDIA (primary) — key & model from DB ───────────────
+        const nvidiaKey = settings.nvidia_api_key?.trim()
+        const nvidiaModel = settings.nvidia_model?.trim() || NVIDIA_MODEL_DEFAULT
+        if (nvidiaKey) {
+            try {
+                const nvidiaRes = await callNvidia(nvidiaKey, nvidiaModel, SYSTEM_PROMPT, history || [], message)
 
-            if (nvidiaRes.ok) {
-                const nvidiaData = await nvidiaRes.json()
-                const content = nvidiaData?.choices?.[0]?.message?.content
-                if (content) {
-                    rawReply = content
-                    usedModel = 'nvidia-minimax'
+                if (nvidiaRes.ok) {
+                    const nvidiaData = await nvidiaRes.json()
+                    const content = nvidiaData?.choices?.[0]?.message?.content
+                    if (content) {
+                        rawReply = content
+                        usedModel = `nvidia-${nvidiaModel}`
+                    }
+                } else {
+                    const errText = await nvidiaRes.text()
+                    console.warn('[ShopChat] NVIDIA failed:', nvidiaRes.status, errText.slice(0, 200))
                 }
-            } else {
-                const errText = await nvidiaRes.text()
-                console.warn('[ShopChat] NVIDIA failed:', nvidiaRes.status, errText.slice(0, 200))
+            } catch (e) {
+                console.warn('[ShopChat] NVIDIA error:', e)
             }
-        } catch (e) {
-            console.warn('[ShopChat] NVIDIA error:', e)
+        } else {
+            console.warn('[ShopChat] NVIDIA API key not configured in settings — skipping NVIDIA')
         }
 
         // ── STEP 2: Fallback to Gemini if NVIDIA failed ───────────────────────
