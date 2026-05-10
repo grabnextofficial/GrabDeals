@@ -25,6 +25,8 @@ const GEMINI_MODELS = [
 const NVIDIA_MODELS = [
     { id: "minimaxai/minimax-m1-40k", label: "MiniMax M1 (40K)", desc: "Fast, 40K context window — Recommended" },
     { id: "minimaxai/minimax-m1", label: "MiniMax M1", desc: "Standard context window" },
+    { id: "deepseek-ai/deepseek-v4-pro", label: "DeepSeek V4 Pro", desc: "Powerful reasoning model, 16K output" },
+    { id: "deepseek-ai/deepseek-r1", label: "DeepSeek R1", desc: "Advanced reasoning & coding" },
     { id: "meta/llama-3.3-70b-instruct", label: "Llama 3.3 70B Instruct", desc: "Meta's flagship open model" },
     { id: "meta/llama-3.1-8b-instruct", label: "Llama 3.1 8B Instruct", desc: "Lightweight & fast" },
     { id: "mistralai/mistral-7b-instruct-v0.3", label: "Mistral 7B Instruct", desc: "Efficient multilingual model" },
@@ -121,36 +123,35 @@ export default function AISettingsPage() {
         }
     }
 
-    // ── Test NVIDIA ────────────────────────────────────────────────────────────
+    // ── Test NVIDIA — via backend to avoid CORS ────────────────────────────────
     const handleTestNvidia = async () => {
         if (!nvidiaKey.trim()) { toast({ title: "Enter NVIDIA API key first", variant: "destructive" }); return }
         const model = selectedNvidiaModel === "custom" ? customNvidiaModel.trim() : selectedNvidiaModel
         setTestingNvidia(true)
         setNvidiaTestResult(null)
         try {
-            const res = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+            // First save the key & model to DB, then test via backend route
+            await fetch("/api/settings", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${nvidiaKey.trim()}`,
-                },
-                body: JSON.stringify({
-                    model,
-                    messages: [{ role: "user", content: "Hello! Say OK if you are working." }],
-                    max_tokens: 30,
-                    stream: false,
-                }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nvidia_api_key: nvidiaKey.trim(), nvidia_model: model }),
             })
-            if (res.ok) {
-                const data = await res.json()
-                const reply = data?.choices?.[0]?.message?.content || "(no content)"
-                setNvidiaTestResult({ ok: true, msg: `✅ NVIDIA connected! Model "${model}" is working. Reply: "${reply.slice(0, 80)}"` })
+            // Now call server-side test route (no CORS issue)
+            const res = await fetch("/api/ai/test", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: "Hello! Say OK if you are working." }),
+            })
+            const data = await res.json()
+            if (data?.nvidia?.ok) {
+                const reply = data.nvidia.reply || "(no content)"
+                setNvidiaTestResult({ ok: true, msg: `✅ NVIDIA connected! Model "${model}" is working. Reply: "${reply.slice(0, 100)}"` })
             } else {
-                const errText = await res.text()
-                setNvidiaTestResult({ ok: false, msg: `❌ Failed (${res.status}): ${errText.slice(0, 200)}` })
+                const err = data?.nvidia?.error || "Unknown error"
+                setNvidiaTestResult({ ok: false, msg: `❌ Failed: ${err}` })
             }
         } catch (e: any) {
-            setNvidiaTestResult({ ok: false, msg: `❌ Error: ${e.message}` })
+            setNvidiaTestResult({ ok: false, msg: `❌ Network error: ${e.message}` })
         } finally {
             setTestingNvidia(false)
         }
