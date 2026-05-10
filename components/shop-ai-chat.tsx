@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { Send, Loader2, ShoppingBag, Sparkles, ShoppingCart, Zap, Star, ExternalLink, X } from "lucide-react"
+import { Send, ShoppingBag, Sparkles, ShoppingCart, Zap, Star, ExternalLink, X } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import type { Product } from "@/lib/types"
 import Link from "next/link"
@@ -28,6 +28,8 @@ interface SuggestedProduct {
 interface Message {
   role: "user" | "ai"
   text: string
+  fullText?: string      // full text — used for typewriter
+  typing?: boolean       // true while typewriter is active
   timestamp: string
   products?: SuggestedProduct[]
   action?: string | null
@@ -46,9 +48,13 @@ const QUICK_QUESTIONS = [
   "Payment options?",
 ]
 
-const STORAGE_KEY = "grabnext-ai-chat-v1"
+const STORAGE_KEY = "grabnext-ai-chat-v2"
 const DATE_KEY    = "grabnext-ai-date"
 const SESSION_KEY = "grabnext-ai-session"
+
+// Typewriter speed: chars per tick (higher = faster)
+const CHARS_PER_TICK = 4
+const TICK_MS = 18
 
 export function ShopAIChat() {
   const [isOpen, setIsOpen] = useState(false)
@@ -61,29 +67,24 @@ export function ShopAIChat() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const typewriterRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const { addToCart } = useCart()
   const router = useRouter()
 
-  // ── Icon spin on start + every 5 seconds ──
+  // ── Icon spin ──
   useEffect(() => {
-    const triggerSpin = () => {
-      setIconSpin(true)
-      setTimeout(() => setIconSpin(false), 850)
-    }
-    const initial = setTimeout(triggerSpin, 1000)
-    const interval = setInterval(triggerSpin, 5000)
-    return () => { clearTimeout(initial); clearInterval(interval) }
+    const triggerSpin = () => { setIconSpin(true); setTimeout(() => setIconSpin(false), 850) }
+    const t = setTimeout(triggerSpin, 1000)
+    const iv = setInterval(triggerSpin, 5000)
+    return () => { clearTimeout(t); clearInterval(iv) }
   }, [])
 
-  // ── Load chat — reset on new day OR new browser session ──
+  // ── Load chat ──
   useEffect(() => {
-    const today      = new Date().toDateString()
-    const savedDate  = localStorage.getItem(DATE_KEY)
+    const today     = new Date().toDateString()
+    const savedDate = localStorage.getItem(DATE_KEY)
     const hasSession = typeof sessionStorage !== "undefined" && sessionStorage.getItem(SESSION_KEY)
-    const isNewDay     = savedDate !== today
-    const isNewSession = !hasSession
-
-    if (isNewDay || isNewSession) {
+    if (savedDate !== today || !hasSession) {
       localStorage.removeItem(STORAGE_KEY)
       localStorage.setItem(DATE_KEY, today)
     } else {
@@ -95,31 +96,39 @@ export function ShopAIChat() {
         }
       } catch {}
     }
-
     if (typeof sessionStorage !== "undefined") sessionStorage.setItem(SESSION_KEY, "1")
     setHydrated(true)
   }, [])
 
-  // ── Save chat to localStorage (include products so cards persist) ──
+  // ── Save chat (strip typing state) ──
   useEffect(() => {
     if (!hydrated) return
     try {
-      const toSave = messages.slice(-40).map(({ role, text, timestamp, products, action }) => ({
-        role, text, timestamp,
-        products: products || [],
-        action: action || null,
-      }))
+      const toSave = messages
+        .filter(m => !m.typing) // don't save mid-typewriter messages
+        .slice(-40)
+        .map(({ role, text, timestamp, products, action }) => ({
+          role, text, timestamp,
+          products: products || [],
+          action: action || null,
+        }))
       localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
     } catch {}
   }, [messages, hydrated])
 
+  // ── Auto-scroll ──
   useEffect(() => {
-    if (isOpen) setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 80)
+    if (isOpen) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, isOpen])
 
   useEffect(() => {
     if (isOpen) setTimeout(() => inputRef.current?.focus(), 200)
   }, [isOpen])
+
+  // ── Cleanup typewriter on unmount ──
+  useEffect(() => {
+    return () => { if (typewriterRef.current) clearInterval(typewriterRef.current) }
+  }, [])
 
   const toCartProduct = (p: SuggestedProduct): Product => ({
     ...p,
@@ -139,21 +148,57 @@ export function ShopAIChat() {
     router.push("/checkout")
   }, [addToCart, router])
 
-  // ── Send message — supports both streaming (NVIDIA) and JSON (Gemini) ──
+  // ── ChatGPT-style typewriter animation ─────────────────────────────────────
+  const startTypewriter = useCallback((fullText: string, products: SuggestedProduct[], action: string | null) => {
+    if (typewriterRef.current) clearInterval(typewriterRef.current)
+    let idx = 0
+
+    typewriterRef.current = setInterval(() => {
+      idx = Math.min(idx + CHARS_PER_TICK, fullText.length)
+
+      setMessages(prev => {
+        const updated = [...prev]
+        const last = updated[updated.length - 1]
+        if (last?.role === "ai" && last.typing) {
+          updated[updated.length - 1] = {
+            ...last,
+            text: fullText.slice(0, idx),
+            typing: idx < fullText.length,
+            // Only attach products/action when typing finishes
+            products: idx >= fullText.length ? products : [],
+            action: idx >= fullText.length ? action : null,
+          }
+        }
+        return updated
+      })
+
+      if (idx >= fullText.length) {
+        clearInterval(typewriterRef.current!)
+        typewriterRef.current = null
+        setTimeout(() => inputRef.current?.focus(), 50)
+      }
+    }, TICK_MS)
+  }, [])
+
+  // ── Send message ───────────────────────────────────────────────────────────
   const sendMessage = async (text?: string) => {
     const msg = (text ?? input).trim()
     if (!msg || isLoading) return
 
+    // Stop any active typewriter
+    if (typewriterRef.current) { clearInterval(typewriterRef.current); typewriterRef.current = null }
+
     const userMsg: Message = { role: "user", text: msg, timestamp: new Date().toISOString() }
-    setMessages((prev) => [...prev, userMsg])
+    setMessages(prev => [...prev, userMsg])
     setInput("")
     setIsLoading(true)
     requestAnimationFrame(() => inputRef.current?.focus())
 
     const history = messages
       .filter((_, i) => i > 0)
-      .slice(-12)
-      .map((m) => ({ role: m.role === "ai" ? "model" : "user", text: m.text }))
+      .filter(m => !m.typing)
+      .slice(-10)
+      .map(m => ({ role: m.role === "ai" ? "model" : "user", text: m.text }))
 
     try {
       const res = await fetch("/api/ai/shop-chat", {
@@ -162,112 +207,39 @@ export function ShopAIChat() {
         body: JSON.stringify({ message: msg, history }),
       })
 
-      const contentType = res.headers.get("content-type") || ""
+      const data = await res.json()
+      const aiProducts: SuggestedProduct[] = data.products || []
+      const action: string | null = data.action || null
+      const fullText = data.reply || "Something went wrong. Please try again."
 
-      // ── STREAMING (NVIDIA) — text/event-stream ──────────────────────────────
-      if (contentType.includes("text/event-stream") && res.body) {
-        // Insert empty AI bubble immediately — fills token by token
-        setMessages((prev) => [
-          ...prev,
-          { role: "ai", text: "", timestamp: new Date().toISOString(), products: [], action: null },
-        ])
-        setIsLoading(false) // hide typing dots — streaming text is now visible
-
-        const reader = res.body.getReader()
-        const decoder = new TextDecoder()
-        let buffer = ""
-
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-
-          buffer += decoder.decode(value, { stream: true })
-          const lines = buffer.split("\n")
-          buffer = lines.pop() ?? ""
-
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue
-            const raw = line.slice(6).trim()
-            try {
-              const parsed = JSON.parse(raw)
-
-              // Each token → append to last AI message
-              if (parsed.token !== undefined) {
-                setMessages((prev) => {
-                  const updated = [...prev]
-                  const last = updated[updated.length - 1]
-                  if (last?.role === "ai") {
-                    updated[updated.length - 1] = { ...last, text: last.text + parsed.token }
-                  }
-                  return updated
-                })
-              }
-
-              // Stream done → replace with clean final reply + products + action
-              if (parsed.done) {
-                setMessages((prev) => {
-                  const updated = [...prev]
-                  const last = updated[updated.length - 1]
-                  if (last?.role === "ai") {
-                    updated[updated.length - 1] = {
-                      ...last,
-                      text: parsed.reply || last.text,
-                      products: parsed.products || [],
-                      action: parsed.action || null,
-                    }
-                  }
-                  return updated
-                })
-
-                const aiProducts: SuggestedProduct[] = parsed.products || []
-                const action: string | null = parsed.action || null
-                if (action === "add_to_cart" && aiProducts.length > 0) {
-                  aiProducts.forEach((p) => { addToCart(toCartProduct(p), 1); setAddedIds((prev) => new Set(prev).add(p.id)) })
-                } else if (action === "checkout" && aiProducts.length > 0) {
-                  aiProducts.forEach((p) => { addToCart(toCartProduct(p), 1); setAddedIds((prev) => new Set(prev).add(p.id)) })
-                  setTimeout(() => { setIsOpen(false); router.push("/checkout") }, 900)
-                }
-              }
-            } catch {}
-          }
-        }
-
-      } else {
-        // ── NON-STREAMING fallback (Gemini / offline message) ──────────────────
-        const data = await res.json()
-        const aiProducts: SuggestedProduct[] = data.products || []
-        const action: string | null = data.action || null
-
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "ai",
-            text: data.reply || "Something went wrong. Please try again.",
-            timestamp: new Date().toISOString(),
-            products: aiProducts,
-            action,
-          },
-        ])
-
-        if (action === "add_to_cart" && aiProducts.length > 0) {
-          aiProducts.forEach((p) => { addToCart(toCartProduct(p), 1); setAddedIds((prev) => new Set(prev).add(p.id)) })
-        } else if (action === "checkout" && aiProducts.length > 0) {
-          aiProducts.forEach((p) => { addToCart(toCartProduct(p), 1); setAddedIds((prev) => new Set(prev).add(p.id)) })
-          setTimeout(() => { setIsOpen(false); router.push("/checkout") }, 900)
-        }
+      // Handle actions immediately (even before typing finishes)
+      if (action === "add_to_cart" && aiProducts.length > 0) {
+        aiProducts.forEach(p => { addToCart(toCartProduct(p), 1); setAddedIds(prev => new Set(prev).add(p.id)) })
+      } else if (action === "checkout" && aiProducts.length > 0) {
+        aiProducts.forEach(p => { addToCart(toCartProduct(p), 1); setAddedIds(prev => new Set(prev).add(p.id)) })
+        setTimeout(() => { setIsOpen(false); router.push("/checkout") }, 1200)
       }
+
+      // Insert empty AI message, then animate
+      setMessages(prev => [
+        ...prev,
+        { role: "ai", text: "", fullText, typing: true, timestamp: new Date().toISOString(), products: [], action: null },
+      ])
+      setIsLoading(false)
+
+      // Start smooth typewriter
+      startTypewriter(fullText, aiProducts, action)
+
     } catch {
-      setMessages((prev) => [
+      setIsLoading(false)
+      setMessages(prev => [
         ...prev,
         { role: "ai", text: "GrabNext AI is offline right now. Check your connection and try again! 🙏", timestamp: new Date().toISOString(), products: [] },
       ])
-    } finally {
-      setIsLoading(false)
-      setTimeout(() => inputRef.current?.focus(), 10)
     }
   }
 
-  // Strip raw PRODUCT_IDS / ACTION markers so they never show as code in the bubble
+  // ── Format text (strip markers, render markdown) ──
   const formatText = (text: string) => {
     const clean = text
       .replace(/PRODUCT_IDS:\[[^\]]*\]/g, '')
@@ -290,10 +262,13 @@ export function ShopAIChat() {
 
   return (
     <>
-      {/* ── Floating Pill Button — hidden when chat is open ── */}
+      {/* ── Floating Pill Button ── */}
       {!isOpen && (
         <div className="fixed bottom-5 right-5 z-[9999]">
-          <div className="relative overflow-hidden rounded-full p-[2.5px] shadow-xl hover:scale-105 transition-transform duration-300 cursor-pointer" onClick={() => setIsOpen(true)}>
+          <div
+            className="relative overflow-hidden rounded-full p-[2.5px] shadow-xl hover:scale-105 transition-transform duration-300 cursor-pointer"
+            onClick={() => setIsOpen(true)}
+          >
             <div className="ai-border-ring" />
             <div className="relative bg-black rounded-full flex items-center gap-3 px-5 py-3 z-10">
               <div className={`h-9 w-9 rounded-full bg-sky-500 flex items-center justify-center shrink-0 shadow-md ${iconSpin ? "ai-icon-spin" : ""}`}>
@@ -310,8 +285,7 @@ export function ShopAIChat() {
         <div
           className="fixed z-[9998] flex flex-col bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
           style={{
-            bottom: "20px",
-            right: "20px",
+            bottom: "20px", right: "20px",
             width: "min(385px, calc(100vw - 32px))",
             maxHeight: "calc(100dvh - 40px)",
             animation: "chatSlideUp 0.32s cubic-bezier(0.34,1.56,0.64,1) forwards",
@@ -325,16 +299,13 @@ export function ShopAIChat() {
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 bg-green-400 rounded-full border-2 border-sky-500" />
               </div>
               <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-white text-sm tracking-wide">GrabNext AI</span>
-                </div>
-                <span className="text-[10px] text-sky-100">Shopping Assistant · Always Online</span>
+                <span className="font-bold text-white text-sm tracking-wide">GrabNext AI</span>
+                <div className="text-[10px] text-sky-100">Shopping Assistant · Always Online</div>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
               className="h-7 w-7 rounded-full bg-white/20 hover:bg-white/35 flex items-center justify-center transition-colors"
-              aria-label="Close chat"
             >
               <X className="h-4 w-4 text-white" />
             </button>
@@ -357,17 +328,26 @@ export function ShopAIChat() {
                         : "bg-white text-gray-800 rounded-bl-sm border border-gray-100"
                     }`}
                   >
-                    {/* Show streaming cursor when text is empty or actively streaming */}
                     {msg.role === "ai" && msg.text === "" ? (
-                      <span className="inline-block w-2 h-4 bg-sky-400 rounded-sm animate-pulse" />
+                      // Initial blank state while loading
+                      <span className="inline-flex gap-1 items-center py-0.5">
+                        <span className="h-2 w-2 rounded-full bg-sky-400 animate-bounce [animation-delay:0ms]" />
+                        <span className="h-2 w-2 rounded-full bg-sky-400 animate-bounce [animation-delay:120ms]" />
+                        <span className="h-2 w-2 rounded-full bg-sky-400 animate-bounce [animation-delay:240ms]" />
+                      </span>
                     ) : (
-                      <span dangerouslySetInnerHTML={{ __html: formatText(msg.text) }} />
+                      <>
+                        <span dangerouslySetInnerHTML={{ __html: formatText(msg.text) }} />
+                        {/* Blinking cursor while typing */}
+                        {msg.typing && (
+                          <span className="inline-block w-[2px] h-[14px] bg-sky-500 ml-[1px] align-middle animate-pulse" />
+                        )}
+                      </>
                     )}
-                    {msg.role === "ai" && msg.text !== "" && (
-                      <div className="text-[10px] mt-1 text-gray-400">{formatTime(msg.timestamp)}</div>
-                    )}
-                    {msg.role === "user" && (
-                      <div className="text-[10px] mt-1 text-sky-100">{formatTime(msg.timestamp)}</div>
+                    {!msg.typing && (
+                      <div className={`text-[10px] mt-1 ${msg.role === "user" ? "text-sky-100" : "text-gray-400"}`}>
+                        {formatTime(msg.timestamp)}
+                      </div>
                     )}
                   </div>
                   {msg.role === "user" && (
@@ -377,8 +357,8 @@ export function ShopAIChat() {
                   )}
                 </div>
 
-                {/* Product Cards */}
-                {msg.role === "ai" && msg.products && msg.products.length > 0 && (
+                {/* Product Cards — show only when typing is done */}
+                {msg.role === "ai" && !msg.typing && msg.products && msg.products.length > 0 && (
                   <div className="ml-7 space-y-2">
                     {msg.products.map((product) => {
                       const isAdded = addedIds.has(product.id)
@@ -443,6 +423,7 @@ export function ShopAIChat() {
               </div>
             ))}
 
+            {/* Loading dots */}
             {isLoading && (
               <div className="flex items-end gap-2">
                 <Sparkles className="h-5 w-5 text-sky-500 shrink-0" />
@@ -462,7 +443,7 @@ export function ShopAIChat() {
           {/* Quick Chips */}
           {messages.length <= 1 && !isLoading && (
             <div className="px-3 py-2 flex flex-wrap gap-1.5 bg-white border-t border-gray-100 shrink-0">
-              {QUICK_QUESTIONS.map((q) => (
+              {QUICK_QUESTIONS.map(q => (
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
@@ -482,7 +463,7 @@ export function ShopAIChat() {
                 <input
                   ref={inputRef}
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={e => setInput(e.target.value)}
                   placeholder="Ask anything about our products..."
                   className="flex-1 text-xs bg-transparent outline-none text-gray-800 placeholder:text-gray-400"
                 />
@@ -492,7 +473,7 @@ export function ShopAIChat() {
                 disabled={isLoading || !input.trim()}
                 className="h-9 w-9 rounded-full bg-sky-500 hover:bg-sky-600 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-white transition-all shadow hover:shadow-md shrink-0"
               >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                <Send className="h-4 w-4" />
               </button>
             </form>
           </div>
@@ -502,39 +483,24 @@ export function ShopAIChat() {
       <style jsx global>{`
         @keyframes chatSlideUp {
           from { opacity: 0; transform: translateY(18px) scale(0.96); }
-          to   { opacity: 1; transform: translateY(0)    scale(1);    }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
         }
         .ai-border-ring {
-          position: absolute;
-          width: 220%;
-          aspect-ratio: 1;
-          top: 50%;
-          left: 50%;
-          background: conic-gradient(
-            from 0deg,
-            #38bdf8,
-            #0ea5e9,
-            #0284c7,
-            #7dd3fc,
-            #38bdf8,
-            transparent 60%,
-            transparent 80%,
-            #38bdf8
-          );
+          position: absolute; width: 220%; aspect-ratio: 1;
+          top: 50%; left: 50%;
+          background: conic-gradient(from 0deg, #38bdf8, #0ea5e9, #0284c7, #7dd3fc, #38bdf8, transparent 60%, transparent 80%, #38bdf8);
           animation: borderSpin 2s linear infinite;
         }
         @keyframes borderSpin {
           from { transform: translate(-50%, -50%) rotate(0deg); }
           to   { transform: translate(-50%, -50%) rotate(360deg); }
         }
-        .ai-icon-spin {
-          animation: iconSpinOnce 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
+        .ai-icon-spin { animation: iconSpinOnce 0.8s cubic-bezier(0.4,0,0.2,1) forwards; }
         @keyframes iconSpinOnce {
-          0%   { transform: rotate(0deg)   scale(1);    }
-          40%  { transform: rotate(200deg) scale(1.15); }
-          80%  { transform: rotate(340deg) scale(1.05); }
-          100% { transform: rotate(360deg) scale(1);    }
+          0%  { transform: rotate(0deg)   scale(1);    }
+          40% { transform: rotate(200deg) scale(1.15); }
+          80% { transform: rotate(340deg) scale(1.05); }
+          100%{ transform: rotate(360deg) scale(1);    }
         }
       `}</style>
     </>

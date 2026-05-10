@@ -4,7 +4,6 @@ import { executeQuery } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
-// ─── NVIDIA config is now loaded from DB settings (nvidia_api_key, nvidia_model) ──
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1'
 const NVIDIA_MODEL_DEFAULT = 'minimaxai/minimax-m1-40k'
 
@@ -26,7 +25,6 @@ async function getProducts() {
     } catch { return [] }
 }
 
-// ─── FALLBACK: Gemini ─────────────────────────────────────────────────────────
 async function callGemini(apiKey: string, model: string, systemPrompt: string, contents: any[]) {
     const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -36,16 +34,15 @@ async function callGemini(apiKey: string, model: string, systemPrompt: string, c
             body: JSON.stringify({
                 systemInstruction: { parts: [{ text: systemPrompt }] },
                 contents,
-                generationConfig: { temperature: 0.75, maxOutputTokens: 600 }
+                generationConfig: { temperature: 0.75, maxOutputTokens: 500 }
             })
         }
     )
     return res
 }
 
-// ─── Parse PRODUCT_IDS & ACTION from streamed text ────────────────────────────
 function parseReply(rawReply: string, products: any[]) {
-    let reply = rawReply
+    let reply = rawReply.trim()
 
     let suggestedProducts: any[] = []
     const productIdsMatch = reply.match(/PRODUCT_IDS:\[([^\]]*)\]/)
@@ -102,7 +99,7 @@ export async function POST(request: NextRequest) {
             const price = `₹${Number(p.price).toLocaleString('en-IN')}`
             const origPrice = p.originalPrice ? ` | Original: ₹${Number(p.originalPrice).toLocaleString('en-IN')}` : ''
             const discount = p.originalPrice ? ` | ${Math.round((1 - p.price / p.originalPrice) * 100)}% OFF` : ''
-            return `[ID:${p.id}|SLUG:${p.slug || ''}] ${p.title} | Category: ${p.category} | Price: ${price}${origPrice}${discount} | ${p.description?.slice(0, 100) || ''}`
+            return `[ID:${p.id}|SLUG:${p.slug || ''}] ${p.title} | Category: ${p.category} | Price: ${price}${origPrice}${discount} | ${p.description?.slice(0, 80) || ''}`
         }).join('\n')
 
         const SYSTEM_PROMPT = `You are GrabNext AI — a premium, intelligent shopping assistant for GrabNext, India's trusted online store.
@@ -117,35 +114,31 @@ LANGUAGE RULES (follow strictly):
 - If user writes in Hinglish → reply in Hinglish naturally and warmly
 - If user writes in Hindi → reply in Hindi
 - If user writes in English → reply in English only
-- Match the user's energy and language!
 
 STRICT SCOPE:
-- ONLY answer about GrabNext products, shopping, orders, payments, delivery, returns, and the GrabNext platform
-- If off-topic (politics, recipes, general knowledge etc.): "I'm GrabNext AI and I only help with shopping here! Ask me about our amazing products 🛍️"
-- Never make up product details not in the catalog
+- ONLY answer about GrabNext products, shopping, orders, payments, delivery, returns
+- If off-topic: "I'm GrabNext AI and I only help with shopping here! Ask me about our amazing products 🛍️"
 
 EVERY REPLY MUST:
-1. Mention "GrabNext" naturally 
-2. Be concise — 2-3 sentences max (unless explaining something)
-3. Use emojis naturally ✨🛍️⚡
-4. End with PRODUCT_IDS:[id1,id2] on a NEW LINE if you're recommending products (max 3)
-5. If user says "add to cart" / "cart mein dalo" / "add kar do" → end with ACTION:ADD_TO_CART on new line
-6. If user says "buy now" / "checkout" / "kharidna hai" → end with ACTION:CHECKOUT on new line
-7. Never include PRODUCT_IDS if no products match
-8. Actions always go after PRODUCT_IDS
+1. Be concise — 2-3 sentences max
+2. Use emojis naturally ✨🛍️⚡
+3. End with PRODUCT_IDS:[id1,id2] on a NEW LINE if recommending products (max 3)
+4. If user says "add to cart" → end with ACTION:ADD_TO_CART on new line
+5. If user says "buy now" / "checkout" → end with ACTION:CHECKOUT on new line
 
 GRABNEXT INFO:
-- Payment: Razorpay, UPI, Credit/Debit Cards, Net Banking
-- Delivery: Digital products → instant; Physical → as per seller
+- Payment: Razorpay, UPI, Credit/Debit Cards
+- Delivery: Digital → instant; Physical → as per seller
 - Returns: 7-day return policy
-- Support: grabnext.in/contact
 
 PRODUCT CATALOG:
-${productList || 'No products available right now. Check back soon!'}
+${productList || 'No products available right now.'}
 
-Be the BEST shopping assistant — make every user feel valued! 🚀`
+Be the BEST shopping assistant! 🚀`
 
-        // ── STEP 1: Try NVIDIA with STREAMING ────────────────────────────────────
+        let rawReply = ''
+
+        // ── STEP 1: NVIDIA (non-streaming, fast) ─────────────────────────────
         const nvidiaKey = settings.nvidia_api_key?.trim()
         const nvidiaModel = settings.nvidia_model?.trim() || NVIDIA_MODEL_DEFAULT
 
@@ -153,7 +146,7 @@ Be the BEST shopping assistant — make every user feel valued! 🚀`
             try {
                 const nvidiaMessages = [
                     { role: 'system', content: SYSTEM_PROMPT },
-                    ...(history || []).map((m: any) => ({
+                    ...(history || []).slice(-8).map((m: any) => ({
                         role: m.role === 'user' ? 'user' : 'assistant',
                         content: m.text,
                     })),
@@ -169,92 +162,34 @@ Be the BEST shopping assistant — make every user feel valued! 🚀`
                     body: JSON.stringify({
                         model: nvidiaModel,
                         messages: nvidiaMessages,
-                        temperature: 0.75,
-                        top_p: 0.95,
-                        max_tokens: 500,
-                        stream: true,   // ← STREAMING ON
+                        temperature: 0.7,
+                        top_p: 0.9,
+                        max_tokens: 300,   // short = fast = no timeout
+                        stream: false,
                     }),
                 })
 
-                if (nvidiaRes.ok && nvidiaRes.body) {
-                    // ── Stream SSE response to client ──────────────────────────
-                    const encoder = new TextEncoder()
-                    let fullText = ''
-
-                    const stream = new ReadableStream({
-                        async start(controller) {
-                            const reader = nvidiaRes.body!.getReader()
-                            const decoder = new TextDecoder()
-
-                            try {
-                                while (true) {
-                                    const { done, value } = await reader.read()
-                                    if (done) break
-
-                                    const chunk = decoder.decode(value, { stream: true })
-                                    const lines = chunk.split('\n')
-
-                                    for (const line of lines) {
-                                        if (!line.startsWith('data: ')) continue
-                                        const data = line.slice(6).trim()
-                                        if (data === '[DONE]') continue
-
-                                        try {
-                                            const parsed = JSON.parse(data)
-                                            const token = parsed?.choices?.[0]?.delta?.content
-                                            if (token) {
-                                                fullText += token
-                                                // Send token to client
-                                                controller.enqueue(
-                                                    encoder.encode(`data: ${JSON.stringify({ token })}\n\n`)
-                                                )
-                                            }
-                                        } catch {}
-                                    }
-                                }
-
-                                // Done streaming — parse products & action, send final metadata
-                                const { reply, suggestedProducts, action } = parseReply(fullText, products)
-                                controller.enqueue(
-                                    encoder.encode(`data: ${JSON.stringify({ done: true, reply, products: suggestedProducts, action })}\n\n`)
-                                )
-                            } catch (e) {
-                                console.warn('[ShopChat] Stream read error:', e)
-                            } finally {
-                                controller.close()
-                            }
-                        }
-                    })
-
-                    return new Response(stream, {
-                        headers: {
-                            'Content-Type': 'text/event-stream',
-                            'Cache-Control': 'no-cache',
-                            'X-Accel-Buffering': 'no',
-                        },
-                    })
+                if (nvidiaRes.ok) {
+                    const nvidiaData = await nvidiaRes.json()
+                    rawReply = nvidiaData?.choices?.[0]?.message?.content || ''
+                    if (rawReply) console.log('[ShopChat] Responded via NVIDIA:', nvidiaModel)
                 } else {
                     const errText = await nvidiaRes.text()
-                    console.warn('[ShopChat] NVIDIA failed:', nvidiaRes.status, errText.slice(0, 200))
+                    console.warn('[ShopChat] NVIDIA failed:', nvidiaRes.status, errText.slice(0, 150))
                 }
             } catch (e) {
                 console.warn('[ShopChat] NVIDIA error:', e)
             }
-        } else {
-            console.warn('[ShopChat] NVIDIA API key not configured in settings — skipping NVIDIA')
         }
 
-        // ── STEP 2: Fallback to Gemini (non-streaming) ────────────────────────
-        let rawReply = ''
+        // ── STEP 2: Gemini fallback ───────────────────────────────────────────
         if (!rawReply) {
             const geminiKey = settings.gemini_api_key?.trim()
             if (geminiKey) {
                 const preferredModel = settings.gemini_model?.trim() || 'gemini-2.5-flash'
-                const fallbackModel = 'gemini-2.5-pro'
-
                 const contents: any[] = []
                 if (Array.isArray(history)) {
-                    for (const msg of history) {
+                    for (const msg of history.slice(-8)) {
                         if (msg.role && msg.text) {
                             contents.push({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] })
                         }
@@ -262,20 +197,20 @@ Be the BEST shopping assistant — make every user feel valued! 🚀`
                 }
                 contents.push({ role: 'user', parts: [{ text: message }] })
 
-                let geminiRes = await callGemini(geminiKey, preferredModel, SYSTEM_PROMPT, contents)
-                if (!geminiRes.ok) {
-                    console.warn(`[ShopChat] Gemini ${preferredModel} failed, trying ${fallbackModel}`)
-                    geminiRes = await callGemini(geminiKey, fallbackModel, SYSTEM_PROMPT, contents)
-                }
-
-                if (geminiRes.ok) {
-                    const geminiData = await geminiRes.json()
-                    rawReply = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || ''
+                try {
+                    const geminiRes = await callGemini(geminiKey, preferredModel, SYSTEM_PROMPT, contents)
+                    if (geminiRes.ok) {
+                        const geminiData = await geminiRes.json()
+                        rawReply = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || ''
+                        if (rawReply) console.log('[ShopChat] Responded via Gemini:', preferredModel)
+                    }
+                } catch (e) {
+                    console.warn('[ShopChat] Gemini error:', e)
                 }
             }
         }
 
-        // ── STEP 3: Final fallback message if all models failed ───────────────
+        // ── STEP 3: Final fallback ────────────────────────────────────────────
         if (!rawReply) {
             return NextResponse.json({
                 reply: "GrabNext AI is taking a quick break 🙏 Please try again in a moment!",
