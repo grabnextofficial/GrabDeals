@@ -2,6 +2,8 @@ export const runtime = 'edge'
 import { NextRequest, NextResponse } from 'next/server'
 import { executeQuery } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+
 async function getSettings() {
     try {
         const rows = await executeQuery('SELECT key, value FROM settings')
@@ -23,7 +25,7 @@ Each section must follow this TypeScript type:
   buttonLink?: string,
   bgColor?: string (hex),
   textColor?: string (hex),
-  imageUrl?: string,
+  imageUrl?: string (leave empty string "" for hero - user will add AI image),
   features?: [{icon: string (emoji), title: string, description: string}],
   content?: string,
   testimonials?: [{name: string, text: string, rating: number}],
@@ -34,121 +36,156 @@ Each section must follow this TypeScript type:
   paddingY?: "sm" | "md" | "lg",
   animation?: "none" | "fadeIn" | "slideLeft" | "slideRight" | "zoomIn"
 }
-Use attractive colors. Always start with a hero section. Return ONLY the JSON array, no markdown, no explanation.`
+Use attractive colors, gradients. Always start with a hero section. 
+For a sales funnel: hero → features → image-text → testimonials → faq → cta.
+Return ONLY the JSON array, no markdown, no explanation.`
+
+async function callNvidia(apiKey: string, model: string, systemPrompt: string, userPrompt: string) {
+    const res = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({
+            model,
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt }
+            ],
+            temperature: 0.8,
+            max_tokens: 3000,
+            stream: false,
+        })
+    })
+    return res
+}
+
+async function callGemini(apiKey: string, model: string, systemPrompt: string, userPrompt: string, jsonMode = true) {
+    const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                contents: [{ parts: [{ text: userPrompt }] }],
+                generationConfig: {
+                    temperature: 0.8,
+                    ...(jsonMode ? { responseMimeType: 'application/json' } : {})
+                }
+            })
+        }
+    )
+    return res
+}
+
+function extractJSON(text: string): any {
+    const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+    return JSON.parse(clean)
+}
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
-        const { mode, prompt, productTitle, productPrice, productDescription, sectionType, apiKey: bodyApiKey, model: bodyModel } = body
+        const { mode, prompt, productTitle, productPrice, productDescription, sectionType, currentSection, apiKey: bodyApiKey, model: bodyModel } = body
 
-        // Get settings from DB (or use provided keys for test mode)
         const settings = await getSettings()
-        const apiKey = bodyApiKey || settings.gemini_api_key
-        const model = bodyModel || settings.gemini_model || 'gemini-2.5-flash'
+        const nvidiaKey = settings.nvidia_api_key?.trim()
+        const nvidiaModel = settings.nvidia_model?.trim() || 'minimaxai/minimax-m1-40k'
+        const geminiKey = bodyApiKey || settings.gemini_api_key?.trim()
+        const geminiModel = bodyModel || settings.gemini_model?.trim() || 'gemini-2.5-flash'
 
-        if (!apiKey) {
-            return NextResponse.json({ error: 'Gemini API key not configured. Go to Admin → AI Settings.' }, { status: 400 })
-        }
-
-        // Test mode — just verify API works
+        // ── TEST MODE ──────────────────────────────────────────────────────────
         if (mode === 'test') {
+            if (!geminiKey) return NextResponse.json({ error: 'Gemini API key not configured.' }, { status: 400 })
             const testRes = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: 'Say "ok" if you can hear me.' }] }]
-                    })
-                }
+                `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`,
+                { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: 'Say ok.' }] }] }) }
             )
-            if (!testRes.ok) {
-                const err = await testRes.json()
-                return NextResponse.json({ error: err?.error?.message || 'API error' }, { status: 400 })
-            }
+            if (!testRes.ok) { const err = await testRes.json(); return NextResponse.json({ error: err?.error?.message }, { status: 400 }) }
             return NextResponse.json({ ok: true })
         }
 
+        // ── BANNER IMAGE MODE ──────────────────────────────────────────────────
+        if (mode === 'banner-image') {
+            const imagePrompt = prompt || `professional product banner for ${productTitle || 'a product'}, marketing photography, studio lighting, clean background, high quality`
+            const encodedPrompt = encodeURIComponent(imagePrompt)
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1200&height=500&nologo=true&seed=${Date.now()}`
+            return NextResponse.json({ imageUrl })
+        }
+
+        // ── Build user prompt ──────────────────────────────────────────────────
         let userPrompt = ''
-
         if (mode === 'full') {
-            // Generate complete landing page
-            userPrompt = `Create a complete, professional landing page for the following product:
-Product Name: ${productTitle || 'Product'}
-Price: ${productPrice ? `₹${productPrice}` : 'Premium Price'}
+            userPrompt = `Create a complete, high-converting sales funnel landing page for:
+Product: ${productTitle || 'Product'}
+Price: ${productPrice ? `₹${productPrice}` : 'Premium'}
 Description: ${productDescription || ''}
-Additional Instructions: ${prompt || ''}
+Extra Instructions: ${prompt || 'Make it professional, modern, and conversion-focused'}
 
-Include: hero, features (at least 4), testimonials (at least 2), FAQ (at least 3), and a strong CTA section.
-Make it look premium and conversion-focused. Use Indian Rupee (₹) for pricing mentions.`
+Structure: hero → features (5-6 items) → image-text → testimonials (3) → FAQ (4-5) → strong CTA
+Use attractive gradient colors. Make it premium. Use Indian Rupee ₹ for pricing.
+For hero imageUrl, leave it as empty string "".`
+
         } else if (mode === 'section') {
-            // Generate a single section
-            userPrompt = `Create a single "${sectionType}" section for a landing page about:
+            userPrompt = `Create a single "${sectionType}" section for a landing page:
 Product: ${productTitle || 'Product'}
 ${prompt ? `Instructions: ${prompt}` : ''}
 Return ONLY a JSON array with exactly 1 section of type "${sectionType}".`
-        } else if (mode === 'copy') {
-            // Generate copy suggestions (headline + CTA)
-            const copyRes = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{
-                                text: `Generate 3 compelling headline + CTA button text pairs for a product landing page.
+
+        } else if (mode === 'edit-section') {
+            // AI edits one specific section with a custom prompt
+            userPrompt = `Edit this landing page section based on the instruction below.
+Current section data:
+${JSON.stringify(currentSection, null, 2)}
+
+Edit instruction: ${prompt}
 Product: ${productTitle || 'Product'}
-${prompt ? `Context: ${prompt}` : ''}
-Return ONLY a JSON array: [{headline: string, subheadline: string, cta: string}]`
-                            }]
-                        }],
-                        generationConfig: { temperature: 0.9 }
-                    })
-                }
-            )
-            if (!copyRes.ok) {
-                const err = await copyRes.json()
-                return NextResponse.json({ error: err?.error?.message || 'AI error' }, { status: 500 })
-            }
+
+Return ONLY a JSON array with exactly 1 updated section of type "${sectionType}". Keep the same section type and id.`
+
+        } else if (mode === 'copy') {
+            const copyRes = await callGemini(geminiKey || '', geminiModel, 'You are a copywriter.', `Generate 3 headline + CTA pairs for: ${productTitle}. Return JSON: [{headline, subheadline, cta}]`, false)
+            if (!copyRes.ok) return NextResponse.json({ error: 'AI error' }, { status: 500 })
             const copyData = await copyRes.json()
-            let text = copyData.candidates?.[0]?.content?.parts?.[0]?.text || '[]'
-            text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-            const suggestions = JSON.parse(text)
-            return NextResponse.json({ suggestions })
+            const text = copyData.candidates?.[0]?.content?.parts?.[0]?.text || '[]'
+            return NextResponse.json({ suggestions: extractJSON(text) })
         }
 
-        // Call Gemini API
-        const geminiRes = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-                    contents: [{ parts: [{ text: userPrompt }] }],
-                    generationConfig: {
-                        temperature: 0.8,
-                        responseMimeType: 'application/json'
-                    }
-                })
+        // ── Call AI: NVIDIA first, Gemini fallback ─────────────────────────────
+        let rawText = ''
+
+        if (nvidiaKey) {
+            try {
+                const nvidiaRes = await callNvidia(nvidiaKey, nvidiaModel, SYSTEM_PROMPT, userPrompt)
+                if (nvidiaRes.ok) {
+                    const nvidiaData = await nvidiaRes.json()
+                    rawText = nvidiaData?.choices?.[0]?.message?.content || ''
+                } else {
+                    console.warn('[LP Gen] NVIDIA failed:', nvidiaRes.status)
+                }
+            } catch (e) {
+                console.warn('[LP Gen] NVIDIA error:', e)
             }
-        )
-
-        if (!geminiRes.ok) {
-            const err = await geminiRes.json()
-            return NextResponse.json({ error: err?.error?.message || 'Gemini API error' }, { status: 500 })
         }
 
-        const geminiData = await geminiRes.json()
-        let rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '[]'
-        // Strip any markdown code fences just in case
-        rawText = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+        if (!rawText && geminiKey) {
+            const geminiRes = await callGemini(geminiKey, geminiModel, SYSTEM_PROMPT, userPrompt)
+            if (!geminiRes.ok) {
+                const err = await geminiRes.json()
+                return NextResponse.json({ error: err?.error?.message || 'Gemini error' }, { status: 500 })
+            }
+            const geminiData = await geminiRes.json()
+            rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '[]'
+        }
 
-        const sections = JSON.parse(rawText)
+        if (!rawText) {
+            return NextResponse.json({ error: 'No AI configured. Add NVIDIA or Gemini key in AI Settings.' }, { status: 400 })
+        }
+
+        const sections = extractJSON(rawText)
         return NextResponse.json({ sections })
+
     } catch (error: any) {
-        console.error('AI generate error:', error)
+        console.error('[LP Gen Error]', error)
         return NextResponse.json({ error: error.message || 'Internal error' }, { status: 500 })
     }
 }

@@ -104,15 +104,18 @@ function RichTextarea({ value, onChange, placeholder }: { value: string, onChang
 }
 
 // ─── Section Editor (Active State) ──────────────────────────────────────────
-function ActiveSectionEditor({ section, onChange, onAIFill, aiLoading }: {
+function ActiveSectionEditor({ section, onChange, onAIFill, aiLoading, onAIGenerateImage }: {
     section: LandingSection
     onChange: (s: LandingSection) => void
     onAIFill: (sectionId: string, type: LandingSectionType) => void
     aiLoading: string | null
+    onAIGenerateImage: (sectionId: string, prompt: string) => void
 }) {
     const meta = SECTION_LABELS[section.type]
     const update = (patch: Partial<LandingSection>) => onChange({ ...section, ...patch })
     const isLoadingThis = aiLoading === section.id
+    const isImageLoading = aiLoading === `img-${section.id}`
+
 
     return (
         <div className="space-y-4">
@@ -222,7 +225,14 @@ function ActiveSectionEditor({ section, onChange, onAIFill, aiLoading }: {
                     <div><Label className="text-xs">Button Text</Label>
                         <Input value={section.buttonText || ''} onChange={e => update({ buttonText: e.target.value })} className="mt-1 h-8 text-xs" placeholder="Buy Now" /></div>
                     <div>
-                        <Label className="text-xs">Hero Image</Label>
+                        <div className="flex justify-between items-center mb-1">
+                            <Label className="text-xs">Hero Image</Label>
+                            <Button type="button" variant="ghost" size="sm" onClick={() => onAIGenerateImage(section.id, section.heading || 'A beautiful product')}
+                                disabled={!!aiLoading} className="h-6 px-2 text-[10px] text-violet-600 hover:text-violet-700 hover:bg-violet-50">
+                                {isImageLoading ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                                AI Create
+                            </Button>
+                        </div>
                         <ImageUploadInput value={section.imageUrl || ''} onChange={v => update({ imageUrl: v })} />
                     </div>
                 </div>
@@ -275,7 +285,14 @@ function ActiveSectionEditor({ section, onChange, onAIFill, aiLoading }: {
                     <div><Label className="text-xs">Heading</Label>
                         <Input value={section.heading || ''} onChange={e => update({ heading: e.target.value })} className="mt-1 h-8 text-xs font-bold" /></div>
                     <div>
-                        <Label className="text-xs">Image Displayed</Label>
+                        <div className="flex justify-between items-center mb-1">
+                            <Label className="text-xs">Image Displayed</Label>
+                            <Button type="button" variant="ghost" size="sm" onClick={() => onAIGenerateImage(section.id, section.heading || 'A descriptive illustration')}
+                                disabled={!!aiLoading} className="h-6 px-2 text-[10px] text-violet-600 hover:text-violet-700 hover:bg-violet-50">
+                                {isImageLoading ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                                AI Create
+                            </Button>
+                        </div>
                         <ImageUploadInput value={section.imageUrl || ''} onChange={v => update({ imageUrl: v })} />
                     </div>
                     <div>
@@ -407,7 +424,7 @@ function ActiveSectionEditor({ section, onChange, onAIFill, aiLoading }: {
 }
 
 // ─── Main Builder (Elementor Clone) ──────────────────────────────────────────
-export function LandingPageBuilder({ sections, onChange, productTitle, productPrice, productDescription, onSave, saving, exitLink, previewLink }: any) {
+export function LandingPageBuilder({ sections, onChange, productTitle, productPrice, productDescription, onSave, saving, exitLink, previewLink, isPublished, pageTitle, pageSlug, onTitleChange, storeProducts }: any) {
     // Layout State
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
@@ -423,11 +440,14 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
 
     // AI state
     const [aiModalOpen, setAiModalOpen] = useState(false)
+    const [aiEditModalOpen, setAiEditModalOpen] = useState(false)
     const [aiPrompt, setAiPrompt] = useState("")
+    const [aiEditPrompt, setAiEditPrompt] = useState("")
     const [aiLoading, setAiLoading] = useState<string | null>(null)
+    const [selectedProduct, setSelectedProduct] = useState<any>(null)
 
-    const fauxProduct: any = {
-        title: productTitle || "Product Name",
+    const currentProduct = selectedProduct || {
+        title: productTitle || pageTitle || "Product Name",
         price: productPrice || 99,
         originalPrice: productPrice ? productPrice * 1.5 : 149,
         description: productDescription || "A great product."
@@ -497,10 +517,10 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
     }
 
     const handleAIGenerate = async () => {
-        if (!aiPrompt.trim() && !productTitle) return toast({ title: "Enter a prompt or product name first", variant: "destructive" })
+        if (!aiPrompt.trim() && !currentProduct.title) return toast({ title: "Enter a prompt or product name first", variant: "destructive" })
         setAiLoading("full")
         try {
-            const res = await fetch("/api/ai/generate-landing-page", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "full", prompt: aiPrompt, productTitle, productPrice, productDescription }) })
+            const res = await fetch("/api/ai/generate-landing-page", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "full", prompt: aiPrompt, productTitle: currentProduct.title, productPrice: currentProduct.price, productDescription: currentProduct.description }) })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || "AI generation failed")
             pushHistory(data.sections)
@@ -512,19 +532,61 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
         finally { setAiLoading(null) }
     }
 
-    const handleAIFill = async (sectionId: string, type: LandingSectionType) => {
-        setAiLoading(sectionId)
+    const handleAIFill = (sectionId: string, type: LandingSectionType) => {
+        setActiveSectionId(sectionId)
+        setAiEditPrompt("")
+        setAiEditModalOpen(true)
+    }
+
+    const handleAIEditSubmit = async () => {
+        if (!activeSectionId) return
+        const section = sections.find((s:any) => s.id === activeSectionId)
+        if (!section) return
+        
+        setAiLoading(activeSectionId)
+        setAiEditModalOpen(false)
         try {
-            const res = await fetch("/api/ai/generate-landing-page", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "section", sectionType: type, productTitle, productPrice, productDescription }) })
+            const res = await fetch("/api/ai/generate-landing-page", { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify({ 
+                    mode: "edit-section", 
+                    sectionType: section.type, 
+                    currentSection: section,
+                    prompt: aiEditPrompt,
+                    productTitle: currentProduct.title 
+                }) 
+            })
             const data = await res.json()
-            if (!res.ok) throw new Error(data.error || "AI fill failed")
+            if (!res.ok) throw new Error(data.error || "AI edit failed")
             if (data.sections?.[0]) {
                 const generated = data.sections[0]
-                pushHistory(sections.map((s:any) => s.id === sectionId ? { ...generated, id: sectionId, type, bgColor: s.bgColor, textColor: s.textColor, align: s.align, paddingY: s.paddingY } : s))
-                toast({ title: "✅ Section filled by AI!" })
+                pushHistory(sections.map((s:any) => s.id === activeSectionId ? { ...generated, id: activeSectionId, type: section.type, bgColor: s.bgColor, textColor: s.textColor, align: s.align, paddingY: s.paddingY } : s))
+                toast({ title: "✅ Section updated by AI!" })
             }
         } catch (err: any) { toast({ title: "AI Error", description: err.message, variant: "destructive" }) }
         finally { setAiLoading(null) }
+    }
+
+    const handleAIGenerateImage = async (sectionId: string, prompt: string) => {
+        setAiLoading(`img-${sectionId}`)
+        try {
+            const res = await fetch("/api/ai/generate-landing-page", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mode: "banner-image", prompt, productTitle: currentProduct.title })
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || "Image generation failed")
+            if (data.imageUrl) {
+                pushHistory(sections.map((s:any) => s.id === sectionId ? { ...s, imageUrl: data.imageUrl } : s))
+                toast({ title: "✅ Image generated successfully!" })
+            }
+        } catch (err: any) {
+            toast({ title: "Image Generation Failed", description: err.message, variant: "destructive" })
+        } finally {
+            setAiLoading(null)
+        }
     }
 
     const activeSection = sections.find((s:any) => s.id === activeSectionId)
@@ -536,7 +598,7 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
         <div className="flex flex-col h-screen w-full overflow-hidden bg-slate-100 relative">
             
             {/* ─── BUILDER TOP BAR (Responsive Toggles & Actions) ─── */}
-            <div className="h-[52px] bg-white border-b border-gray-200 flex items-center justify-between px-4 z-30 shrink-0 shadow-sm w-full">
+            <div className="h-[60px] bg-white border-b border-gray-200 flex items-center justify-between px-4 z-30 shrink-0 shadow-sm w-full">
                 <div className="flex items-center gap-4">
                     {exitLink && (
                         <Button variant="ghost" size="sm" asChild className="h-8 -ml-2 text-gray-500 hover:text-gray-900 font-semibold px-2">
@@ -546,6 +608,24 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
                     <Button onClick={() => setSidebarOpen(!sidebarOpen)} variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" title="Toggle Sidebar">
                         {sidebarOpen ? <PanelLeftClose className="h-4.5 w-4.5" /> : <PanelLeftOpen className="h-4.5 w-4.5" />}
                     </Button>
+                    
+                    {/* Standalone LP Title Editor */}
+                    {onTitleChange && (
+                        <div className="flex items-center gap-2">
+                            <div className="h-5 w-px bg-gray-200 hidden md:block" />
+                            <div className="flex flex-col">
+                                <Input value={pageTitle || ''} onChange={e => onTitleChange(e.target.value)} 
+                                    className="h-7 border-transparent hover:border-gray-200 focus:border-indigo-500 text-sm font-bold w-[200px] shadow-none px-2" 
+                                    placeholder="Landing Page Title" />
+                                {isPublished !== undefined && (
+                                    <span className={`text-[10px] font-bold px-2 uppercase tracking-wider ${isPublished ? 'text-green-600' : 'text-gray-400'}`}>
+                                        {isPublished ? 'Live Published' : 'Draft'}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                    
                     <div className="h-5 w-px bg-gray-200 hidden md:block" />
                     <div className="hidden md:flex bg-slate-100 p-1 rounded-lg border border-gray-200">
                         <button onClick={() => setPreviewMode('desktop')} className={`p-1.5 rounded-md transition-all ${previewMode === 'desktop' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}><Monitor className="h-4 w-4" /></button>
@@ -555,6 +635,23 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
                 </div>
                 
                 <div className="flex items-center gap-2 md:gap-3">
+                    {/* Store Product Picker */}
+                    {storeProducts && storeProducts.length > 0 && (
+                        <div className="hidden lg:flex items-center mr-2">
+                            <select 
+                                className="h-8 text-xs border-gray-200 rounded-md focus:border-indigo-500 focus:ring-indigo-500 bg-gray-50 font-medium text-gray-700 max-w-[150px]"
+                                value={selectedProduct?.id || ''}
+                                onChange={(e) => {
+                                    const p = storeProducts.find((p:any) => p.id === e.target.value)
+                                    setSelectedProduct(p || null)
+                                }}
+                            >
+                                <option value="">No Product Selected</option>
+                                {storeProducts.map((p:any) => <option key={p.id} value={p.id}>{p.title}</option>)}
+                            </select>
+                        </div>
+                    )}
+
                     <div className="flex items-center gap-1 mr-1">
                         <Button variant="ghost" size="icon" onClick={undo} disabled={!canUndo} className="h-8 w-8 text-gray-500"><Undo className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" onClick={redo} disabled={!canRedo} className="h-8 w-8 text-gray-500"><Redo className="h-4 w-4" /></Button>
@@ -589,7 +686,13 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
                                 <Button variant="ghost" size="sm" onClick={() => setActiveSectionId(null)} className="mb-4 text-xs font-semibold text-gray-500 hover:text-gray-900 -ml-2 h-8 px-2">
                                     <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Back to Blocks
                                 </Button>
-                                <ActiveSectionEditor section={activeSection as any} onChange={(updated) => update(activeSection.id, updated)} onAIFill={handleAIFill} aiLoading={aiLoading} />
+                                <ActiveSectionEditor 
+                                    section={activeSection as any} 
+                                    onChange={(updated) => update(activeSection.id, updated)} 
+                                    onAIFill={handleAIFill} 
+                                    aiLoading={aiLoading} 
+                                    onAIGenerateImage={handleAIGenerateImage}
+                                />
                             </div>
                         ) : (
                             /* Dashboard Blocks & Structure */
@@ -676,7 +779,7 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
                                         <div className="pointer-events-none group-focus-within:pointer-events-auto hover:pointer-events-auto">
                                             <RenderSection 
                                                 section={section} 
-                                                product={fauxProduct} 
+                                                product={currentProduct} 
                                                 isBuilder={true} 
                                                 onChange={(updatedStr) => update(section.id, updatedStr)} 
                                             />
@@ -723,6 +826,47 @@ export function LandingPageBuilder({ sections, onChange, productTitle, productPr
                             <Button variant="ghost" onClick={() => setAiModalOpen(false)} className="flex-1 border border-gray-200 font-semibold text-gray-600">Cancel</Button>
                             <Button onClick={handleAIGenerate} disabled={aiLoading === "full"} className="flex-1 bg-gray-900 hover:bg-black text-white font-bold shadow-lg">
                                 {aiLoading === "full" ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Building...</> : <><Sparkles className="h-4 w-4 mr-2" />Generate Page</>}
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* ─── AI Section Edit Modal ─── */}
+            <Dialog open={aiEditModalOpen} onOpenChange={setAiEditModalOpen}>
+                <DialogContent className="max-w-md border-0 p-0 overflow-hidden bg-white rounded-2xl">
+                    <div className="px-6 py-5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+                        <DialogTitle className="flex items-center gap-2 text-xl font-bold text-white mb-1">
+                            <Sparkles className="h-6 w-6" /> AI Section Editor
+                        </DialogTitle>
+                        <p className="text-indigo-100 text-xs">Tell AI exactly how to update this block.</p>
+                    </div>
+                    <div className="p-6 space-y-5">
+                        <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex gap-3 items-center">
+                            <div className="h-10 w-10 bg-white rounded-lg shadow-sm border border-slate-200 flex items-center justify-center shrink-0">
+                                <Layout className="h-5 w-5 text-indigo-400" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-xs font-bold text-gray-800 line-clamp-1">Product Context</p>
+                                <p className="text-[11px] text-gray-500 font-medium truncate">{currentProduct.title}</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <Label className="text-xs font-bold text-gray-700 uppercase tracking-widest">What should AI change?</Label>
+                            <Textarea
+                                value={aiEditPrompt}
+                                onChange={e => setAiEditPrompt(e.target.value)}
+                                placeholder="E.g. Make the text more urgent. Add a 50% discount mention. Write 3 more features."
+                                className="mt-2 min-h-[100px] text-sm bg-white"
+                                autoFocus
+                            />
+                        </div>
+                        
+                        <div className="flex gap-3 pt-2">
+                            <Button variant="ghost" onClick={() => setAiEditModalOpen(false)} className="flex-1 border border-gray-200 font-semibold text-gray-600">Cancel</Button>
+                            <Button onClick={handleAIEditSubmit} disabled={!aiEditPrompt.trim()} className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold shadow-md">
+                                Update Section
                             </Button>
                         </div>
                     </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, ShoppingBag, List, ShoppingCart, Store, Users, Image, CreditCard, Bot, BarChart2, Activity } from "lucide-react"
+import { LayoutDashboard, ShoppingBag, List, ShoppingCart, Store, Users, Image, CreditCard, Bot, BarChart2, Activity, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -11,6 +11,7 @@ const sidebarItems = [
   { name: "Products", href: "/admin/products", icon: ShoppingBag },
   { name: "Categories", href: "/admin/categories", icon: List },
   { name: "Banners", href: "/admin/banners", icon: Image },
+  { name: "Landing Pages", href: "/admin/landing-pages", icon: FileText },
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { name: "Users", href: "/admin/users", icon: Users },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart2 },
@@ -18,6 +19,7 @@ const sidebarItems = [
   { name: "AI Settings", href: "/admin/ai-settings", icon: Bot },
   { name: "AI Test", href: "/admin/ai-test", icon: Activity },
 ]
+
 
 
 
