@@ -26,35 +26,6 @@ async function getProducts() {
     } catch { return [] }
 }
 
-// ─── PRIMARY: NVIDIA — OpenAI-compatible ─────────────────────────────────────
-async function callNvidia(apiKey: string, model: string, systemPrompt: string, history: any[], userMessage: string) {
-    const messages = [
-        { role: 'system', content: systemPrompt },
-        ...history.map((m: any) => ({
-            role: m.role === 'user' ? 'user' : 'assistant',
-            content: m.text,
-        })),
-        { role: 'user', content: userMessage },
-    ]
-
-    const res = await fetch(`${NVIDIA_BASE_URL}/chat/completions`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-            model,
-            messages,
-            temperature: 0.75,
-            top_p: 0.95,
-            max_tokens: 600,
-            stream: false,
-        }),
-    })
-    return res
-}
-
 // ─── FALLBACK: Gemini ─────────────────────────────────────────────────────────
 async function callGemini(apiKey: string, model: string, systemPrompt: string, contents: any[]) {
     const res = await fetch(
@@ -70,6 +41,49 @@ async function callGemini(apiKey: string, model: string, systemPrompt: string, c
         }
     )
     return res
+}
+
+// ─── Parse PRODUCT_IDS & ACTION from streamed text ────────────────────────────
+function parseReply(rawReply: string, products: any[]) {
+    let reply = rawReply
+
+    let suggestedProducts: any[] = []
+    const productIdsMatch = reply.match(/PRODUCT_IDS:\[([^\]]*)\]/)
+    if (productIdsMatch) {
+        const ids = productIdsMatch[1].split(',').map((id: string) => id.trim()).filter(Boolean)
+        suggestedProducts = products
+            .filter((p: any) => ids.includes(String(p.id)))
+            .slice(0, 3)
+            .map((p: any) => ({
+                id: p.id,
+                title: p.title,
+                description: p.description || '',
+                price: Number(p.price),
+                originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
+                category: p.category,
+                imageUrl: p.imageUrl || '',
+                slug: p.slug || '',
+                downloadUrl: p.downloadUrl || '',
+                isActive: true,
+                salesCount: Number(p.salesCount || 0),
+                tags: [],
+                createdAt: p.createdAt,
+                updatedAt: p.updatedAt,
+                createdBy: p.createdBy || 'admin',
+            }))
+        reply = reply.replace(/PRODUCT_IDS:\[[^\]]*\]/g, '').trim()
+    }
+
+    let action: string | null = null
+    if (reply.includes('ACTION:ADD_TO_CART')) {
+        action = 'add_to_cart'
+        reply = reply.replace(/ACTION:ADD_TO_CART/g, '').trim()
+    } else if (reply.includes('ACTION:CHECKOUT')) {
+        action = 'checkout'
+        reply = reply.replace(/ACTION:CHECKOUT/g, '').trim()
+    }
+
+    return { reply, suggestedProducts, action }
 }
 
 export async function POST(request: NextRequest) {
@@ -131,23 +145,94 @@ ${productList || 'No products available right now. Check back soon!'}
 
 Be the BEST shopping assistant — make every user feel valued! 🚀`
 
-        let rawReply = ''
-        let usedModel = 'nvidia'
-
-        // ── STEP 1: Try NVIDIA (primary) — key & model from DB ───────────────
+        // ── STEP 1: Try NVIDIA with STREAMING ────────────────────────────────────
         const nvidiaKey = settings.nvidia_api_key?.trim()
         const nvidiaModel = settings.nvidia_model?.trim() || NVIDIA_MODEL_DEFAULT
+
         if (nvidiaKey) {
             try {
-                const nvidiaRes = await callNvidia(nvidiaKey, nvidiaModel, SYSTEM_PROMPT, history || [], message)
+                const nvidiaMessages = [
+                    { role: 'system', content: SYSTEM_PROMPT },
+                    ...(history || []).map((m: any) => ({
+                        role: m.role === 'user' ? 'user' : 'assistant',
+                        content: m.text,
+                    })),
+                    { role: 'user', content: message },
+                ]
 
-                if (nvidiaRes.ok) {
-                    const nvidiaData = await nvidiaRes.json()
-                    const content = nvidiaData?.choices?.[0]?.message?.content
-                    if (content) {
-                        rawReply = content
-                        usedModel = `nvidia-${nvidiaModel}`
-                    }
+                const nvidiaRes = await fetch(`${NVIDIA_BASE_URL}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${nvidiaKey}`,
+                    },
+                    body: JSON.stringify({
+                        model: nvidiaModel,
+                        messages: nvidiaMessages,
+                        temperature: 0.75,
+                        top_p: 0.95,
+                        max_tokens: 500,
+                        stream: true,   // ← STREAMING ON
+                    }),
+                })
+
+                if (nvidiaRes.ok && nvidiaRes.body) {
+                    // ── Stream SSE response to client ──────────────────────────
+                    const encoder = new TextEncoder()
+                    let fullText = ''
+
+                    const stream = new ReadableStream({
+                        async start(controller) {
+                            const reader = nvidiaRes.body!.getReader()
+                            const decoder = new TextDecoder()
+
+                            try {
+                                while (true) {
+                                    const { done, value } = await reader.read()
+                                    if (done) break
+
+                                    const chunk = decoder.decode(value, { stream: true })
+                                    const lines = chunk.split('\n')
+
+                                    for (const line of lines) {
+                                        if (!line.startsWith('data: ')) continue
+                                        const data = line.slice(6).trim()
+                                        if (data === '[DONE]') continue
+
+                                        try {
+                                            const parsed = JSON.parse(data)
+                                            const token = parsed?.choices?.[0]?.delta?.content
+                                            if (token) {
+                                                fullText += token
+                                                // Send token to client
+                                                controller.enqueue(
+                                                    encoder.encode(`data: ${JSON.stringify({ token })}\n\n`)
+                                                )
+                                            }
+                                        } catch {}
+                                    }
+                                }
+
+                                // Done streaming — parse products & action, send final metadata
+                                const { reply, suggestedProducts, action } = parseReply(fullText, products)
+                                controller.enqueue(
+                                    encoder.encode(`data: ${JSON.stringify({ done: true, reply, products: suggestedProducts, action })}\n\n`)
+                                )
+                            } catch (e) {
+                                console.warn('[ShopChat] Stream read error:', e)
+                            } finally {
+                                controller.close()
+                            }
+                        }
+                    })
+
+                    return new Response(stream, {
+                        headers: {
+                            'Content-Type': 'text/event-stream',
+                            'Cache-Control': 'no-cache',
+                            'X-Accel-Buffering': 'no',
+                        },
+                    })
                 } else {
                     const errText = await nvidiaRes.text()
                     console.warn('[ShopChat] NVIDIA failed:', nvidiaRes.status, errText.slice(0, 200))
@@ -159,12 +244,13 @@ Be the BEST shopping assistant — make every user feel valued! 🚀`
             console.warn('[ShopChat] NVIDIA API key not configured in settings — skipping NVIDIA')
         }
 
-        // ── STEP 2: Fallback to Gemini if NVIDIA failed ───────────────────────
+        // ── STEP 2: Fallback to Gemini (non-streaming) ────────────────────────
+        let rawReply = ''
         if (!rawReply) {
             const geminiKey = settings.gemini_api_key?.trim()
             if (geminiKey) {
                 const preferredModel = settings.gemini_model?.trim() || 'gemini-2.5-flash'
-                const fallbackModel  = 'gemini-2.5-pro'
+                const fallbackModel = 'gemini-2.5-pro'
 
                 const contents: any[] = []
                 if (Array.isArray(history)) {
@@ -185,7 +271,6 @@ Be the BEST shopping assistant — make every user feel valued! 🚀`
                 if (geminiRes.ok) {
                     const geminiData = await geminiRes.json()
                     rawReply = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || ''
-                    usedModel = 'gemini'
                 }
             }
         }
@@ -199,47 +284,8 @@ Be the BEST shopping assistant — make every user feel valued! 🚀`
             })
         }
 
-        console.log(`[ShopChat] Responded via: ${usedModel}`)
-
-        // ── Parse PRODUCT_IDS ──────────────────────────────────────────────────
-        let suggestedProducts: any[] = []
-        const productIdsMatch = rawReply.match(/PRODUCT_IDS:\[([^\]]*)\]/)
-        if (productIdsMatch) {
-            const ids = productIdsMatch[1].split(',').map((id: string) => id.trim()).filter(Boolean)
-            suggestedProducts = products
-                .filter((p: any) => ids.includes(String(p.id)))
-                .slice(0, 3)
-                .map((p: any) => ({
-                    id: p.id,
-                    title: p.title,
-                    description: p.description || '',
-                    price: Number(p.price),
-                    originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
-                    category: p.category,
-                    imageUrl: p.imageUrl || '',
-                    slug: p.slug || '',
-                    downloadUrl: p.downloadUrl || '',
-                    isActive: true,
-                    salesCount: Number(p.salesCount || 0),
-                    tags: [],
-                    createdAt: p.createdAt,
-                    updatedAt: p.updatedAt,
-                    createdBy: p.createdBy || 'admin',
-                }))
-            rawReply = rawReply.replace(/PRODUCT_IDS:\[[^\]]*\]/g, '').trim()
-        }
-
-        // ── Parse ACTION ───────────────────────────────────────────────────────
-        let action: string | null = null
-        if (rawReply.includes('ACTION:ADD_TO_CART')) {
-            action = 'add_to_cart'
-            rawReply = rawReply.replace(/ACTION:ADD_TO_CART/g, '').trim()
-        } else if (rawReply.includes('ACTION:CHECKOUT')) {
-            action = 'checkout'
-            rawReply = rawReply.replace(/ACTION:CHECKOUT/g, '').trim()
-        }
-
-        return NextResponse.json({ reply: rawReply, products: suggestedProducts, action })
+        const { reply, suggestedProducts, action } = parseReply(rawReply, products)
+        return NextResponse.json({ reply, products: suggestedProducts, action })
 
     } catch (error: any) {
         console.error('[ShopChat Error]', error)
