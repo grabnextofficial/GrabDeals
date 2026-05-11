@@ -1,4 +1,6 @@
 export const runtime = 'edge'
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 import { Metadata, ResolvingMetadata } from 'next'
 import { notFound } from 'next/navigation'
 import { executeQuery } from '@/lib/db'

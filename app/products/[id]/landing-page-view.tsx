@@ -428,7 +428,15 @@ export function RenderSection({ section, product, isBuilder, onChange }: { secti
 
 export function LandingPageView({ product }: { product: Product }) {
     let sections: LandingSection[] = []
-    try { if (product.pageCode) sections = JSON.parse(product.pageCode) } catch { }
+    try {
+        if (product.pageCode) {
+            let parsed = JSON.parse(product.pageCode)
+            if (typeof parsed === 'string') {
+                parsed = JSON.parse(parsed)
+            }
+            sections = Array.isArray(parsed) ? parsed : []
+        }
+    } catch { }
 
     // Track page view
     useEffect(() => {

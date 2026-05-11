@@ -25,7 +25,8 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
                 setProduct(p)
                 if (p.pageCode) {
                     try { 
-                        const parsed = JSON.parse(p.pageCode)
+                        let parsed = JSON.parse(p.pageCode)
+                        if (typeof parsed === 'string') parsed = JSON.parse(parsed)
                         setSections(Array.isArray(parsed) ? parsed : []) 
                     } catch { 
                         setSections([]) 

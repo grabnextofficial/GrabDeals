@@ -48,7 +48,9 @@ export default async function PublicLandingPage({ params }: { params: { slug: st
     }
 
     try {
-        sections = typeof page.sections === 'string' ? JSON.parse(page.sections) : (page.sections || [])
+        let parsed = typeof page.sections === 'string' ? JSON.parse(page.sections) : (page.sections || [])
+        if (typeof parsed === 'string') parsed = JSON.parse(parsed)
+        sections = Array.isArray(parsed) ? parsed : []
     } catch { sections = [] }
 
     // Load linked products
