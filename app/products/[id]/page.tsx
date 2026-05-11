@@ -83,14 +83,14 @@ export async function generateMetadata(
     }
     const keywords = keywordParts.filter(Boolean).join(', ')
 
-    const canonicalUrl = `https://grabnext.in/products/${(product as any).slug || product.id}`
+    const canonicalUrl = `https://grabnext.pages.dev/products/${(product as any).slug || product.id}`
     const priceStr = `₹${product.price}`
 
     return {
         title: `${product.title} - Buy Online at ₹${product.price} | Grabnext`,
         description: cleanDescription,
         keywords,
-        authors: [{ name: 'Grabnext', url: 'https://grabnext.in' }],
+        authors: [{ name: 'Grabnext', url: 'https://grabnext.pages.dev' }],
         creator: 'Grabnext',
         publisher: 'Grabnext',
         category: product.category,
@@ -183,10 +183,10 @@ export default async function Page({ params }: Props) {
                             "name": "Grabnext"
                         },
                         "category": product.category,
-                        "url": `https://grabnext.in/products/${(product as any).slug || product.id}`,
+                        "url": `https://grabnext.pages.dev/products/${(product as any).slug || product.id}`,
                         "offers": {
                             "@type": "Offer",
-                            "url": `https://grabnext.in/products/${(product as any).slug || product.id}`,
+                            "url": `https://grabnext.pages.dev/products/${(product as any).slug || product.id}`,
                             "priceCurrency": "INR",
                             "price": product.price,
                             "priceValidUntil": new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -197,7 +197,7 @@ export default async function Page({ params }: Props) {
                             "seller": {
                                 "@type": "Organization",
                                 "name": "Grabnext",
-                                "url": "https://grabnext.in"
+                                "url": "https://grabnext.pages.dev"
                             }
                         },
                         ...(product.tags && Array.isArray(product.tags) && product.tags.length > 0

@@ -27,14 +27,14 @@ export const metadata: Metadata = {
     "buy software cheap india",
     "digital marketplace india",
   ],
-  authors: [{ name: "Grabnext", url: "https://grabnext.in" }],
+  authors: [{ name: "Grabnext", url: "https://grabnext.pages.dev" }],
   creator: "Grabnext",
   publisher: "Grabnext",
-  metadataBase: new URL("https://grabnext.in"),
+  metadataBase: new URL("https://grabnext.pages.dev"),
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://grabnext.in",
+    url: "https://grabnext.pages.dev",
     siteName: "Grabnext",
     title: "Grabnext - Buy Digital Products Online India",
     description:
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     apple: "/favicon.png",
   },
   alternates: {
-    canonical: "https://grabnext.in",
+    canonical: "https://grabnext.pages.dev",
   },
 }
 
@@ -146,13 +146,13 @@ html {
                 "@context": "https://schema.org",
                 "@type": "WebSite",
                 "name": "Grabnext",
-                "url": "https://grabnext.in",
+                "url": "https://grabnext.pages.dev",
                 "description": "India's trusted digital marketplace. Buy software, online courses, design templates, ebooks & more with instant delivery.",
                 "potentialAction": {
                   "@type": "SearchAction",
                   "target": {
                     "@type": "EntryPoint",
-                    "urlTemplate": "https://grabnext.in/products?q={search_term_string}"
+                    "urlTemplate": "https://grabnext.pages.dev/products?q={search_term_string}"
                   },
                   "query-input": "required name=search_term_string"
                 }
@@ -161,13 +161,13 @@ html {
                 "@context": "https://schema.org",
                 "@type": "Organization",
                 "name": "Grabnext",
-                "url": "https://grabnext.in",
-                "logo": "https://grabnext.in/favicon.png",
+                "url": "https://grabnext.pages.dev",
+                "logo": "https://grabnext.pages.dev/favicon.png",
                 "description": "Grabnext is India's trusted digital marketplace for software, courses, templates & digital downloads with instant delivery.",
                 "contactPoint": {
                   "@type": "ContactPoint",
                   "contactType": "customer support",
-                  "url": "https://grabnext.in/contact",
+                  "url": "https://grabnext.pages.dev/contact",
                   "availableLanguage": ["English", "Hindi"]
                 },
                 "sameAs": []

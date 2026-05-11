@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 3600 // Cache for 1 hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://grabnext.in'
+    const baseUrl = 'https://grabnext.pages.dev'
 
     let productEntries: any[] = []
     let categoryEntries: any[] = []
