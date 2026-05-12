@@ -135,6 +135,16 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
             finally { setPageLoading(false) }
         }
         load()
+        if (typeof window !== "undefined" && (window as any).fbq) {
+            (window as any).fbq('track', 'ViewContent', {
+                content_name: initialProduct.title,
+                content_category: initialProduct.category,
+                content_ids: [initialProduct.id || id],
+                content_type: 'product',
+                value: initialProduct.price,
+                currency: 'INR'
+            });
+        }
     }, [id, initialProduct])
 
     const handleReviewSubmit = async (e: React.FormEvent) => {
@@ -268,6 +278,15 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                     onClick={() => {
                                         setBuyingNow(true)
                                         addToCart(product)
+                                        if (typeof window !== "undefined" && (window as any).fbq) {
+                                            (window as any).fbq('track', 'AddToCart', {
+                                                content_name: product.title,
+                                                content_ids: [product.id || id],
+                                                content_type: 'product',
+                                                value: product.price,
+                                                currency: 'INR'
+                                            });
+                                        }
                                         router.push("/checkout")
                                     }}
                                 >

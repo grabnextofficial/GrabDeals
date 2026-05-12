@@ -79,6 +79,16 @@ export default function CheckoutPage() {
     }
   }, [activeGateway])
 
+  // Meta Pixel tracking for checkout
+  useEffect(() => {
+    if (totalAmount > 0 && typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq('track', 'InitiateCheckout', {
+        value: totalAmount,
+        currency: 'INR'
+      });
+    }
+  }, [totalAmount])
+
   // Pre-fill from logged-in user
   useEffect(() => {
     if (user) {

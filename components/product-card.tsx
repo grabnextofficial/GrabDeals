@@ -70,6 +70,15 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation()
     addToCart(product)
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq('track', 'AddToCart', {
+        content_name: product.title,
+        content_ids: [product.id],
+        content_type: 'product',
+        value: product.price,
+        currency: 'INR'
+      });
+    }
     setAdded(true)
     setTimeout(() => setAdded(false), 1500)
   }

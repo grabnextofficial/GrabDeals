@@ -27,14 +27,14 @@ export const metadata: Metadata = {
     "buy software cheap india",
     "digital marketplace india",
   ],
-  authors: [{ name: "Grabnext", url: "https://grabnext.pages.dev" }],
+  authors: [{ name: "Grabnext", url: "https://shop.grabnext.app" }],
   creator: "Grabnext",
   publisher: "Grabnext",
-  metadataBase: new URL("https://grabnext.pages.dev"),
+  metadataBase: new URL("https://shop.grabnext.app"),
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://grabnext.pages.dev",
+    url: "https://shop.grabnext.app",
     siteName: "Grabnext",
     title: "Grabnext - Buy Digital Products Online India",
     description:
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     apple: "/favicon.png",
   },
   alternates: {
-    canonical: "https://grabnext.pages.dev",
+    canonical: "https://shop.grabnext.app",
   },
 }
 
@@ -90,14 +90,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${GeistSans.variable}`}>
       <head>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-TBEMXJ6DCV"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-C3HYF0VYC0"></script>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'G-TBEMXJ6DCV');
+              gtag('config', 'G-C3HYF0VYC0');
             `,
           }}
         />
@@ -146,13 +146,14 @@ html {
                 "@context": "https://schema.org",
                 "@type": "WebSite",
                 "name": "Grabnext",
-                "url": "https://grabnext.pages.dev",
+                "url": "https://shop.grabnext.app",
+                "alternateName": "Grabnext Digital Marketplace",
                 "description": "India's trusted digital marketplace. Buy software, online courses, design templates, ebooks & more with instant delivery.",
                 "potentialAction": {
                   "@type": "SearchAction",
                   "target": {
                     "@type": "EntryPoint",
-                    "urlTemplate": "https://grabnext.pages.dev/products?q={search_term_string}"
+                    "urlTemplate": "https://shop.grabnext.app/products?q={search_term_string}"
                   },
                   "query-input": "required name=search_term_string"
                 }
@@ -161,16 +162,18 @@ html {
                 "@context": "https://schema.org",
                 "@type": "Organization",
                 "name": "Grabnext",
-                "url": "https://grabnext.pages.dev",
-                "logo": "https://grabnext.pages.dev/favicon.png",
+                "url": "https://shop.grabnext.app",
+                "logo": "https://shop.grabnext.app/favicon.png",
                 "description": "Grabnext is India's trusted digital marketplace for software, courses, templates & digital downloads with instant delivery.",
                 "contactPoint": {
                   "@type": "ContactPoint",
                   "contactType": "customer support",
-                  "url": "https://grabnext.pages.dev/contact",
+                  "url": "https://shop.grabnext.app/contact",
                   "availableLanguage": ["English", "Hindi"]
                 },
-                "sameAs": []
+                "sameAs": [
+                  "https://grabnext.pages.dev"
+                ]
               }
             ])
           }}

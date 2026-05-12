@@ -20,7 +20,17 @@ export default function CheckoutSuccessPage() {
       fetch(`/api/orders/by-payment/${utr}`)
         .then(r => r.json())
         .then(data => {
-          if (!data.error) setOrder(data)
+          if (!data.error) {
+            setOrder(data)
+            if (typeof window !== "undefined" && (window as any).fbq) {
+              (window as any).fbq('track', 'Purchase', {
+                value: data.totalAmount || 0,
+                currency: 'INR',
+                content_ids: data.items?.map((i: any) => i.productId) || [],
+                content_type: 'product'
+              });
+            }
+          }
         })
         .finally(() => setLoading(false))
     } else {
