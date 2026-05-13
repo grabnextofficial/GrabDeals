@@ -13,32 +13,19 @@ async function getSettings() {
     } catch { return {} }
 }
 
-const SYSTEM_PROMPT = `You are an expert landing page designer and copywriter. 
-When asked to create a landing page, return ONLY a valid JSON array of landing page sections.
-Each section must follow this TypeScript type:
-{
-  id: string (use short unique ids like "s1", "s2"),
-  type: "hero" | "features" | "text" | "image-text" | "testimonials" | "faq" | "cta" | "form",
-  heading?: string,
-  subheading?: string,
-  buttonText?: string,
-  buttonLink?: string,
-  bgColor?: string (hex),
-  textColor?: string (hex),
-  imageUrl?: string (leave empty string "" for hero - user will add AI image),
-  features?: [{icon: string (emoji), title: string, description: string}],
-  content?: string,
-  testimonials?: [{name: string, text: string, rating: number}],
-  faqs?: [{question: string, answer: string}],
-  formFields?: [{label: string, type: "text"|"email"|"tel"|"textarea", required: boolean, placeholder?: string}],
-  formButtonText?: string,
-  align?: "left" | "center" | "right",
-  paddingY?: "sm" | "md" | "lg",
-  animation?: "none" | "fadeIn" | "slideLeft" | "slideRight" | "zoomIn"
-}
-Use attractive colors, gradients. Always start with a hero section. 
-For a sales funnel: hero → features → image-text → testimonials → faq → cta.
-Return ONLY the JSON array, no markdown, no explanation.`
+const SYSTEM_PROMPT = `You are an expert frontend developer, landing page designer, and copywriter.
+When asked to create a landing page, return ONLY raw, valid HTML code using Tailwind CSS classes for styling.
+Do NOT use any markdown formatting, do not wrap the output in \`\`\`html tags, and do not provide any explanations.
+Just output the raw HTML string.
+
+Requirements:
+1. Use semantic HTML5 tags (header, section, footer, main, article).
+2. Use modern, premium Tailwind CSS utility classes (e.g., vibrant gradients, beautiful typography, flex/grid layouts, proper padding/margins, drop shadows, rounded corners).
+3. Always include a clear Call to Action (CTA).
+4. If you need to include a "Buy Now" or "Add to Cart" button for a product, you MUST give it the exact ID "lp-buy-button". Example: <button id="lp-buy-button" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 shadow-lg">Buy Now</button>
+5. If you need images, use high-quality Unsplash source URLs (e.g., https://images.unsplash.com/photo-...).
+6. Ensure the design is fully responsive (use sm:, md:, lg: prefixes).
+7. Do not include <html>, <head>, or <body> tags. Just return the content that will go INSIDE the main container.`
 
 async function callNvidia(apiKey: string, model: string, systemPrompt: string, userPrompt: string) {
     const res = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
@@ -77,15 +64,14 @@ async function callGemini(apiKey: string, model: string, systemPrompt: string, u
     return res
 }
 
-function extractJSON(text: string): any {
-    const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-    return JSON.parse(clean)
+function extractHTML(text: string): string {
+    return text.replace(/```html\n?/gi, '').replace(/```\n?/g, '').trim()
 }
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
-        const { mode, prompt, productTitle, productPrice, productDescription, sectionType, currentSection, apiKey: bodyApiKey, model: bodyModel } = body
+        const { mode, prompt, productTitle, productPrice, productDescription, htmlContent, apiKey: bodyApiKey, model: bodyModel } = body
 
         const settings = await getSettings()
         const nvidiaKey = settings.nvidia_api_key?.trim()
@@ -112,7 +98,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ imageUrl })
         }
 
-        // ── Build user prompt ──────────────────────────────────────────────────
         let userPrompt = ''
         if (mode === 'full') {
             userPrompt = `Create a complete, high-converting sales funnel landing page for:
@@ -121,26 +106,17 @@ Price: ${productPrice ? `₹${productPrice}` : 'Premium'}
 Description: ${productDescription || ''}
 Extra Instructions: ${prompt || 'Make it professional, modern, and conversion-focused'}
 
-Structure: hero → features (5-6 items) → image-text → testimonials (3) → FAQ (4-5) → strong CTA
-Use attractive gradient colors. Make it premium. Use Indian Rupee ₹ for pricing.
-For hero imageUrl, leave it as empty string "".`
+Make sure to include a hero section, features, testimonials, and a strong CTA with the "lp-buy-button" ID.`
 
-        } else if (mode === 'section') {
-            userPrompt = `Create a single "${sectionType}" section for a landing page:
-Product: ${productTitle || 'Product'}
-${prompt ? `Instructions: ${prompt}` : ''}
-Return ONLY a JSON array with exactly 1 section of type "${sectionType}".`
+        } else if (mode === 'edit') {
+            userPrompt = `Edit the following landing page HTML based on the user's instructions.
+Current HTML:
+${htmlContent || ''}
 
-        } else if (mode === 'edit-section') {
-            // AI edits one specific section with a custom prompt
-            userPrompt = `Edit this landing page section based on the instruction below.
-Current section data:
-${JSON.stringify(currentSection, null, 2)}
-
-Edit instruction: ${prompt}
+Instructions: ${prompt}
 Product: ${productTitle || 'Product'}
 
-Return ONLY a JSON array with exactly 1 updated section of type "${sectionType}". Keep the same section type and id.`
+Return the fully updated HTML.`
 
         } else if (mode === 'copy') {
             const copyRes = await callGemini(geminiKey || '', geminiModel, 'You are a copywriter.', `Generate 3 headline + CTA pairs for: ${productTitle}. Return JSON: [{headline, subheadline, cta}]`, false)
@@ -181,8 +157,8 @@ Return ONLY a JSON array with exactly 1 updated section of type "${sectionType}"
             return NextResponse.json({ error: 'No AI configured. Add NVIDIA or Gemini key in AI Settings.' }, { status: 400 })
         }
 
-        const sections = extractJSON(rawText)
-        return NextResponse.json({ sections })
+        const html = extractHTML(rawText)
+        return NextResponse.json({ html })
 
     } catch (error: any) {
         console.error('[LP Gen Error]', error)

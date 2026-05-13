@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { executeQuery } from '@/lib/db'
 import { StoreHeader } from '@/components/store-header'
 import { Footer } from '@/components/footer'
-import LandingPagePublicView from './public-view'
+import { LandingPagePublicWrapper } from './public-view'
 
 export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
@@ -50,8 +50,8 @@ export default async function PublicLandingPage({ params }: { params: { slug: st
     try {
         let parsed = typeof page.sections === 'string' ? JSON.parse(page.sections) : (page.sections || [])
         if (typeof parsed === 'string') parsed = JSON.parse(parsed)
-        sections = Array.isArray(parsed) ? parsed : []
-    } catch { sections = [] }
+        sections = Array.isArray(parsed) ? parsed : (parsed?.format === 'html' ? parsed.html : page.sections)
+    } catch { sections = page.sections || [] }
 
     // Load linked products
     try {
@@ -70,7 +70,7 @@ export default async function PublicLandingPage({ params }: { params: { slug: st
         <div className="min-h-screen flex flex-col bg-slate-50">
             <StoreHeader />
             <main className="flex-1">
-                <LandingPagePublicView sections={sections} product={mainProduct} />
+                <LandingPagePublicWrapper sections={sections} product={mainProduct} />
             </main>
             <Footer />
         </div>

@@ -11,7 +11,7 @@ import { ArrowLeft, Loader2, Eye, Save, LayoutTemplate } from "lucide-react"
 import { LandingSection } from "@/lib/types"
 
 export default function LandingPageEditorPage({ params }: { params: { id: string } }) {
-    const [sections, setSections] = useState<LandingSection[]>([])
+    const [htmlContent, setHtmlContent] = useState("")
     const [product, setProduct] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
@@ -26,13 +26,19 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
                 if (p.pageCode) {
                     try { 
                         let parsed = JSON.parse(p.pageCode)
-                        if (typeof parsed === 'string') parsed = JSON.parse(parsed)
-                        setSections(Array.isArray(parsed) ? parsed : []) 
+                        if (parsed && parsed.format === 'html') {
+                            setHtmlContent(parsed.html || "")
+                        } else if (Array.isArray(parsed)) {
+                            // Legacy sections format fallback
+                            setHtmlContent("<!-- Legacy Builder Content. Generate new HTML via AI to upgrade. -->")
+                        } else {
+                            setHtmlContent(typeof parsed === 'string' ? parsed : "")
+                        }
                     } catch { 
-                        setSections([]) 
+                        setHtmlContent(p.pageCode) // It might be raw HTML already
                     }
                 } else {
-                    setSections([])
+                    setHtmlContent("")
                 }
             } catch (err: any) {
                 toast({ title: "Failed to load product", description: err.message, variant: "destructive" })
@@ -51,7 +57,7 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...product,
-                    pageCode: JSON.stringify(sections),
+                    pageCode: JSON.stringify({ format: "html", html: htmlContent }),
                     pageType: "landing",
                 }),
             })
@@ -76,8 +82,8 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
     return (
         <div className="h-screen w-full bg-slate-100 overflow-hidden">
             <LandingPageBuilder
-                sections={sections}
-                onChange={setSections}
+                htmlContent={htmlContent}
+                onChange={setHtmlContent}
                 productTitle={product?.title}
                 productPrice={product?.price}
                 productDescription={product?.description}

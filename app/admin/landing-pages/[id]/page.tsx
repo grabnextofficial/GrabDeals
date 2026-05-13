@@ -11,7 +11,7 @@ import { Loader2 } from "lucide-react"
 import { LandingSection } from "@/lib/types"
 
 export default function LandingPageEditorPage({ params }: { params: { id: string } }) {
-    const [sections, setSections] = useState<LandingSection[]>([])
+    const [htmlContent, setHtmlContent] = useState("")
     const [page, setPage] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
@@ -32,8 +32,16 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
                     const parsed = typeof pageData.sections === 'string'
                         ? JSON.parse(pageData.sections)
                         : pageData.sections
-                    setSections(Array.isArray(parsed) ? parsed : [])
-                } catch { setSections([]) }
+                    if (parsed && parsed.format === 'html') {
+                        setHtmlContent(parsed.html || "")
+                    } else if (Array.isArray(parsed)) {
+                        setHtmlContent("<!-- Legacy Builder Content. Generate new HTML via AI to upgrade. -->")
+                    } else {
+                        setHtmlContent(typeof parsed === 'string' ? parsed : "")
+                    }
+                } catch { 
+                    setHtmlContent(pageData.sections || "")
+                }
 
                 if (productsRes.ok) {
                     const pData = await productsRes.json()
@@ -58,7 +66,7 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
                 body: JSON.stringify({
                     title: page.title,
                     slug: page.slug,
-                    sections: JSON.stringify(sections),
+                    sections: JSON.stringify({ format: "html", html: htmlContent }),
                     productIds: page.productIds || '[]',
                     isPublished: page.isPublished,
                 }),
@@ -90,8 +98,8 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
         <div className="h-screen w-full bg-slate-100 overflow-hidden">
             <CartProvider>
                 <LandingPageBuilder
-                    sections={sections}
-                    onChange={setSections}
+                    htmlContent={htmlContent}
+                    onChange={setHtmlContent}
                     productTitle={page?.title}
                     productPrice={null}
                     productDescription={null}
