@@ -148,7 +148,7 @@ export function LandingPageBuilder({
                         </Button>
                     )}
                     {onSave && (
-                        <Button size="sm" onClick={() => { onChange(localHtml); onSave(); }} disabled={saving} className="h-8 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-bold text-xs px-5 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
+                        <Button size="sm" onClick={() => { onChange(localHtml); onSave(localHtml); }} disabled={saving} className="h-8 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-bold text-xs px-5 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
                             {saving ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> Saving...</> : 'Save Page'}
                         </Button>
                     )}

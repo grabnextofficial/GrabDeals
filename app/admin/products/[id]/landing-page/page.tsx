@@ -49,7 +49,7 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
         load()
     }, [params.id])
 
-    const handleSave = async () => {
+    const handleSave = async (currentHtmlContent: string) => {
         setSaving(true)
         try {
             const res = await fetch(`/api/products/${params.id}`, {
@@ -57,7 +57,7 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...product,
-                    pageCode: JSON.stringify({ format: "html", html: htmlContent }),
+                    pageCode: JSON.stringify({ format: "html", html: currentHtmlContent }),
                     pageType: "landing",
                 }),
             })

@@ -56,7 +56,7 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
         load()
     }, [params.id])
 
-    const handleSave = async () => {
+    const handleSave = async (currentHtmlContent: string) => {
         if (!page) return
         setSaving(true)
         try {
@@ -66,7 +66,7 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
                 body: JSON.stringify({
                     title: page.title,
                     slug: page.slug,
-                    sections: JSON.stringify({ format: "html", html: htmlContent }),
+                    sections: JSON.stringify({ format: "html", html: currentHtmlContent }),
                     productIds: page.productIds || '[]',
                     isPublished: page.isPublished,
                 }),
