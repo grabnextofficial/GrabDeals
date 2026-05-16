@@ -428,15 +428,26 @@ export function RenderSection({ section, product, isBuilder, onChange }: { secti
 
 export function LandingPageView({ product }: { product: Product }) {
     let sections: LandingSection[] = []
+    let htmlContent: string | null = null
+
     try {
         if (product.pageCode) {
             let parsed = JSON.parse(product.pageCode)
             if (typeof parsed === 'string') {
                 parsed = JSON.parse(parsed)
             }
-            sections = Array.isArray(parsed) ? parsed : []
+            if (parsed && parsed.format === 'html') {
+                htmlContent = parsed.html || ""
+            } else {
+                sections = Array.isArray(parsed) ? parsed : []
+            }
         }
-    } catch { }
+    } catch { 
+        // If it's pure string HTML
+        if (product.pageCode && typeof product.pageCode === 'string' && product.pageCode.includes('<')) {
+            htmlContent = product.pageCode
+        }
+    }
 
     // Track page view
     useEffect(() => {
@@ -447,7 +458,7 @@ export function LandingPageView({ product }: { product: Product }) {
         }).catch(() => { })
     }, [product.id])
 
-    if (sections.length === 0) {
+    if (!htmlContent && sections.length === 0) {
         return (
             <div className="min-h-screen bg-gray-50 flex flex-col">
                 <StoreHeader />
@@ -468,7 +479,11 @@ export function LandingPageView({ product }: { product: Product }) {
             <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;700;900&family=Anton&display=swap" rel="stylesheet" />
             <StoreHeader />
             <main className="flex-1">
-                {sections.map(section => <RenderSection key={section.id} section={section} product={product} />)}
+                {htmlContent ? (
+                    <div className="w-full lp-preview-container" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                ) : (
+                    sections.map(section => <RenderSection key={section.id} section={section} product={product} />)
+                )}
             </main>
             <Footer />
         </div>

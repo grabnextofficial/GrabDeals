@@ -144,7 +144,7 @@ Return the fully updated HTML.`
         }
 
         if (!rawText && geminiKey) {
-            const geminiRes = await callGemini(geminiKey, geminiModel, SYSTEM_PROMPT, userPrompt)
+            const geminiRes = await callGemini(geminiKey, geminiModel, SYSTEM_PROMPT, userPrompt, false)
             if (!geminiRes.ok) {
                 const err = await geminiRes.json()
                 return NextResponse.json({ error: err?.error?.message || 'Gemini error' }, { status: 500 })
