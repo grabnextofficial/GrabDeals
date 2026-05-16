@@ -87,6 +87,7 @@ export default function LandingPageEditorPage({ params }: { params: { id: string
                 productTitle={product?.title}
                 productPrice={product?.price}
                 productDescription={product?.description}
+                productImage={product?.imageUrl || (Array.isArray(product?.images) ? product.images[0] : null)}
                 onSave={handleSave}
                 saving={saving}
                 exitLink={`/admin/products/${params.id}/edit`}

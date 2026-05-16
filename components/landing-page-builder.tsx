@@ -17,6 +17,7 @@ export function LandingPageBuilder({
     productTitle,
     productPrice,
     productDescription,
+    productImage,
     onSave,
     saving,
     exitLink,
@@ -45,7 +46,8 @@ export function LandingPageBuilder({
     const currentProduct = selectedProduct || {
         title: productTitle || pageTitle || "Product Name",
         price: productPrice || 99,
-        description: productDescription || ""
+        description: productDescription || "",
+        imageUrl: productImage || ""
     }
 
     const handleAIGenerate = async (mode: 'full' | 'edit') => {
@@ -61,6 +63,7 @@ export function LandingPageBuilder({
                     productTitle: currentProduct.title,
                     productPrice: currentProduct.price,
                     productDescription: currentProduct.description,
+                    productImage: currentProduct.imageUrl || (currentProduct.images && currentProduct.images[0]) || "",
                     htmlContent: localHtml
                 })
             })

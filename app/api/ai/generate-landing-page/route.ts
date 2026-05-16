@@ -71,7 +71,7 @@ function extractHTML(text: string): string {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
-        const { mode, prompt, productTitle, productPrice, productDescription, htmlContent, apiKey: bodyApiKey, model: bodyModel } = body
+        const { mode, prompt, productTitle, productPrice, productDescription, productImage, htmlContent, apiKey: bodyApiKey, model: bodyModel } = body
 
         const settings = await getSettings()
         const nvidiaKey = settings.nvidia_api_key?.trim()
@@ -104,9 +104,10 @@ export async function POST(request: NextRequest) {
 Product: ${productTitle || 'Product'}
 Price: ${productPrice ? `₹${productPrice}` : 'Premium'}
 Description: ${productDescription || ''}
+Product Image URL: ${productImage || ''}
 Extra Instructions: ${prompt || 'Make it professional, modern, and conversion-focused'}
 
-Make sure to include a hero section, features, testimonials, and a strong CTA with the "lp-buy-button" ID.`
+Make sure to include a hero section, features, testimonials, and a strong CTA with the "lp-buy-button" ID. If a Product Image URL is provided, you MUST use it prominently in the hero section.`
 
         } else if (mode === 'edit') {
             userPrompt = `Edit the following landing page HTML based on the user's instructions.
