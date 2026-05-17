@@ -3,28 +3,48 @@
 /**
  * components/facebook-pixel.tsx
  *
- * Handles:
- *  - Initial pixel init + first PageView (via inline script in layout)
- *  - Subsequent SPA route-change PageView tracking via usePathname()
- *  - Prevents duplicate PageView fires on the same path
- *  - Supports Facebook Events Manager Test Events via FB_TEST_CODE env var
+ * FacebookPixelScript  – Server-safe script tag: inits the pixel + fires the
+ *                        very first PageView. Exported without "use client" so
+ *                        it can be rendered in a Server Component (<head>).
+ *
+ * FacebookPixelRouteTracker – Client component that fires PageView on every
+ *                             subsequent SPA route change (usePathname).
+ *                             Skips the initial path because the inline script
+ *                             already fired PageView on first load.
  */
 
 import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
-import { FB_PIXEL_ID, trackPageView } from "@/lib/pixel"
+import { trackPageView } from "@/lib/pixel"
 
+export const FB_PIXEL_ID = "864520106659183"
+
+// ── SPA route-change tracker (Client Component) ───────────────────────────────
 export function FacebookPixelRouteTracker() {
   const pathname = usePathname()
-  // Track the last path we fired PageView for to prevent duplicates
+  /**
+   * initialPath stores the very first path that was rendered server-side.
+   * We skip firing PageView for it because the inline <script> in
+   * FacebookPixelScript already fired fbq('track', 'PageView') on load.
+   * Every subsequent navigation gets its own PageView call.
+   */
+  const initialPath = useRef<string | null>(null)
   const lastTrackedPath = useRef<string | null>(null)
 
   useEffect(() => {
-    // Skip if fbq isn't available yet (script still loading)
-    if (typeof window === "undefined" || typeof window.fbq !== "function") return
+    // Record the first path seen so we can skip it
+    if (initialPath.current === null) {
+      initialPath.current = pathname
+      lastTrackedPath.current = pathname
+      // Do NOT fire here – the inline script already fired PageView for this path
+      return
+    }
 
-    // Skip duplicate fires on the same path
+    // Skip if it's the same path (e.g. query-string update without navigation)
     if (lastTrackedPath.current === pathname) return
+
+    // Skip if fbq hasn't loaded yet (pixel script still loading)
+    if (typeof window === "undefined" || typeof window.fbq !== "function") return
 
     lastTrackedPath.current = pathname
     trackPageView()
@@ -33,29 +53,38 @@ export function FacebookPixelRouteTracker() {
   return null
 }
 
+// ── Pixel init script (safe for Server or Client rendering) ───────────────────
 /**
- * Inline pixel base code – rendered once in <head> via RootLayout.
- * The noscript fallback is handled separately in <body> in layout.tsx.
+ * Renders the Facebook Pixel base code as an inline <script> tag.
+ * Reads NEXT_PUBLIC_FB_TEST_EVENT_CODE at build/render time for test-event mode.
+ *
+ * Place this inside <head> in layout.tsx:
+ *   <FacebookPixelScript />
  */
 export function FacebookPixelScript() {
-  // Optional: read test event code from a public env var
-  const testCode = process.env.NEXT_PUBLIC_FB_TEST_EVENT_CODE
+  // This env var is resolved at build time (NEXT_PUBLIC_ prefix) and is safe
+  // to reference in both server and client components.
+  const testCode = process.env.NEXT_PUBLIC_FB_TEST_EVENT_CODE ?? ""
 
-  const initScript = `
-    !function(f,b,e,v,n,t,s){
-      if(f.fbq)return;
-      n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;
-      n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)
-    }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-
-    fbq('init', '${FB_PIXEL_ID}');
-    ${testCode ? `fbq('set', 'agent', 'test', '${testCode}');` : ""}
-    fbq('track', 'PageView');
-  `
+  const initScript = [
+    "!function(f,b,e,v,n,t,s){",
+    "if(f.fbq)return;",
+    "n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};",
+    "if(!f._fbq)f._fbq=n;",
+    "n.push=n;n.loaded=!0;n.version='2.0';",
+    "n.queue=[];t=b.createElement(e);t.async=!0;",
+    "t.src=v;s=b.getElementsByTagName(e)[0];",
+    "s.parentNode.insertBefore(t,s)",
+    "}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');",
+    // init
+    `fbq('init','${FB_PIXEL_ID}');`,
+    // optional: test event code for Facebook Events Manager
+    testCode ? `fbq('set','agent','test','${testCode}');` : "",
+    // first PageView – inline script fires synchronously on every hard load
+    "fbq('track','PageView');",
+  ]
+    .filter(Boolean)
+    .join("\n")
 
   return (
     <script
