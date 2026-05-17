@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useCart } from "@/contexts/cart-context"
 import type { Product } from "@/lib/types"
 import { useState, useEffect, useRef } from "react"
+import { trackAddToCart } from "@/lib/pixel"
 
 interface ProductCardProps { product: Product }
 
@@ -70,15 +71,11 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation()
     addToCart(product)
-    if (typeof window !== "undefined" && (window as any).fbq) {
-      (window as any).fbq('track', 'AddToCart', {
-        content_name: product.title,
-        content_ids: [product.id],
-        content_type: 'product',
-        value: product.price,
-        currency: 'INR'
-      });
-    }
+    trackAddToCart({
+      content_name: product.title,
+      content_ids: [product.id ?? ""],
+      value: product.price,
+    })
     setAdded(true)
     setTimeout(() => setAdded(false), 1500)
   }

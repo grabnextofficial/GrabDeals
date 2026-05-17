@@ -19,6 +19,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { fetchProductReviews, submitReview, fetchProducts } from "@/lib/d1-client"
 import { toast } from "@/hooks/use-toast"
 import type { Product } from "@/lib/types"
+import { trackViewContent, trackAddToCart } from "@/lib/pixel"
 
 // ─── Star Rating ─────────────────────────────────────────────────────────────
 function StarRating({ rating, interactive = false, onRate }: { rating: number; interactive?: boolean; onRate?: (r: number) => void }) {
@@ -135,16 +136,12 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
             finally { setPageLoading(false) }
         }
         load()
-        if (typeof window !== "undefined" && (window as any).fbq) {
-            (window as any).fbq('track', 'ViewContent', {
-                content_name: initialProduct.title,
-                content_category: initialProduct.category,
-                content_ids: [initialProduct.id || id],
-                content_type: 'product',
-                value: initialProduct.price,
-                currency: 'INR'
-            });
-        }
+        trackViewContent({
+            content_name: initialProduct.title,
+            content_category: initialProduct.category,
+            content_ids: [initialProduct.id || id],
+            value: initialProduct.price,
+        })
     }, [id, initialProduct])
 
     const handleReviewSubmit = async (e: React.FormEvent) => {
@@ -278,15 +275,11 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                     onClick={() => {
                                         setBuyingNow(true)
                                         addToCart(product)
-                                        if (typeof window !== "undefined" && (window as any).fbq) {
-                                            (window as any).fbq('track', 'AddToCart', {
-                                                content_name: product.title,
-                                                content_ids: [product.id || id],
-                                                content_type: 'product',
-                                                value: product.price,
-                                                currency: 'INR'
-                                            });
-                                        }
+                                        trackAddToCart({
+                                            content_name: product.title,
+                                            content_ids: [product.id || id],
+                                            value: product.price,
+                                        })
                                         router.push("/checkout")
                                     }}
                                 >

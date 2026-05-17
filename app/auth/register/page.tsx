@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
 import { Eye, EyeOff, Loader2, UserPlus, ShoppingBag } from "lucide-react"
+import { trackCompleteRegistration } from "@/lib/pixel"
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
@@ -25,6 +26,7 @@ export default function SignUpPage() {
     try {
       await signUpWithEmail(email, password, displayName)
       await refreshUser()
+      trackCompleteRegistration({ content_name: "Grabnext Account", status: true })
       router.push("/dashboard")
     } catch (err: any) {
       setError(err.message)

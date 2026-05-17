@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { 
   Lock, Mail, User, Phone, CheckCircle2, Loader2, Package, 
@@ -27,6 +27,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Logo } from "@/components/logo"
+import { trackInitiateCheckout } from "@/lib/pixel"
 
 declare global {
   interface Window {
@@ -41,6 +42,8 @@ export default function CheckoutPage() {
   const { user, refreshUser } = useAuth()
   const [loading, setLoading] = useState(false)
   const [activeGateway, setActiveGateway] = useState<string>("xpay")
+  // Prevent duplicate InitiateCheckout fires on the same session
+  const hasFiredCheckout = useRef(false)
 
   // Two-step checkout states
   const [checkoutStep, setCheckoutStep] = useState<1 | 2>(1)
@@ -79,15 +82,17 @@ export default function CheckoutPage() {
     }
   }, [activeGateway])
 
-  // Meta Pixel tracking for checkout
+  // Meta Pixel: InitiateCheckout – fire once per checkout session
   useEffect(() => {
-    if (totalAmount > 0 && typeof window !== "undefined" && (window as any).fbq) {
-      (window as any).fbq('track', 'InitiateCheckout', {
+    if (totalAmount > 0 && !hasFiredCheckout.current) {
+      hasFiredCheckout.current = true
+      trackInitiateCheckout({
         value: totalAmount,
-        currency: 'INR'
-      });
+        num_items: items.length,
+        content_ids: items.map((i) => i.productId),
+      })
     }
-  }, [totalAmount])
+  }, [totalAmount, items])
 
   // Pre-fill from logged-in user
   useEffect(() => {

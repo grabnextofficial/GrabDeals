@@ -5,15 +5,18 @@ import { CheckCircle, Download, ArrowRight, ExternalLink, Loader2 } from "lucide
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StoreHeader } from "@/components/store-header"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
 import { DigitalProductViewer } from "@/components/digital-product-viewer"
+import { trackPurchase } from "@/lib/pixel"
 
 export default function CheckoutSuccessPage() {
   const searchParams = useSearchParams()
   const utr = searchParams.get("utr") || ""
   const [order, setOrder] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  // Guard against duplicate Purchase events if the effect re-runs
+  const hasFiredPurchase = useRef(false)
 
   useEffect(() => {
     if (utr) {
@@ -22,13 +25,12 @@ export default function CheckoutSuccessPage() {
         .then(data => {
           if (!data.error) {
             setOrder(data)
-            if (typeof window !== "undefined" && (window as any).fbq) {
-              (window as any).fbq('track', 'Purchase', {
+            if (!hasFiredPurchase.current) {
+              hasFiredPurchase.current = true
+              trackPurchase({
                 value: data.totalAmount || 0,
-                currency: 'INR',
                 content_ids: data.items?.map((i: any) => i.productId) || [],
-                content_type: 'product'
-              });
+              })
             }
           }
         })

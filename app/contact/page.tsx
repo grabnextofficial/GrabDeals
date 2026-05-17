@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Mail, Phone, MessageSquare, Send, CheckCircle2, Loader2 } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { trackLead } from "@/lib/pixel"
 
 export default function ContactPage() {
     const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" })
@@ -22,6 +23,7 @@ export default function ContactPage() {
         await new Promise(r => setTimeout(r, 1500))
         setSubmitted(true)
         setSubmitting(false)
+        trackLead({ content_name: "Contact Form" })
         toast({ title: "✅ Message sent! We'll get back to you within 24 hours." })
     }
 

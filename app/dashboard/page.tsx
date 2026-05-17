@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,7 @@ import {
 import Link from "next/link"
 import Image from "next/image"
 import { DigitalProductViewer } from "@/components/digital-product-viewer"
+import { fbq } from "@/lib/pixel"
 
 function StatusBadge({ status }: { status: string }) {
     const map: Record<string, { bg: string; text: string; dot: string }> = {
@@ -322,6 +323,8 @@ export default function DashboardPage() {
     const [savingProfile, setSavingProfile] = useState(false)
     const [activeGateway, setActiveGateway] = useState<string>("xpay")
     const [completingPayment, setCompletingPayment] = useState<boolean>(false)
+    // Guard: fire DashboardView custom conversion only once per session
+    const hasFiredDashboardView = useRef(false)
 
     // Load active payment gateway from settings
     useEffect(() => {
@@ -358,6 +361,17 @@ export default function DashboardPage() {
             setOrdersLoading(false)
         }
     }, [user, authLoading])
+
+    // Custom conversion: track authenticated users visiting /dashboard
+    useEffect(() => {
+        if (user && !hasFiredDashboardView.current) {
+            hasFiredDashboardView.current = true
+            fbq("trackCustom", "DashboardView", {
+                url: "/dashboard",
+                userId: user.uid,
+            })
+        }
+    }, [user])
 
     const loadOrders = async () => {
         if (!user) return
