@@ -86,11 +86,19 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (totalAmount > 0 && !hasFiredCheckout.current) {
       hasFiredCheckout.current = true
-      trackInitiateCheckout({
-        value: totalAmount,
-        num_items: items.length,
-        content_ids: items.map((i) => i.productId),
-      })
+      trackInitiateCheckout(
+        {
+          value: totalAmount,
+          num_items: items.length,
+          content_ids: items.map((i) => i.productId),
+        },
+        user ? {
+          email: user.email || undefined,
+          firstName: user.displayName?.split(' ')[0],
+          lastName: user.displayName?.split(' ').slice(1).join(' '),
+          external_id: user.uid
+        } : undefined
+      )
     }
   }, [totalAmount, items])
 

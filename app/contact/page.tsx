@@ -23,7 +23,14 @@ export default function ContactPage() {
         await new Promise(r => setTimeout(r, 1500))
         setSubmitted(true)
         setSubmitting(false)
-        trackLead({ content_name: "Contact Form" })
+        trackLead(
+            { content_name: "Contact Form" },
+            {
+                email: form.email,
+                firstName: form.name.split(' ')[0],
+                lastName: form.name.split(' ').slice(1).join(' ')
+            }
+        )
         toast({ title: "✅ Message sent! We'll get back to you within 24 hours." })
     }
 

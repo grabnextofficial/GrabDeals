@@ -27,10 +27,19 @@ export default function CheckoutSuccessPage() {
             setOrder(data)
             if (!hasFiredPurchase.current) {
               hasFiredPurchase.current = true
-              trackPurchase({
-                value: data.totalAmount || 0,
-                content_ids: data.items?.map((i: any) => i.productId) || [],
-              })
+              trackPurchase(
+                {
+                  value: data.totalAmount || 0,
+                  content_ids: data.items?.map((i: any) => i.productId) || [],
+                },
+                {
+                  email: data.userEmail,
+                  phone: data.userPhone,
+                  firstName: data.userName?.split(' ')[0],
+                  lastName: data.userName?.split(' ').slice(1).join(' '),
+                  external_id: data.userId
+                }
+              )
             }
           }
         })

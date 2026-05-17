@@ -26,7 +26,14 @@ export default function SignUpPage() {
     try {
       await signUpWithEmail(email, password, displayName)
       await refreshUser()
-      trackCompleteRegistration({ content_name: "Grabnext Account", status: true })
+      trackCompleteRegistration(
+        { content_name: "Grabnext Account", status: true },
+        {
+          email: email,
+          firstName: displayName.split(' ')[0],
+          lastName: displayName.split(' ').slice(1).join(' ')
+        }
+      )
       router.push("/dashboard")
     } catch (err: any) {
       setError(err.message)
