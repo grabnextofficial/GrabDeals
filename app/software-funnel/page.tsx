@@ -1,267 +1,163 @@
 "use client";
+import { useState, useEffect } from "react";
+import { CheckCircle2, XCircle, ShieldCheck, Award, Play, Star, ArrowRight, Lock, Gift, ChevronDown, Zap, TrendingUp, Users } from "lucide-react";
+import { PAIN_POINTS, FEATURES, TESTIMONIALS, FAQS, BONUSES } from "./data";
 
-import React, { useState } from "react";
-import { 
-  CheckCircle2, 
-  XCircle, 
-  ShieldCheck, 
-  Award, 
-  Play, 
-  Star, 
-  ArrowRight,
-  MessageSquare,
-  Lock,
-  TrendingUp,
-  Gift,
-  ChevronDown,
-  ChevronUp
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+function CountdownTimer() {
+  const [time, setTime] = useState({ h: 5, m: 59, s: 59 });
+  useEffect(() => {
+    const t = setInterval(() => {
+      setTime(p => {
+        if (p.s > 0) return { ...p, s: p.s - 1 };
+        if (p.m > 0) return { ...p, m: p.m - 1, s: 59 };
+        if (p.h > 0) return { h: p.h - 1, m: 59, s: 59 };
+        return { h: 5, m: 59, s: 59 };
+      });
+    }, 1000);
+    return () => clearInterval(t);
+  }, []);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return (
+    <div className="flex justify-center gap-3 my-6">
+      {[["JAM", pad(time.h)], ["MENIT", pad(time.m)], ["DETIK", pad(time.s)]].map(([label, val]) => (
+        <div key={label} className="bg-red-600 text-white rounded-xl px-4 py-3 text-center min-w-[72px] shadow-lg">
+          <div className="text-3xl font-black font-mono">{val}</div>
+          <div className="text-xs font-bold opacity-80 mt-1">{label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FAQ({ q, a, open, onClick }: { q: string; a: string; open: boolean; onClick: () => void }) {
+  return (
+    <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
+      <button onClick={onClick} className="w-full flex justify-between items-center px-6 py-5 text-left font-bold text-slate-800 text-lg hover:bg-slate-50 transition-colors">
+        <span>{q}</span>
+        <ChevronDown className={`w-5 h-5 text-teal-500 shrink-0 ml-4 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && <div className="px-6 pb-5 text-slate-600 leading-relaxed border-t border-slate-100 pt-4">{a}</div>}
+    </div>
+  );
+}
 
 export default function SoftwareFunnelPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
-
-  const faqs = [
-    {
-      q: "Apakah sekali bayar atau berlangganan?",
-      a: "Sekali bayar saja. Anda tidak perlu membayar biaya bulanan atau tahunan lagi. Beli sekali, gunakan selamanya."
-    },
-    {
-      q: "Apakah gratis update untuk kedepannya?",
-      a: "Ya, Anda akan mendapatkan update gratis seumur hidup. Kami selalu memastikan plugin ini kompatibel dengan versi terbaru."
-    },
-    {
-      q: "Adakah Garansi jika plugin tidak bekerja?",
-      a: "Tentu, kami memberikan garansi 100% uang kembali dalam 30 hari jika plugin tidak berfungsi sesuai dengan yang dijanjikan."
-    }
-  ];
-
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 selection:bg-teal-200">
-      
-      {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#348b93] to-[#28c898] py-20 lg:py-32 text-white">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
-        <div className="container mx-auto px-4 relative z-10 max-w-5xl text-center">
-          
-          <div className="inline-block px-4 py-1.5 mb-6 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm text-sm font-semibold tracking-wider uppercase shadow-sm">
-            WP Plugin yang akan membantu lejitkan pendapatan Anda
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+
+      {/* ── STICKY TOP BAR ── */}
+      <div className="sticky top-0 z-50 bg-amber-400 text-amber-900 text-center py-2 px-4 font-bold text-sm shadow-md">
+        🔥 PROMO TERBATAS! Diskon hingga 70% — Berakhir Hari Ini!&nbsp;
+        <a href="#pricing" className="underline">Ambil Sekarang →</a>
+      </div>
+
+      {/* ── HERO ── */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0f4c5c] via-[#348b93] to-[#28c898] py-20 lg:py-28 text-white">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage:"url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"}}/>
+        <div className="container mx-auto px-4 max-w-4xl text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm text-sm font-semibold">
+            <Zap className="w-4 h-4 text-yellow-300" fill="currentColor"/>
+            Plugin #1 untuk Pebisnis Online Indonesia
           </div>
-          
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-8 leading-tight tracking-tight">
-            Plugin Terbaik yang pernah ada untuk <br className="hidden md:block"/>
-            <span className="text-[#ffe121] drop-shadow-sm">Lejitkan Bisnis Online Anda</span>
+          <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+            Lejitkan Omset Bisnis Online Anda<br/>
+            <span className="text-[#ffe121] drop-shadow">Hingga 300% Lebih Cepat</span>
           </h1>
-
-          {/* Video Placeholder */}
-          <div className="relative mx-auto w-full max-w-3xl aspect-video bg-slate-900 rounded-2xl overflow-hidden shadow-2xl mb-12 group ring-4 ring-white/20">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop')] bg-cover bg-center opacity-60 group-hover:opacity-70 transition-opacity duration-500"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <button className="w-20 h-20 bg-[#ffc350] hover:bg-white text-white hover:text-[#ffc350] rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110 shadow-lg group-hover:shadow-[#ffc350]/50">
-                <Play className="w-8 h-8 ml-1" fill="currentColor" />
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-12 text-left">
-            <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10">
-              <CheckCircle2 className="w-6 h-6 text-[#ffe121]" />
-              <span className="font-semibold text-lg">Sangat Mudah Digunakan</span>
-            </div>
-            <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10">
-              <TrendingUp className="w-6 h-6 text-[#ffe121]" />
-              <span className="font-semibold text-lg">Menganalisa Pengunjung</span>
-            </div>
-            <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10">
-              <ShieldCheck className="w-6 h-6 text-[#ffe121]" />
-              <span className="font-semibold text-lg">Data Pribadi Aman</span>
-            </div>
-            <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10">
-              <MessageSquare className="w-6 h-6 text-[#ffe121]" />
-              <span className="font-semibold text-lg">WhatsApp Notification</span>
-            </div>
-          </div>
-
-          <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Sistem cerdas yang dirancang khusus untuk mempermudah alur kerja Anda, mengotomatisasi proses bisnis, dan meningkatkan konversi secara drastis tanpa perlu keahlian teknis.
+          <p className="text-xl text-white/85 max-w-2xl mx-auto mb-8 leading-relaxed">
+            Plugin All-in-One dengan <strong>WhatsApp Notifikasi, Checkout Otomatis, Analitik Real-Time</strong> — semua yang Anda butuhkan untuk memenangkan persaingan di era digital.
           </p>
-
-          <Button size="lg" className="bg-[#ffe121] hover:bg-[#fac02b] text-[#985200] font-extrabold text-xl py-8 px-12 rounded-full shadow-[0_8px_0_0_#d49d10] hover:shadow-[0_4px_0_0_#d49d10] hover:translate-y-1 transition-all duration-200">
-            Klik Disini untuk Pesan Sekarang <ArrowRight className="ml-2 w-6 h-6" />
-          </Button>
-
-          <div className="flex flex-wrap justify-center gap-6 mt-12 text-sm font-medium text-white/80">
-            <div className="flex items-center"><Lock className="w-4 h-4 mr-2"/> Informasi Pribadi Aman</div>
-            <div className="flex items-center"><ShieldCheck className="w-4 h-4 mr-2"/> Proses Checkout Aman</div>
-            <div className="flex items-center"><Award className="w-4 h-4 mr-2"/> 100% Garansi Uang Kembali</div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
+            <a href="#pricing" className="inline-flex items-center justify-center gap-2 bg-[#ffe121] hover:bg-[#fac02b] text-[#7a3e00] font-black text-xl py-5 px-10 rounded-full shadow-[0_6px_0_#c49400] hover:shadow-[0_2px_0_#c49400] hover:translate-y-1 transition-all duration-150">
+              Dapatkan Plugin Sekarang <ArrowRight className="w-5 h-5"/>
+            </a>
+            <button className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold text-lg py-5 px-8 rounded-full backdrop-blur transition-all">
+              <Play className="w-5 h-5" fill="white"/> Tonton Demo
+            </button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
+            {[["✅","Mudah Digunakan"],["📊","Analitik Real-Time"],["🔒","Data Aman"],["💬","WA Notification"]].map(([ic,lb])=>(
+              <div key={lb} className="bg-white/10 backdrop-blur border border-white/20 rounded-xl py-3 px-2 text-sm font-semibold">{ic} {lb}</div>
+            ))}
           </div>
         </div>
-        
-        {/* Curved Shape Divider */}
-        <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-0">
-          <svg className="relative block w-full h-[60px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V0C73.8,25.4,149.9,39.6,224.2,49.2,257.6,53.6,290.7,56.2,321.39,56.44Z" className="fill-slate-50"></path>
-          </svg>
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 60" className="w-full h-[60px] fill-slate-50"><path d="M0,60L1440,0L1440,60L0,60Z"/></svg>
         </div>
       </section>
 
-      {/* 2. SOCIAL PROOF SECTION */}
-      <section className="py-16 bg-slate-50">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-10 text-slate-800">
-            Dipercaya <span className="text-[#28C898]">123.000+ Marketers, Entrepreneurs, dan Brand Ternama</span> di Indonesia
-          </h2>
-          <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-            {/* Logos Placeholders */}
-            <div className="text-2xl font-black text-slate-400">LOGO BRAND</div>
-            <div className="text-2xl font-black text-slate-400">LOGO BRAND</div>
-            <div className="text-2xl font-black text-slate-400">LOGO BRAND</div>
-            <div className="text-2xl font-black text-slate-400">LOGO BRAND</div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. PROBLEM AGITATION SECTION */}
-      <section className="py-20 relative bg-[#28c898]">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <div className="container mx-auto px-4 relative z-10 max-w-4xl">
-          <div className="bg-[#82ffb3] p-1 rounded-2xl transform -translate-y-28 shadow-xl">
-            <div className="bg-white p-8 md:p-12 rounded-xl text-center">
-              <h2 className="text-3xl md:text-4xl font-black text-[#3a6a64] mb-8">Pernahkah Anda mengalami hal ini?</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-                <div className="space-y-4">
-                  <div className="flex items-start">
-                    <XCircle className="w-6 h-6 text-red-500 mr-3 shrink-0 mt-0.5" />
-                    <span className="text-lg font-medium text-slate-700">Penjualan yang tidak pernah meningkat</span>
-                  </div>
-                  <div className="flex items-start">
-                    <XCircle className="w-6 h-6 text-red-500 mr-3 shrink-0 mt-0.5" />
-                    <span className="text-lg font-medium text-slate-700">Tidak dipercaya oleh pelanggan potensial</span>
-                  </div>
-                  <div className="flex items-start">
-                    <XCircle className="w-6 h-6 text-red-500 mr-3 shrink-0 mt-0.5" />
-                    <span className="text-lg font-medium text-slate-700">Susahnya memasarkan produk digital/fisik</span>
-                  </div>
-                  <div className="flex items-start">
-                    <XCircle className="w-6 h-6 text-red-500 mr-3 shrink-0 mt-0.5" />
-                    <span className="text-lg font-medium text-slate-700">Sering ditipu pembeli abal-abal</span>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-start">
-                    <XCircle className="w-6 h-6 text-red-500 mr-3 shrink-0 mt-0.5" />
-                    <span className="text-lg font-medium text-slate-700">Capek balas chat satu per satu</span>
-                  </div>
-                  <div className="flex items-start">
-                    <XCircle className="w-6 h-6 text-red-500 mr-3 shrink-0 mt-0.5" />
-                    <span className="text-lg font-medium text-slate-700">Biaya iklan boncos tiap bulan</span>
-                  </div>
-                  <div className="flex items-start">
-                    <XCircle className="w-6 h-6 text-red-500 mr-3 shrink-0 mt-0.5" />
-                    <span className="text-lg font-medium text-slate-700">Sulit tracking konversi dan data</span>
-                  </div>
-                  <div className="flex items-start">
-                    <XCircle className="w-6 h-6 text-red-500 mr-3 shrink-0 mt-0.5" />
-                    <span className="text-lg font-medium text-slate-700">Website lemot dan susah di-manage</span>
-                  </div>
-                </div>
+      {/* ── SOCIAL PROOF NUMBERS ── */}
+      <section className="py-12 bg-slate-50">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {[["123.000+","Pengguna Aktif"],["98%","Tingkat Kepuasan"],["Rp 50M+","Omset Diproses"],["4.9 ★","Rating Rata-rata"]].map(([n,l])=>(
+              <div key={l} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                <div className="text-3xl font-black text-[#28c898]">{n}</div>
+                <div className="text-sm text-slate-500 font-medium mt-1">{l}</div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PAIN POINTS ── */}
+      <section className="py-20 bg-gradient-to-b from-[#28c898] to-[#1fa882]">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="bg-white rounded-3xl p-8 md:p-12 shadow-2xl text-center mb-10">
+            <h2 className="text-3xl font-black text-slate-800 mb-2">Pernahkah Anda Mengalami Ini?</h2>
+            <p className="text-slate-500 mb-8">Jika Anda menjawab "iya" pada salah satu poin berikut, Anda butuh solusi ini hari ini.</p>
+            <div className="grid md:grid-cols-2 gap-3 text-left">
+              {PAIN_POINTS.map(p=>(
+                <div key={p} className="flex items-start gap-3 bg-red-50 border border-red-100 rounded-xl p-4">
+                  <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5"/>
+                  <span className="text-slate-700 font-medium text-sm">{p}</span>
+                </div>
+              ))}
             </div>
           </div>
-
-          <div className="text-center text-white space-y-6 mt-[-3rem]">
-            <h3 className="text-2xl font-bold">Jika jawaban Anda "IYA", berarti Anda butuh solusi yang tepat!</h3>
-            <p className="text-lg text-white/90">
-              Jangan biarkan masalah ini terus menghambat pertumbuhan bisnis Anda. Sudah saatnya beralih ke sistem yang lebih cerdas dan otomatis.
-            </p>
+          <div className="text-center text-white">
+            <p className="text-xl font-bold">Tenang — semua masalah ini bisa selesai dengan <span className="text-yellow-300">SATU plugin.</span></p>
           </div>
         </div>
       </section>
 
-      {/* 4. PRODUCT INTRODUCTION / SOLUTION */}
-      <section className="py-24 bg-white relative">
+      {/* ── FEATURES ── */}
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4 max-w-5xl">
-          <div className="text-center mb-16">
-            <div className="inline-block px-4 py-1.5 mb-4 rounded-full bg-teal-50 text-teal-600 font-bold uppercase tracking-wider text-sm">
-              Dan Tahukah Anda?
-            </div>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-800 mb-6 leading-tight">
-              Maka dari itu kami mempersembahkan...
-            </h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Sebuah terobosan baru dalam dunia digital marketing yang dirancang khusus untuk memecahkan semua masalah Anda di atas.
-            </p>
+          <div className="text-center mb-14">
+            <span className="text-teal-600 font-bold text-sm uppercase tracking-widest">Fitur Unggulan</span>
+            <h2 className="text-4xl font-black text-slate-800 mt-2">Semua Yang Anda Butuhkan,<br/>Dalam Satu Plugin</h2>
           </div>
-
-          <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-3xl p-8 md:p-12 border border-teal-100 shadow-xl shadow-teal-900/5">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <h3 className="text-3xl font-extrabold text-[#3a6a64] mb-6">ProductiPress WP Plugin</h3>
-                <p className="text-lg text-slate-700 mb-8 leading-relaxed">
-                  Plugin All-in-One yang wajib Anda miliki untuk melejitkan omset bisnis online Anda tanpa ribet. Terintegrasi langsung dengan WhatsApp dan berbagai payment gateway lokal.
-                </p>
-                <ul className="space-y-4">
-                  <li className="flex items-center text-slate-700 font-semibold"><CheckCircle2 className="w-6 h-6 text-emerald-500 mr-3"/> Fitur Checkout Instan yang responsif</li>
-                  <li className="flex items-center text-slate-700 font-semibold"><CheckCircle2 className="w-6 h-6 text-emerald-500 mr-3"/> Manajemen order dan pelanggan rapi</li>
-                  <li className="flex items-center text-slate-700 font-semibold"><CheckCircle2 className="w-6 h-6 text-emerald-500 mr-3"/> Notifikasi otomatis ke WhatsApp Pembeli</li>
-                  <li className="flex items-center text-slate-700 font-semibold"><CheckCircle2 className="w-6 h-6 text-emerald-500 mr-3"/> Laporan analitik penjualan mendetail</li>
-                </ul>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {FEATURES.map(f=>(
+              <div key={f.title} className="group bg-slate-50 hover:bg-teal-600 border border-slate-100 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-default">
+                <div className="text-3xl mb-4">{f.icon}</div>
+                <h3 className="font-black text-slate-800 group-hover:text-white mb-2">{f.title}</h3>
+                <p className="text-sm text-slate-500 group-hover:text-teal-100 leading-relaxed">{f.desc}</p>
               </div>
-              <div className="relative">
-                <div className="aspect-square bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-white flex items-center justify-center p-8 relative">
-                   <div className="absolute inset-0 bg-gradient-to-tr from-teal-100 to-emerald-50 opacity-50"></div>
-                   <div className="relative z-10 text-center">
-                      <div className="w-32 h-32 mx-auto bg-teal-500 text-white rounded-2xl flex items-center justify-center rotate-3 hover:rotate-0 transition-transform duration-300 shadow-lg">
-                        <span className="text-5xl font-black">P</span>
-                      </div>
-                      <h4 className="text-2xl font-black text-slate-800 mt-6">ProductiPress</h4>
-                      <p className="text-teal-600 font-semibold">Pro Version</p>
-                   </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 5. BENEFITS SECTION */}
-      <section className="py-24 bg-slate-900 text-white relative">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <div className="container mx-auto px-4 relative z-10 max-w-5xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black mb-6 text-[#82ffb3]">Keuntungan Membeli ProductiPress</h2>
-            <p className="text-xl text-slate-300">
-              Inilah alasan mengapa ribuan pebisnis online beralih menggunakan plugin kami.
-            </p>
+      {/* ── TESTIMONIALS ── */}
+      <section className="py-20 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="text-center mb-14">
+            <h2 className="text-4xl font-black">Apa Kata Mereka?</h2>
+            <p className="text-slate-400 mt-3">Ribuan pebisnis sudah membuktikan hasilnya</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[
-              { title: "Menganalisa Pengunjung", desc: "Ketahui darimana asal pembeli Anda dan produk mana yang paling diminati secara realtime." },
-              { title: "WhatsApp Notification", desc: "Kirim invoice dan pengingat pembayaran langsung ke WhatsApp pembeli secara otomatis." },
-              { title: "Metode Pembayaran Bank Indonesia", desc: "Tersedia opsi transfer bank lokal (BCA, Mandiri, BNI, BRI) dan e-Wallet (OVO, Dana, ShopeePay)." },
-              { title: "Mendukung Sistem Kode Promo", desc: "Buat diskon khusus dan kupon berbatas waktu untuk memicu pembelian impulsif." },
-              { title: "Dapat Meningkatkan Omzet", desc: "Desain checkout yang dioptimasi untuk mengurangi tingkat keranjang yang ditinggalkan (abandoned cart)." },
-              { title: "Konfirmasi Pembayaran Otomatis", desc: "Tidak perlu lagi cek mutasi manual, sistem akan mendeteksi pembayaran masuk secara otomatis." },
-              { title: "Fitur Checkout Lebih Aman", desc: "Keamanan terenkripsi standar industri untuk melindungi data sensitif pelanggan Anda." },
-              { title: "Tool Marketing & Promosi", desc: "Terintegrasi dengan Facebook Pixel dan Google Analytics untuk retargeting super presisi." }
-            ].map((benefit, idx) => (
-              <div key={idx} className="bg-slate-800/50 backdrop-blur border border-slate-700 p-6 rounded-2xl hover:bg-slate-800 transition-colors">
-                <div className="flex items-start">
-                  <div className="bg-teal-500/20 p-3 rounded-lg mr-4 text-teal-400">
-                    <CheckCircle2 className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold mb-2">{benefit.title}</h4>
-                    <p className="text-slate-400">{benefit.desc}</p>
-                  </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {TESTIMONIALS.map(t=>(
+              <div key={t.name} className="bg-white/5 border border-white/10 backdrop-blur rounded-2xl p-6 hover:bg-white/10 transition-colors">
+                <div className="flex mb-4">
+                  {Array(t.rating).fill(0).map((_,i)=><Star key={i} className="w-5 h-5 text-amber-400" fill="currentColor"/>)}
+                </div>
+                <p className="text-slate-300 italic leading-relaxed mb-6">"{t.text}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-teal-500 flex items-center justify-center font-black text-white">{t.name[0]}</div>
+                  <div><div className="font-bold">{t.name}</div><div className="text-xs text-slate-400">{t.role}</div></div>
                 </div>
               </div>
             ))}
@@ -269,222 +165,136 @@ export default function SoftwareFunnelPage() {
         </div>
       </section>
 
-      {/* 6. TARGET AUDIENCE */}
-      <section className="py-24 bg-slate-50">
+      {/* ── BONUSES ── */}
+      <section className="py-20 bg-slate-50">
         <div className="container mx-auto px-4 max-w-5xl">
-          <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="p-12 flex flex-col justify-center">
-                <h2 className="text-3xl font-black text-slate-800 mb-6">WP Plugin ini sangat cocok bagi Anda...</h2>
-                <ul className="space-y-4">
-                  {[
-                    "Pebisnis Online & Pemilik Toko Online",
-                    "Digital Marketer & Advertiser",
-                    "Affiliate Marketer",
-                    "Creator & Penjual Produk Digital",
-                    "Pemilik Kursus Online",
-                    "Freelancer & Agency Web Developer"
-                  ].map((item, idx) => (
-                    <li key={idx} className="flex items-center text-lg text-slate-700 font-medium">
-                      <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mr-4 shrink-0">
-                        <CheckCircle2 className="w-5 h-5" />
-                      </div>
-                      {item}
-                    </li>
+          <div className="text-center mb-14">
+            <span className="bg-amber-100 text-amber-700 px-4 py-1 rounded-full font-bold text-sm">BONUS EKSKLUSIF</span>
+            <h2 className="text-4xl font-black text-slate-800 mt-4">Gratis Bonus Senilai <span className="text-teal-600">Rp 2.000.000</span></h2>
+            <p className="text-slate-500 mt-3">Khusus untuk pembelian hari ini saja</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {BONUSES.map((b,i)=>(
+              <div key={b.title} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-lg transition-shadow flex gap-5">
+                <div className="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 font-black text-xl">0{i+1}</div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-black text-slate-800">{b.title}</h3>
+                    <span className="bg-teal-50 text-teal-700 text-xs font-bold px-2 py-0.5 rounded-full">Senilai {b.value}</span>
+                  </div>
+                  <p className="text-slate-500 text-sm leading-relaxed">{b.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRICING ── */}
+      <section id="pricing" className="py-20 bg-gradient-to-br from-[#0f4c5c] to-[#1a7a8a]">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="text-center mb-6 text-white">
+            <h2 className="text-4xl font-black">Pilih Paket Anda</h2>
+            <p className="text-teal-200 mt-3">Investasi sekali bayar, untung selamanya</p>
+          </div>
+          <CountdownTimer/>
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mt-6">
+            {/* Starter */}
+            <div className="bg-white/10 border border-white/20 backdrop-blur rounded-3xl p-8 flex flex-col">
+              <h3 className="text-xl font-black text-white mb-1">Paket Pemula</h3>
+              <p className="text-teal-200 text-sm mb-6">Lisensi untuk 5 Website</p>
+              <div className="mb-6">
+                <span className="line-through text-white/40 text-sm">Rp 1.800.000</span>
+                <div className="text-5xl font-black text-white">Rp 550<span className="text-2xl">.000</span></div>
+                <span className="text-teal-300 text-sm font-bold">Sekali Bayar — Hemat 69%</span>
+              </div>
+              <ul className="space-y-3 mb-8 flex-1 text-white/80 text-sm">
+                {["5 Lisensi Website","Semua Fitur Plugin","Update Gratis","Bonus #1 & #2","Support Email"].map(f=>(
+                  <li key={f} className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-teal-400"/>{f}</li>
+                ))}
+              </ul>
+              <a href="#" className="w-full text-center border-2 border-[#ffe121] text-[#ffe121] hover:bg-[#ffe121] hover:text-[#7a3e00] font-black py-4 rounded-xl transition-all duration-200 block">
+                Beli Paket Pemula
+              </a>
+            </div>
+            {/* Business - highlighted */}
+            <div className="bg-white rounded-3xl p-8 flex flex-col shadow-2xl shadow-black/30 relative overflow-hidden border-4 border-[#ffe121]">
+              <div className="absolute top-0 left-0 right-0 bg-[#ffe121] text-[#7a3e00] text-center py-1.5 text-xs font-black uppercase tracking-widest">
+                ⭐ PALING LARIS & DIREKOMENDASIKAN
+              </div>
+              <div className="mt-6">
+                <h3 className="text-xl font-black text-slate-800 mb-1">Paket Bisnis</h3>
+                <p className="text-slate-500 text-sm mb-6">Unlimited Website — Tanpa Batas!</p>
+                <div className="mb-6">
+                  <span className="line-through text-red-400 text-sm font-medium">Rp 2.800.000</span>
+                  <div className="text-5xl font-black text-slate-800">Rp 1.550<span className="text-2xl">.000</span></div>
+                  <span className="text-red-500 text-sm font-bold">Sekali Bayar — Hemat 44%</span>
+                </div>
+                <ul className="space-y-3 mb-8 flex-1 text-slate-600 text-sm">
+                  {["Unlimited Website (Tanpa Batas)","Semua Fitur Plugin","Update Gratis Seumur Hidup","SEMUA Bonus Eksklusif (1-4)","Support VIP Priority","Akses Grup Mastermind"].map(f=>(
+                    <li key={f} className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-teal-500"/>{f}</li>
                   ))}
                 </ul>
-              </div>
-              <div className="bg-emerald-50 p-12 flex items-center justify-center relative">
-                 <div className="absolute inset-0 bg-gradient-to-br from-[#348b93]/10 to-[#28c898]/20"></div>
-                 <div className="relative z-10 w-full aspect-square max-w-sm bg-white rounded-full shadow-2xl border-8 border-white/50 flex items-center justify-center">
-                    <div className="text-center">
-                      <Star className="w-16 h-16 text-yellow-400 mx-auto mb-4" fill="currentColor"/>
-                      <p className="text-2xl font-black text-slate-800">PERFECT<br/>FIT</p>
-                    </div>
-                 </div>
+                <a href="#" className="w-full text-center bg-[#ffe121] hover:bg-[#fac02b] text-[#7a3e00] font-black text-lg py-4 rounded-xl shadow-[0_4px_0_#c49400] hover:shadow-[0_1px_0_#c49400] hover:translate-y-0.5 transition-all duration-150 block">
+                  Beli Paket Bisnis Sekarang →
+                </a>
               </div>
             </div>
+          </div>
+          <div className="flex flex-wrap justify-center gap-6 mt-10 text-white/70 text-sm">
+            <span className="flex items-center gap-2"><Lock className="w-4 h-4"/>Pembayaran Aman</span>
+            <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4"/>Garansi 30 Hari</span>
+            <span className="flex items-center gap-2"><Award className="w-4 h-4"/>100% Uang Kembali</span>
           </div>
         </div>
       </section>
 
-      {/* 7. BONUSES SECTION */}
-      <section className="py-24 bg-gradient-to-b from-[#f0f5fb] to-white">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-[#3a6a64] mb-6">Dapatkan Bonus Eksklusif</h2>
-            <p className="text-xl text-slate-600">
-              Beli hari ini dan dapatkan semua bonus senilai total <span className="font-bold text-slate-800">Rp 2.000.000,-</span> secara GRATIS!
-            </p>
+      {/* ── GUARANTEE ── */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 max-w-3xl text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-100 text-amber-600 mb-6 shadow-inner">
+            <Award className="w-10 h-10"/>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[1, 2, 3, 4].map((num) => (
-              <div key={num} className="bg-white rounded-3xl p-8 shadow-lg border border-slate-100 flex flex-col items-center text-center group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-                <div className="w-20 h-20 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center mb-6 group-hover:bg-teal-600 group-hover:text-white transition-colors duration-300">
-                  <Gift className="w-10 h-10" />
-                </div>
-                <div className="bg-[#eaf9f3] text-[#40c995] font-black px-6 py-2 rounded-full text-sm uppercase tracking-widest mb-4 inline-block">
-                  Bonus 0{num} Senilai 500rb
-                </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-3">Template Premium {num}</h3>
-                <p className="text-slate-600 leading-relaxed">
-                  Dapatkan akses eksklusif ke template desain profesional yang siap digunakan untuk meningkatkan konversi halaman sales Anda dalam sekejap.
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 8. PRICING SECTION */}
-      <section className="py-24 bg-[#008477] relative" id="pricing">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <div className="container mx-auto px-4 relative z-10 max-w-5xl">
-          <div className="text-center mb-16">
-             <div className="inline-block bg-[#ffc350] text-[#985200] font-black px-6 py-2 rounded-full mb-6 uppercase tracking-wider shadow-lg animate-pulse">
-                Promo Berakhir Segera!
-             </div>
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-6">Pilih Paket Sesuai Kebutuhan Anda</h2>
-            <p className="text-xl text-teal-100">
-              Investasi terbaik untuk aset digital bisnis Anda. Pilih paket sekarang sebelum harga naik!
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Plan 1 */}
-            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col transform md:scale-95 hover:scale-100 transition-transform duration-300">
-              <div className="bg-[#069b8d] p-8 text-center text-white">
-                <h3 className="text-2xl font-black mb-2">Paket Pemula</h3>
-                <p className="text-teal-100 font-medium">Lisensi untuk 5 Website</p>
-              </div>
-              <div className="p-8 text-center flex-1 flex flex-col">
-                <div className="mb-6">
-                  <span className="text-slate-400 line-through text-lg font-medium block mb-2">Rp 1.800.000</span>
-                  <div className="text-5xl font-black text-slate-800">Rp 550.000</div>
-                  <span className="text-sm font-bold text-teal-600 bg-teal-50 px-3 py-1 rounded-full inline-block mt-4">Sekali Bayar</span>
-                </div>
-                
-                <ul className="text-left space-y-4 mb-8 flex-1 text-slate-600 font-medium">
-                  <li className="flex items-center"><CheckCircle2 className="w-5 h-5 text-teal-500 mr-3"/> Update Gratis Seumur Hidup</li>
-                  <li className="flex items-center"><CheckCircle2 className="w-5 h-5 text-teal-500 mr-3"/> Dukungan Teknis Prioritas</li>
-                  <li className="flex items-center"><CheckCircle2 className="w-5 h-5 text-teal-500 mr-3"/> Semua Fitur Premium</li>
-                  <li className="flex items-center"><CheckCircle2 className="w-5 h-5 text-teal-500 mr-3"/> Bonus Eksklusif #1 & #2</li>
-                </ul>
-
-                <Button className="w-full bg-white border-2 border-[#069b8d] text-[#069b8d] hover:bg-[#069b8d] hover:text-white font-bold text-lg py-6 rounded-xl transition-all duration-300">
-                  Beli Paket Pemula
-                </Button>
-              </div>
-            </div>
-
-            {/* Plan 2 - Highlighted */}
-            <div className="bg-white rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col relative border-4 border-[#ffe121] z-10 transform md:-translate-y-4">
-              <div className="absolute top-0 inset-x-0 bg-[#ffe121] text-[#985200] text-center font-black py-1 text-sm uppercase tracking-widest">
-                Paling Laris & Direkomendasikan
-              </div>
-              <div className="bg-slate-800 p-8 pt-10 text-center text-white">
-                <h3 className="text-2xl font-black mb-2">Paket Bisnis</h3>
-                <p className="text-slate-300 font-medium">Lisensi untuk Unlimited Website</p>
-              </div>
-              <div className="p-8 text-center flex-1 flex flex-col bg-slate-50">
-                <div className="mb-6">
-                  <span className="text-slate-400 line-through text-lg font-medium block mb-2">Rp 2.800.000</span>
-                  <div className="text-5xl font-black text-red-500">Rp 1.550.000</div>
-                  <span className="text-sm font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full inline-block mt-4">Diskon Terbesar! Sekali Bayar</span>
-                </div>
-                
-                <ul className="text-left space-y-4 mb-8 flex-1 text-slate-700 font-medium">
-                  <li className="flex items-center"><CheckCircle2 className="w-5 h-5 text-teal-500 mr-3"/> <span className="font-bold text-slate-800">Unlimited Website (Tanpa Batas)</span></li>
-                  <li className="flex items-center"><CheckCircle2 className="w-5 h-5 text-teal-500 mr-3"/> Update Gratis Seumur Hidup</li>
-                  <li className="flex items-center"><CheckCircle2 className="w-5 h-5 text-teal-500 mr-3"/> Dukungan Teknis VIP Priority</li>
-                  <li className="flex items-center"><CheckCircle2 className="w-5 h-5 text-teal-500 mr-3"/> Semua Fitur Premium</li>
-                  <li className="flex items-center"><CheckCircle2 className="w-5 h-5 text-teal-500 mr-3"/> <span className="font-bold text-slate-800">SEMUA Bonus Eksklusif (1-4)</span></li>
-                  <li className="flex items-center"><CheckCircle2 className="w-5 h-5 text-teal-500 mr-3"/> Akses Grup Eksklusif</li>
-                </ul>
-
-                <Button className="w-full bg-[#ffe121] hover:bg-[#fac02b] text-[#985200] shadow-[0_6px_0_0_#d49d10] hover:shadow-[0_2px_0_0_#d49d10] hover:translate-y-1 font-black text-xl py-8 rounded-xl transition-all duration-200">
-                  Beli Paket Bisnis Sekarang
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. GUARANTEE SECTION */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 max-w-4xl text-center">
-          <div className="inline-flex items-center justify-center w-24 h-24 bg-amber-100 text-amber-500 rounded-full mb-8 shadow-inner">
-            <Award className="w-12 h-12" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-black text-slate-800 mb-6">Garansi 30 Hari Uang Kembali</h2>
-          <p className="text-xl text-slate-600 leading-relaxed mb-8 max-w-2xl mx-auto">
-            Kami sangat yakin Anda akan menyukai ProductiPress. Namun, jika dalam 30 hari Anda merasa plugin ini tidak memberikan manfaat bagi bisnis Anda, hubungi tim support kami, dan kami akan mengembalikan uang Anda 100% tanpa ditanya!
+          <h2 className="text-3xl font-black text-slate-800 mb-4">Garansi 30 Hari Uang Kembali</h2>
+          <p className="text-slate-600 leading-relaxed max-w-xl mx-auto">
+            Jika dalam 30 hari Anda tidak puas atau plugin tidak berfungsi sesuai deskripsi, hubungi kami dan kami akan kembalikan uang Anda <strong>100% tanpa ditanya</strong>. Risiko nol untuk Anda!
           </p>
-          <div className="flex flex-wrap justify-center gap-4 opacity-70 grayscale">
-            <div className="px-4 py-2 border rounded font-bold text-slate-500">BCA</div>
-            <div className="px-4 py-2 border rounded font-bold text-slate-500">MANDIRI</div>
-            <div className="px-4 py-2 border rounded font-bold text-slate-500">BNI</div>
-            <div className="px-4 py-2 border rounded font-bold text-slate-500">BRI</div>
-            <div className="px-4 py-2 border rounded font-bold text-slate-500">OVO / GO-PAY</div>
-          </div>
         </div>
       </section>
 
-      {/* 10. FAQ SECTION */}
-      <section className="py-24 bg-slate-50">
+      {/* ── FAQ ── */}
+      <section className="py-20 bg-slate-50">
         <div className="container mx-auto px-4 max-w-3xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black text-[#3a6a64] mb-6">Hal yang Sering Ditanyakan (FAQ)</h2>
-            <p className="text-lg text-slate-600">
-              Punya pertanyaan? Mungkin jawabannya sudah ada di bawah ini.
-            </p>
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-black text-slate-800">Pertanyaan yang Sering Ditanyakan</h2>
           </div>
-
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <div 
-                key={index} 
-                className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-              >
-                <button 
-                  onClick={() => toggleFaq(index)}
-                  className="w-full px-6 py-5 text-left flex justify-between items-center font-bold text-lg text-slate-800 focus:outline-none"
-                >
-                  <span>{faq.q}</span>
-                  {openFaq === index ? (
-                    <ChevronUp className="w-5 h-5 text-teal-600" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-slate-400" />
-                  )}
-                </button>
-                <div 
-                  className={`px-6 pb-5 text-slate-600 leading-relaxed transition-all duration-300 ease-in-out ${openFaq === index ? 'block' : 'hidden'}`}
-                >
-                  <div className="pt-2 border-t border-slate-100">
-                    {faq.a}
-                  </div>
-                </div>
-              </div>
+          <div className="space-y-3">
+            {FAQS.map((f,i)=>(
+              <FAQ key={i} q={f.q} a={f.a} open={openFaq===i} onClick={()=>setOpenFaq(openFaq===i?null:i)}/>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 11. FOOTER / DISCLAIMER */}
-      <footer className="bg-slate-900 text-slate-400 py-12 text-center text-sm">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <p className="mb-6">
-            <strong>P.S.S</strong> Investasi yang Anda keluarkan hari ini tidak sebanding dengan potensi kerugian jika Anda menunda menggunakan sistem cerdas ini untuk bisnis Anda. Take action sekarang!
+      {/* ── FINAL CTA ── */}
+      <section className="py-20 bg-gradient-to-br from-[#0f4c5c] to-[#28c898] text-white text-center">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <h2 className="text-4xl font-black mb-4">Jangan Tunda Lagi!</h2>
+          <p className="text-teal-100 text-lg mb-8 leading-relaxed">
+            Setiap hari tanpa plugin ini = omset yang hilang. Ambil keputusan terbaik untuk bisnis Anda hari ini.
           </p>
-          <div className="w-16 h-px bg-slate-700 mx-auto mb-6"></div>
-          <p className="text-xs opacity-60">
-            Disclaimer: Segala hasil yang didapatkan bisa berbeda-beda untuk setiap pengguna tergantung dari berbagai faktor seperti model bisnis, konsistensi, dan upaya pemasaran yang dilakukan. Kami tidak menjamin kesuksesan instan, namun kami memberikan tool terbaik untuk membantu Anda mencapainya.
-          </p>
-          <p className="mt-8">
-            &copy; {new Date().getFullYear()} Software Company. All rights reserved.
-          </p>
+          <a href="#pricing" className="inline-flex items-center gap-3 bg-[#ffe121] hover:bg-[#fac02b] text-[#7a3e00] font-black text-xl py-5 px-12 rounded-full shadow-[0_6px_0_#c49400] hover:shadow-[0_2px_0_#c49400] hover:translate-y-1 transition-all duration-150">
+            Ya, Saya Mau Plugin Ini! <ArrowRight className="w-6 h-6"/>
+          </a>
+          <p className="mt-6 text-teal-200 text-sm">✅ Sekali Bayar &nbsp;|&nbsp; ✅ Update Gratis Seumur Hidup &nbsp;|&nbsp; ✅ Garansi 30 Hari</p>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer className="bg-slate-900 text-slate-400 py-10 text-center text-sm">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <p className="text-xs opacity-50">Disclaimer: Hasil yang dicapai bisa berbeda-beda tergantung konsistensi dan faktor bisnis masing-masing pengguna. Plugin ini adalah alat bantu, bukan jaminan sukses instan.</p>
+          <p className="mt-6">&copy; {new Date().getFullYear()} GrabNext. All rights reserved.</p>
         </div>
       </footer>
     </div>
