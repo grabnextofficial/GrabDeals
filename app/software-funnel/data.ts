@@ -18,16 +18,7 @@ export const INCLUDED_SOFTWARE = [
   { name: "Adobe Bridge", emoji: "🌉" },
 ];
 
-export const BONUS_PRODUCTS = [
-  { name: "Windows 11 Pro — Lifetime", img: "https://grabnext.pages.dev/api/og?title=Windows+11+Pro", value: "₹499" },
-  { name: "MS Office 2024 Full Suite", img: "https://grabnext.pages.dev/api/og?title=MS+Office+2024", value: "₹399" },
-  { name: "Filmora 15 + AI Features", img: "https://grabnext.pages.dev/api/og?title=Filmora+15", value: "₹299" },
-  { name: "CorelDRAW Graphics 2025", img: "https://grabnext.pages.dev/api/og?title=CorelDRAW+2025", value: "₹299" },
-  { name: "DaVinci Resolve Studio 20", img: "https://grabnext.pages.dev/api/og?title=DaVinci+Resolve", value: "₹499" },
-  { name: "IDM — Internet Download Manager", img: "https://grabnext.pages.dev/api/og?title=IDM+2025", value: "₹199" },
-  { name: "Final Cut Pro (macOS)", img: "https://grabnext.pages.dev/api/og?title=Final+Cut+Pro", value: "₹499" },
-  { name: "Mega Video Editing Bundle", img: "https://grabnext.pages.dev/api/og?title=Video+Editing+Bundle", value: "₹799" },
-];
+
 
 export const TESTIMONIALS = [
   { name: "Rahul Sharma", role: "Graphic Designer, Delhi", text: "Got all Adobe apps for just ₹249! Installation was easy, everything works perfectly. Saved thousands of rupees!", stars: 5 },

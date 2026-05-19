@@ -17,7 +17,8 @@ import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 import { trackPageView } from "@/lib/pixel"
 
-export const FB_PIXEL_ID = "864520106659183"
+// Read from env — NEXT_PUBLIC_ prefix makes it safe in both server and client components
+export const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FB_PIXEL_ID || "864520106659183"
 
 // ── SPA route-change tracker (Client Component) ───────────────────────────────
 export function FacebookPixelRouteTracker() {

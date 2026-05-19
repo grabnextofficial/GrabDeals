@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { PRODUCT_BUY_URL, INCLUDED_SOFTWARE, BONUS_PRODUCTS, TESTIMONIALS, FAQS, FEATURES } from "./data";
-
+import { PRODUCT_BUY_URL, INCLUDED_SOFTWARE, TESTIMONIALS, FAQS, FEATURES } from "./data";
 /* ── Animated CTA Button (matches Elementor .btn class) ── */
 const BTN_STYLE: React.CSSProperties = {
   backgroundImage: "linear-gradient(130deg, #FFC800 0%, #afff3d 100%)",
@@ -83,9 +82,10 @@ export default function SoftwareFunnelPage() {
   const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch("/api/products").then(r => r.json()).then(d => {
+    fetch("/api/products?all=1").then(r => r.json()).then(d => {
       const list = Array.isArray(d) ? d : (d.products || []);
-      setProducts(list.slice(0, 12));
+      // Filter out the actual bundle product if it's there so it's not listed as a bonus for itself
+      setProducts(list.filter((p: any) => p.title && !p.title.toLowerCase().includes("adobe all")));
     }).catch(() => {});
   }, []);
 
@@ -126,22 +126,18 @@ export default function SoftwareFunnelPage() {
           <div className="absolute" style={{ width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(175,255,61,0.21) 0%, rgba(242,41,91,0) 70%)", top: -273, left: -230, pointerEvents: "none" }} />
           <div className="relative z-10 max-w-5xl mx-auto">
             <h1 style={{ fontSize: "clamp(26px,5vw,46px)", fontWeight: 800, lineHeight: 1.4, marginBottom: 12 }}>
-              Discover The <span className="highlight">Ultimate Creative Software Bundle</span> To{" "}
-              <u>Skyrocket Your Creativity</u> With{" "}
+              Stop Paying Expensive Monthly Subscriptions! Get The <span className="highlight">Ultimate Creative Software Bundle</span> With{" "}
               <span className="highlight-bg">&nbsp;Adobe All Premium 2026!&nbsp;</span>
             </h1>
             <p style={{ fontSize: "clamp(14px,2.5vw,26px)", fontWeight: 500, fontStyle: "italic", textDecoration: "underline", color: "#00FFFF", marginBottom: 20 }}>
               All 15+ Adobe CC Apps — Windows & Mac — Pre-Activated for Lifetime!
             </p>
-            {/* Video placeholder */}
-            <div className="mx-auto mb-6 rounded-lg overflow-hidden border border-gray-600" style={{ maxWidth: 700, aspectRatio: "16/9", background: "#111", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-              <img src="https://grabnext.pages.dev/api/placeholder?w=700&h=394" alt="Adobe Bundle Preview" className="w-full h-full object-cover absolute inset-0" onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-              <div className="relative z-10 flex flex-col items-center gap-3">
-                <div className="w-16 h-16 rounded-full bg-white/20 border-2 border-white flex items-center justify-center cursor-pointer hover:bg-white/30 transition-colors">
-                  <span className="text-3xl ml-1">▶</span>
-                </div>
-                <p className="text-white/70 text-sm">Click to Watch Demo</p>
-              </div>
+            {/* Adobe Bundle Image */}
+            <div className="mx-auto mb-6 rounded-lg overflow-hidden border border-gray-600 shadow-2xl relative" style={{ maxWidth: 800, aspectRatio: "16/9", background: "#111", display: "flex", alignItems: "center", justifyItems: "center" }}>
+               <img src="https://media.licdn.com/dms/image/D4D12AQGg4FhYvYlFwA/article-cover_image-shrink_720_1280/0/1689108390829?e=2147483647&v=beta&t=aI8jVq8vQZ3PZ4b1_O7m9L8-K_rTzJg5nL3x-5Qc4Kk" alt="Adobe All Premium Software Bundle Collection 2026" className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = "https://grabnext.pages.dev/api/placeholder?w=800&h=450&text=Adobe+All+Premium+Collection+2026"; }} />
+               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-center pb-4">
+                  <span className="bg-red-600 text-white font-bold px-4 py-1 rounded-full text-sm shadow-lg">⚡ Instant Download Included</span>
+               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
               <a href="#buy" className="btn-cta" style={{ ...BTN_STYLE, fontSize: "clamp(16px,3vw,32px)", padding: "12px 40px", width: "min(80%,560px)" }}>
@@ -254,19 +250,16 @@ export default function SoftwareFunnelPage() {
 
         {/* ── 8. FREE BONUS PRODUCTS ── */}
         <section className="section-dark py-12 px-4">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <h2 className="text-center font-black text-white mb-1" style={{ fontSize: "clamp(22px,4vw,40px)", fontFamily: "Poppins, sans-serif" }}>
-              🎁 FREE Bonus Products Worth ₹3,000+
+              🎁 GET OUR ENTIRE STORE CATALOG FOR FREE!
             </h2>
             <p className="text-center text-[#00FFFF] italic underline mb-6" style={{ fontFamily: "Poppins, sans-serif", fontSize: "clamp(13px,2vw,20px)" }}>
-              Exclusively For Today's Purchase — Limited Time Only!
+              Yes, you read that right. Buy the Adobe Bundle today and get ALL THESE PRODUCTS as free bonuses!
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {BONUS_PRODUCTS.map(b => (
-                <ProductCard key={b.name} name={b.name} img={b.img} value={b.value} bg="white" />
-              ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
               {/* Live products from API */}
-              {products.slice(0, 4).map((p: any) => (
+              {products.map((p: any) => (
                 <ProductCard key={p.id} name={p.name || p.title} img={p.imageUrl || p.image || ""} value={p.price ? `₹${p.price}` : undefined} bg="white" />
               ))}
             </div>
