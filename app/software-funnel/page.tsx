@@ -91,24 +91,7 @@ export default function SoftwareFunnelPage() {
 
   return (
     <>
-      <style>{`
-        @keyframes animatedgradient {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          75% { background-position: 0% 50%; }
-          10%, 90% { transform: translate3d(-1px, 0, 0); }
-          20%, 80% { transform: translate3d(2px, 0, 0); }
-          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-          40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
-        body { font-family: 'Poppins', sans-serif; }
-        .section-dark { background-color: #00114E; }
-        .highlight { color: rgba(255,168,0,1); }
-        .highlight-bg { background: white; color: black; box-shadow: 5px 5px 0 0 rgba(255,168,0,1); padding: 0 6px; }
-        .text-cyan { color: #00FFFF; }
-        .light { background: linear-gradient(180deg, #FFC800 0%, #01F7F7 85%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .btn-cta:hover { transform: translateY(2px); box-shadow: 0px 4px 6px rgba(0,0,0,0.5) !important; }
-      `}</style>
+
 
       <div style={{ fontFamily: "Poppins, sans-serif" }}>
 
@@ -119,14 +102,14 @@ export default function SoftwareFunnelPage() {
         </div>
 
         {/* ── 2. HERO ── */}
-        <section className="section-dark text-white text-center py-10 px-4 relative overflow-hidden">
+        <section className="bg-[#00114E] text-white text-center py-10 px-4 relative overflow-hidden">
           <div className="absolute inset-0" style={{ background: "rgba(0,17,78,0.6)" }} />
           {/* glow orbs */}
           <div className="absolute" style={{ width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(175,255,61,0.21) 0%, rgba(242,41,91,0) 70%)", top: -273, left: -230, pointerEvents: "none" }} />
           <div className="relative z-10 max-w-5xl mx-auto">
             <h1 style={{ fontSize: "clamp(26px,5vw,46px)", fontWeight: 800, lineHeight: 1.4, marginBottom: 12 }}>
-              Stop Paying Expensive Monthly Subscriptions! Get The <span className="highlight">Ultimate Creative Software Bundle</span> With{" "}
-              <span className="highlight-bg">&nbsp;Adobe All Premium 2026!&nbsp;</span>
+              Stop Paying Expensive Monthly Subscriptions! Get The <span className="text-[#FFA800]">Ultimate Creative Software Bundle</span> With{" "}
+              <span className="bg-white text-black shadow-[5px_5px_0_0_#FFA800] px-1.5">&nbsp;Adobe All Premium 2026!&nbsp;</span>
             </h1>
             <p style={{ fontSize: "clamp(14px,2.5vw,26px)", fontWeight: 500, fontStyle: "italic", textDecoration: "underline", color: "#00FFFF", marginBottom: 20 }}>
               All 15+ Adobe CC Apps — Windows & Mac — Pre-Activated for Lifetime!
@@ -139,7 +122,7 @@ export default function SoftwareFunnelPage() {
                </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              <a href="#buy" className="btn-cta" style={{ ...BTN_STYLE, fontSize: "clamp(16px,3vw,32px)", padding: "12px 40px", width: "min(80%,560px)" }}>
+              <a href="#buy" className="animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(16px,3vw,32px)", padding: "12px 40px", width: "min(80%,560px)" }}>
                 🚀 Get Instant Access At Just ₹249/- 🚀
               </a>
             </div>
@@ -170,7 +153,7 @@ export default function SoftwareFunnelPage() {
               ))}
             </div>
             <div className="flex justify-center mt-8">
-              <a href="#buy" className="btn-cta" style={{ ...BTN_STYLE, fontSize: "clamp(14px,2.5vw,28px)", padding: "10px 36px", width: "min(80%,520px)" }}>
+              <a href="#buy" className="animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(14px,2.5vw,28px)", padding: "10px 36px", width: "min(80%,520px)" }}>
                 🚀 Get Instant Access At Just ₹249/- 🚀
               </a>
             </div>
@@ -248,7 +231,7 @@ export default function SoftwareFunnelPage() {
         </section>
 
         {/* ── 8. FREE BONUS PRODUCTS ── */}
-        <section className="section-dark py-12 px-4">
+        <section className="bg-[#00114E] py-12 px-4">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-center font-black text-white mb-1" style={{ fontSize: "clamp(22px,4vw,40px)", fontFamily: "Poppins, sans-serif" }}>
               🎁 GET OUR ENTIRE STORE CATALOG FOR FREE!
@@ -263,7 +246,7 @@ export default function SoftwareFunnelPage() {
               ))}
             </div>
             <div className="flex justify-center mt-8">
-              <a href="#buy" className="btn-cta" style={{ ...BTN_STYLE, fontSize: "clamp(14px,2.5vw,28px)", padding: "10px 36px", width: "min(80%,520px)" }}>
+              <a href="#buy" className="animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(14px,2.5vw,28px)", padding: "10px 36px", width: "min(80%,520px)" }}>
                 🚀 Get All Bonuses FREE — Only ₹249/- 🚀
               </a>
             </div>
@@ -293,7 +276,7 @@ export default function SoftwareFunnelPage() {
         </section>
 
         {/* ── 10. PRICING / BUY ── */}
-        <section id="buy" className="section-dark py-12 px-4">
+        <section id="buy" className="bg-[#00114E] py-12 px-4">
           <div className="max-w-2xl mx-auto text-center text-white">
             <div className="inline-block bg-red-500 text-white px-4 py-1 rounded-full text-sm font-bold mb-4 animate-pulse">⏰ LIMITED TIME OFFER</div>
             <h2 className="font-black mb-2" style={{ fontSize: "clamp(24px,5vw,44px)" }}>Get The Full Bundle NOW</h2>
@@ -304,7 +287,7 @@ export default function SoftwareFunnelPage() {
               <div className="text-[#afff3d] font-bold text-lg">ONE-TIME PAYMENT — 90% OFF!</div>
               <div className="text-white/70 text-sm mt-3">✅ 15+ Adobe CC Apps &nbsp;|&nbsp; ✅ 8 Free Bonuses &nbsp;|&nbsp; ✅ Lifetime Access</div>
             </div>
-            <a href={PRODUCT_BUY_URL} className="btn-cta block" style={{ ...BTN_STYLE, fontSize: "clamp(16px,3vw,34px)", padding: "14px 20px" }}>
+            <a href={PRODUCT_BUY_URL} className="block animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(16px,3vw,34px)", padding: "14px 20px" }}>
               🚀 YES! GET INSTANT ACCESS AT ₹249/- 🚀
             </a>
             <p className="text-white/50 text-xs mt-4">🔒 Secure Checkout &nbsp;|&nbsp; ⚡ Instant Delivery &nbsp;|&nbsp; 🛡️ Support Guaranteed</p>
@@ -328,12 +311,11 @@ export default function SoftwareFunnelPage() {
           </div>
         </section>
 
-        {/* ── 13. FINAL CTA ── */}
-        <section className="section-dark py-12 px-4 text-center text-white">
+<section className="bg-[#00114E] text-white text-center py-12 px-4 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="font-black mb-4" style={{ fontSize: "clamp(22px,4vw,38px)" }}>Don't Miss This Limited Time Offer!</h2>
             <p className="text-[#00FFFF] mb-6 text-lg">Join 3,929+ professionals who already own the ultimate Adobe bundle.</p>
-            <a href={PRODUCT_BUY_URL} className="btn-cta inline-block" style={{ ...BTN_STYLE, fontSize: "clamp(16px,3vw,32px)", padding: "14px 40px" }}>
+            <a href={PRODUCT_BUY_URL} className="inline-block animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(16px,3vw,32px)", padding: "14px 40px" }}>
               🚀 GET INSTANT ACCESS — ONLY ₹249/- 🚀
             </a>
             <p className="text-white/50 text-xs mt-4">⚡ Instant Access &nbsp;|&nbsp; ✅ Pre-Activated &nbsp;|&nbsp; 🍎 Mac & 🪟 Windows</p>
