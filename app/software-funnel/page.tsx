@@ -67,7 +67,7 @@ function ProductCard({ name, img, value, bg = "white" }: { name: string; img?: s
     <div className="flex flex-col items-center text-center rounded-[7px] overflow-hidden" style={{ background: bg, boxShadow: "0 1px 5px 0 rgba(0,0,0,0.4)", padding: 6 }}>
       <div className="w-full aspect-square relative overflow-hidden rounded-[4px] bg-gray-100 flex items-center justify-center">
         {img ? (
-          <img src={img} alt={name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <img src={img} alt={name} className="w-full h-full object-contain p-2" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
         ) : (
           <span className="text-4xl">{name.split(" ")[0]}</span>
         )}
@@ -148,8 +148,8 @@ export default function SoftwareFunnelPage() {
             <h2 className="text-center font-semibold text-gray-700 text-xl mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>Here's What All You'll Get…</h2>
             <h3 className="text-center font-black text-3xl md:text-4xl text-black mb-6" style={{ fontFamily: "Poppins, sans-serif" }}>Adobe CC Bundle 2026</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-              {INCLUDED_SOFTWARE.map((s) => (
-                <ProductCard key={s.name} name={s.name} img="" bg="white" />
+              {INCLUDED_SOFTWARE.map((s: any) => (
+                <ProductCard key={s.name} name={s.name} img={s.logo} bg="white" />
               ))}
             </div>
             <div className="flex justify-center mt-8">
@@ -166,9 +166,9 @@ export default function SoftwareFunnelPage() {
             <h2 className="text-center font-black text-2xl md:text-3xl text-gray-800 mb-2">Everything Included in One Bundle</h2>
             <p className="text-center text-gray-500 mb-6 text-sm">All 15+ Adobe Creative Cloud apps — no subscription needed</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {INCLUDED_SOFTWARE.map(s => (
+              {INCLUDED_SOFTWARE.map((s: any) => (
                 <div key={s.name} className="flex items-center gap-3 bg-white rounded-xl px-4 py-3 shadow-sm border border-gray-100">
-                  <span className="text-xl">{s.emoji}</span>
+                  <img src={s.logo} alt={s.name} className="w-8 h-8 object-contain" />
                   <span className="font-semibold text-gray-800">{s.name}</span>
                   <span className="ml-auto text-green-600 font-bold text-sm">✓ Included</span>
                 </div>

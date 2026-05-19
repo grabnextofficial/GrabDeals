@@ -1,21 +1,21 @@
 export const PRODUCT_BUY_URL = "https://grabnext.pages.dev/products/adobe-all-premium-software-bundle-2026-for-windows-mac-420947";
 
 export const INCLUDED_SOFTWARE = [
-  { name: "Adobe Photoshop 2026", emoji: "🎨" },
-  { name: "Adobe Illustrator 2026", emoji: "✏️" },
-  { name: "Adobe Premiere Pro 2026", emoji: "🎬" },
-  { name: "Adobe After Effects 2026", emoji: "✨" },
-  { name: "Adobe Acrobat Pro DC", emoji: "📄" },
-  { name: "Adobe InDesign 2026", emoji: "📰" },
-  { name: "Adobe Lightroom Classic", emoji: "📸" },
-  { name: "Adobe XD 2026", emoji: "🖥️" },
-  { name: "Adobe Audition 2026", emoji: "🎵" },
-  { name: "Adobe Animate 2026", emoji: "🎭" },
-  { name: "Adobe Dreamweaver", emoji: "🌐" },
-  { name: "Adobe Media Encoder", emoji: "⚙️" },
-  { name: "Adobe Character Animator", emoji: "🤖" },
-  { name: "Adobe InCopy", emoji: "📝" },
-  { name: "Adobe Bridge", emoji: "🌉" },
+  { name: "Adobe Photoshop 2026", logo: "https://img.icons8.com/color/96/adobe-photoshop--v1.png" },
+  { name: "Adobe Illustrator 2026", logo: "https://img.icons8.com/color/96/adobe-illustrator--v1.png" },
+  { name: "Adobe Premiere Pro 2026", logo: "https://img.icons8.com/color/96/adobe-premiere-pro--v1.png" },
+  { name: "Adobe After Effects 2026", logo: "https://img.icons8.com/color/96/adobe-after-effects--v1.png" },
+  { name: "Adobe Acrobat Pro DC", logo: "https://img.icons8.com/color/96/adobe-acrobat--v1.png" },
+  { name: "Adobe InDesign 2026", logo: "https://img.icons8.com/color/96/adobe-indesign--v1.png" },
+  { name: "Adobe Lightroom Classic", logo: "https://img.icons8.com/color/96/adobe-lightroom--v1.png" },
+  { name: "Adobe XD 2026", logo: "https://img.icons8.com/color/96/adobe-xd--v1.png" },
+  { name: "Adobe Audition 2026", logo: "https://img.icons8.com/color/96/adobe-audition--v1.png" },
+  { name: "Adobe Animate 2026", logo: "https://img.icons8.com/color/96/adobe-animate--v1.png" },
+  { name: "Adobe Dreamweaver", logo: "https://img.icons8.com/color/96/adobe-dreamweaver--v1.png" },
+  { name: "Adobe Media Encoder", logo: "https://upload.wikimedia.org/wikipedia/commons/2/23/Adobe_Media_Encoder_Icon.svg" },
+  { name: "Adobe Character Animator", logo: "https://upload.wikimedia.org/wikipedia/commons/6/64/Adobe_Character_Animator_icon.svg" },
+  { name: "Adobe InCopy", logo: "https://upload.wikimedia.org/wikipedia/commons/5/5a/Adobe_InCopy_CC_icon.svg" },
+  { name: "Adobe Bridge", logo: "https://img.icons8.com/color/96/adobe-bridge--v1.png" },
 ];
 
 
