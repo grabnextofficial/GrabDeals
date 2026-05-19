@@ -5,10 +5,10 @@ export const INCLUDED_SOFTWARE = [
   { name: "Adobe Illustrator 2026", logo: "https://img.icons8.com/color/96/adobe-illustrator--v1.png" },
   { name: "Adobe Premiere Pro 2026", logo: "https://img.icons8.com/color/96/adobe-premiere-pro--v1.png" },
   { name: "Adobe After Effects 2026", logo: "https://img.icons8.com/color/96/adobe-after-effects--v1.png" },
-  { name: "Adobe Acrobat Pro DC", logo: "https://img.icons8.com/color/96/adobe-acrobat--v1.png" },
+  { name: "Adobe Acrobat 2024 Pro", logo: "https://img.icons8.com/color/96/adobe-acrobat--v1.png" },
   { name: "Adobe InDesign 2026", logo: "https://img.icons8.com/color/96/adobe-indesign--v1.png" },
   { name: "Adobe Lightroom Classic", logo: "https://img.icons8.com/color/96/adobe-lightroom--v1.png" },
-  { name: "Adobe XD 2026", logo: "https://img.icons8.com/color/96/adobe-xd--v1.png" },
+  { name: "Adobe XD", logo: "https://img.icons8.com/color/96/adobe-xd--v1.png" },
   { name: "Adobe Audition 2026", logo: "https://img.icons8.com/color/96/adobe-audition--v1.png" },
   { name: "Adobe Animate 2026", logo: "https://img.icons8.com/color/96/adobe-animate--v1.png" },
   { name: "Adobe Dreamweaver", logo: "https://img.icons8.com/color/96/adobe-dreamweaver--v1.png" },
@@ -16,6 +16,11 @@ export const INCLUDED_SOFTWARE = [
   { name: "Adobe Character Animator", logo: "https://img.icons8.com/color/96/adobe-character-animator.png" },
   { name: "Adobe InCopy", logo: "https://img.icons8.com/color/96/adobe-incopy.png" },
   { name: "Adobe Bridge", logo: "https://img.icons8.com/color/96/adobe-bridge--v1.png" },
+  { name: "DaVinci Resolve Studio 18.6", logo: "https://img.icons8.com/color/96/davinci-resolve.png" },
+  { name: "Adobe Elements", logo: "https://img.icons8.com/color/96/adobe-premiere-pro--v1.png" },
+  { name: "Adobe Substance 3D", logo: "https://img.icons8.com/color/96/adobe-substance-3d-painter.png" },
+  { name: "VHS Studio - VHS 600", logo: "https://img.icons8.com/color/96/vhs.png" },
+  { name: "WinRAR Pro", logo: "https://img.icons8.com/color/96/winrar.png" },
 ];
 
 

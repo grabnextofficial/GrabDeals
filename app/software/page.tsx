@@ -280,21 +280,137 @@ export default function SoftwareFunnelPage() {
         </section>
 
         {/* ── 8. FREE BONUS PRODUCTS ── */}
-        <section className="bg-[#00114E] py-12 px-4">
+        <section className="bg-[#000d3b] py-16 px-4 text-white">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-center font-black text-white mb-1" style={{ fontSize: "clamp(22px,4vw,40px)", fontFamily: "Poppins, sans-serif" }}>
-              🎁 GET OUR ENTIRE STORE CATALOG FOR FREE!
-            </h2>
-            <p className="text-center text-[#00FFFF] italic underline mb-6" style={{ fontFamily: "Poppins, sans-serif", fontSize: "clamp(13px,2vw,20px)" }}>
-              Yes, you read that right. Buy the Adobe Bundle today and get ALL THESE PRODUCTS as free bonuses!
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-              {/* Live products from API */}
-              {products.map((p: any) => (
-                <ProductCard key={p.id} name={p.name || p.title} img={p.imageUrl || p.image || ""} value={p.price ? `₹${p.price}` : undefined} bg="white" />
-              ))}
+            {/* Main Header */}
+            <div className="text-center mb-12">
+              <span className="bg-yellow-400 text-black px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider shadow-lg">
+                💥 Special Launch Offer Bonuses
+              </span>
+              <h2 className="font-black mt-4 text-white" style={{ fontSize: "clamp(26px,4vw,44px)", fontFamily: "Poppins, sans-serif", lineHeight: 1.2 }}>
+                🎁 Get the Ultimate Graphic Designing Bundle (800+ GB) & 11 Mega Collections For FREE!
+              </h2>
+              <p className="text-[#00FFFF] max-w-3xl mx-auto mt-3 text-sm sm:text-base leading-relaxed" style={{ fontFamily: "Poppins, sans-serif" }}>
+                Claim lifetime access to over ₹24,999 worth of premium design assets, video courses, and business templates when you purchase the Adobe CC Bundle today.
+              </p>
             </div>
-            <div className="flex justify-center mt-8">
+
+            {/* Spotlight Bonus: Graphic Designing Bundle (800+ GB Plan) */}
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-10 mb-12 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-red-600 text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10 shadow-md">
+                Included Free
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                {/* Left: Box Mockup */}
+                <div className="md:col-span-5 flex flex-col items-center">
+                  <div className="relative group max-w-[320px] w-full">
+                    <div className="absolute -inset-1.5 bg-gradient-to-r from-yellow-400 to-[#afff3d] rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                    <div className="relative bg-[#00114E] rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+                      <img src="/images/graphic-bundle-675gb.png" alt="675 GB Graphics Bundle Box Mockup" className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-300" />
+                    </div>
+                  </div>
+                  <span className="text-xs text-white/50 mt-3 font-semibold uppercase tracking-wider">
+                    800+ GB Plan Graphic Designing Bundle
+                  </span>
+                </div>
+
+                {/* Right: Asset List */}
+                <div className="md:col-span-7">
+                  <h3 className="text-2xl font-black text-[#afff3d] mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>
+                    Ultimate Graphic Designing Bundle (800+ GB Plan)
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    {[
+                      "8,000+ Lightroom Presets",
+                      "20+ Free Video Courses",
+                      "500+ Resume / CV Templates",
+                      "1,000+ PSD Graphic Data & PSD Cards",
+                      "300+ Social Media Premium Templates",
+                      "CorelDraw (CDR) Pack (Visiting Cards, letterheads)",
+                      "Visiting Cards, Letterheads, Logos, etc.",
+                      "Wedding Collection & Wedding Album Templates",
+                      "HD Icons & Motion Graphics",
+                      "Banners: Real Estate, Grocery, Education, Dental, Lubricant Oil & 100+ Restaurant Banners",
+                      "Sales Scripts Pack (Email, LinkedIn, Instagram DM, Pitching Scripts)",
+                      "Social Media Calendar, Digital V-Cards & Clip Art"
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-2.5 text-sm text-white/90">
+                        <span className="text-yellow-400 font-bold shrink-0 mt-0.5">✓</span>
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Access / Download Instructions Note */}
+                  <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-2xl p-4 flex gap-3 text-white/95">
+                    <span className="text-2xl shrink-0 mt-0.5">ℹ️</span>
+                    <div>
+                      <p className="text-xs font-black uppercase text-yellow-400 tracking-wider mb-1">
+                        How to Access Your Graphic Bundle
+                      </p>
+                      <p className="text-xs leading-relaxed text-white/80">
+                        Download link for the Ultimate Graphic Designing Bundle is sent directly to your <strong className="text-white">email invoice</strong> immediately post-payment. Simply click <strong className="text-yellow-400">“Click here to Download Graphic designing Bundle”</strong> on the invoice you receive at your payment email.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 11 Mega Creative Collections Grid */}
+            <div className="mb-12">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-black text-white" style={{ fontFamily: "Poppins, sans-serif" }}>
+                  11 Mega Creative Collections Included
+                </h3>
+                <p className="text-white/60 text-xs mt-1">
+                  Ready-to-use project assets, templates, and libraries to speed up your workflow.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {[
+                  { num: "01", name: "Photoshop Collection", desc: "Premium brushes, actions, overlays, shapes, and tools." },
+                  { num: "02", name: "Corel Draw Collection", desc: "Vector CDR files, designs, visiting cards, and letterheads." },
+                  { num: "03", name: "Logos", desc: "10,000+ high-quality customizable logo templates." },
+                  { num: "04", name: "Fonts", desc: "5,000+ premium localized and corporate font families." },
+                  { num: "05", name: "Mockups", desc: "T-shirts, packaging, apparel, and branding templates." },
+                  { num: "06", name: "PNG Images Collection", desc: "High-definition transparent assets for quick compositing." },
+                  { num: "07", name: "Adobe Illustrator Collection", desc: "AI files, vectors, background patterns, and assets." },
+                  { num: "08", name: "Adobe Premiere Collection", desc: "Transitions, title cards, overlays, and color LUTs." },
+                  { num: "09", name: "Adobe After Effects Collection", desc: "Video templates, intro animations, and sound effects." },
+                  { num: "10", name: "Adobe InDesign Collection", desc: "Books, magazines, resumes, and brochures layouts." },
+                  { num: "11", name: "PowerPoint Collection", desc: "Slide decks, pitch templates, and business presentations." }
+                ].map((col) => (
+                  <div key={col.num} className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors shadow-lg">
+                    <span className="text-xs font-bold text-[#afff3d] uppercase tracking-wider block mb-1">
+                      Collection {col.num}
+                    </span>
+                    <h4 className="font-bold text-white text-sm mb-1.5" style={{ fontFamily: "Poppins, sans-serif" }}>
+                      {col.name}
+                    </h4>
+                    <p className="text-white/60 text-xs leading-relaxed">
+                      {col.desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Live Store Products secondary list */}
+            {products.length > 0 && (
+              <div className="border-t border-white/10 pt-10">
+                <h4 className="text-center font-bold text-white mb-6 text-sm sm:text-base uppercase tracking-wide">
+                  🎁 Plus, Get All These Active Products from Our Catalog Free!
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {products.map((p: any) => (
+                    <ProductCard key={p.id} name={p.name || p.title} img={p.imageUrl || p.image || ""} value={p.price ? `₹${p.price}` : undefined} bg="white" />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-center mt-10">
               <a href="/checkout" onClick={handleBuyClick} className="animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(14px,2.5vw,28px)", padding: "10px 36px", width: "min(80%,520px)" }}>
                 🚀 Get All Bonuses FREE — Only ₹249/- 🚀
               </a>
