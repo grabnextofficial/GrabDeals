@@ -1,6 +1,9 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { PRODUCT_BUY_URL, INCLUDED_SOFTWARE, TESTIMONIALS, FAQS, FEATURES } from "./data";
+import { useCart } from "@/contexts/cart-context";
+import { useRouter } from "next/navigation";
+import { trackAddToCart } from "@/lib/pixel";
 /* ── Animated CTA Button (matches Elementor .btn class) ── */
 const BTN_STYLE: React.CSSProperties = {
   backgroundImage: "linear-gradient(130deg, #FFC800 0%, #afff3d 100%)",
@@ -81,11 +84,19 @@ function ProductCard({ name, img, value, bg = "white" }: { name: string; img?: s
 export default function SoftwareFunnelPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [banner, setBanner] = useState<any>(null);
+  const [adobeProduct, setAdobeProduct] = useState<any>(null);
+
+  const router = useRouter();
+  const { addToCart, clearCart } = useCart();
 
   useEffect(() => {
     // Fetch products
     fetch("/api/products?all=1").then(r => r.json()).then(d => {
       const list = Array.isArray(d) ? d : (d.products || []);
+      const found = list.find((p: any) => p.title && p.title.toLowerCase().includes("adobe all"));
+      if (found) {
+        setAdobeProduct(found);
+      }
       setProducts(list.filter((p: any) => p.title && !p.title.toLowerCase().includes("adobe all")));
     }).catch(() => {});
 
@@ -97,6 +108,36 @@ export default function SoftwareFunnelPage() {
     }).catch(() => {});
   }, []);
 
+  const handleBuyClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // Find the Adobe product or fallback to a structured one
+    const targetProduct = adobeProduct || {
+      id: "adobe-all-premium-software-bundle-2026-for-windows-mac-420947", // Fallback ID
+      title: "Adobe All Premium Software Bundle 2026",
+      price: 249,
+      category: "software",
+      imageUrl: banner?.imageUrl || "https://media.licdn.com/dms/image/D4D12AQGg4FhYvYlFwA/article-cover_image-shrink_720_1280/0/1689108390829?e=2147483647&v=beta&t=aI8jVq8vQZ3PZ4b1_O7m9L8-K_rTzJg5nL3x-5Qc4Kk",
+      downloadUrl: "[]",
+      isActive: true,
+      tags: ["adobe", "bundle", "lifetime"]
+    };
+
+    // Track AddToCart event in Meta Pixel
+    trackAddToCart({
+      content_name: targetProduct.title,
+      content_ids: [targetProduct.id],
+      value: targetProduct.price,
+    });
+
+    // Clear cart and add Adobe product
+    clearCart();
+    addToCart(targetProduct);
+    
+    // Redirect to checkout
+    router.push("/checkout");
+  };
+
   return (
     <>
 
@@ -106,7 +147,7 @@ export default function SoftwareFunnelPage() {
         {/* ── 1. TOP URGENCY BAR ── */}
         <div style={{ backgroundColor: "#05FF00" }} className="text-black text-center py-2 px-4 font-bold text-sm sticky top-0 z-50">
           🔥 Adobe All Premium Software Bundle 2026! &nbsp;|&nbsp; Launch Sale: <strong>90% OFF</strong> &nbsp;|&nbsp;
-          <a href="#buy" className="underline font-black">Grab Now →</a>
+          <a href="/checkout" onClick={handleBuyClick} className="underline font-black">Grab Now →</a>
         </div>
 
         {/* ── 2. HERO ── */}
@@ -130,7 +171,7 @@ export default function SoftwareFunnelPage() {
                </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              <a href="#buy" className="animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(16px,3vw,32px)", padding: "12px 40px", width: "min(80%,560px)" }}>
+              <a href="/checkout" onClick={handleBuyClick} className="animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(16px,3vw,32px)", padding: "12px 40px", width: "min(80%,560px)" }}>
                 🚀 Get Instant Access At Just ₹249/- 🚀
               </a>
             </div>
@@ -161,7 +202,7 @@ export default function SoftwareFunnelPage() {
               ))}
             </div>
             <div className="flex justify-center mt-8">
-              <a href="#buy" className="animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(14px,2.5vw,28px)", padding: "10px 36px", width: "min(80%,520px)" }}>
+              <a href="/checkout" onClick={handleBuyClick} className="animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(14px,2.5vw,28px)", padding: "10px 36px", width: "min(80%,520px)" }}>
                 🚀 Get Instant Access At Just ₹249/- 🚀
               </a>
             </div>
@@ -206,8 +247,8 @@ export default function SoftwareFunnelPage() {
         <section className="py-12 px-4 bg-gray-50">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-center font-black text-3xl text-gray-800 mb-8">Grabnext vs. Adobe Subscription</h2>
-            <div className="w-full max-w-2xl mx-auto overflow-hidden rounded-2xl shadow-xl border border-gray-200">
-              <table className="w-full border-collapse">
+            <div className="w-full max-w-2xl mx-auto overflow-x-auto rounded-2xl shadow-xl border border-gray-200">
+              <table className="w-full border-collapse" style={{ display: "table" }}>
                 <thead>
                   <tr className="bg-[#00114E] text-white">
                     <th className="py-3 px-3 text-left font-bold text-xs sm:text-sm">Feature</th>
@@ -254,7 +295,7 @@ export default function SoftwareFunnelPage() {
               ))}
             </div>
             <div className="flex justify-center mt-8">
-              <a href="#buy" className="animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(14px,2.5vw,28px)", padding: "10px 36px", width: "min(80%,520px)" }}>
+              <a href="/checkout" onClick={handleBuyClick} className="animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(14px,2.5vw,28px)", padding: "10px 36px", width: "min(80%,520px)" }}>
                 🚀 Get All Bonuses FREE — Only ₹249/- 🚀
               </a>
             </div>
@@ -295,7 +336,7 @@ export default function SoftwareFunnelPage() {
               <div className="text-[#afff3d] font-bold text-lg">ONE-TIME PAYMENT — 90% OFF!</div>
               <div className="text-white/70 text-sm mt-3">✅ 15+ Adobe CC Apps &nbsp;|&nbsp; ✅ 8 Free Bonuses &nbsp;|&nbsp; ✅ Lifetime Access</div>
             </div>
-            <a href={PRODUCT_BUY_URL} className="block animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(16px,3vw,34px)", padding: "14px 20px" }}>
+            <a href="/checkout" onClick={handleBuyClick} className="block animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(16px,3vw,34px)", padding: "14px 20px" }}>
               🚀 YES! GET INSTANT ACCESS AT ₹249/- 🚀
             </a>
             <p className="text-white/50 text-xs mt-4">🔒 Secure Checkout &nbsp;|&nbsp; ⚡ Instant Delivery &nbsp;|&nbsp; 🛡️ Support Guaranteed</p>
@@ -319,11 +360,11 @@ export default function SoftwareFunnelPage() {
           </div>
         </section>
 
-<section className="bg-[#00114E] text-white text-center py-12 px-4 text-center">
+        <section className="bg-[#00114E] text-white text-center py-12 px-4 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="font-black mb-4" style={{ fontSize: "clamp(22px,4vw,38px)" }}>Don't Miss This Limited Time Offer!</h2>
             <p className="text-[#00FFFF] mb-6 text-lg">Join 3,929+ professionals who already own the ultimate Adobe bundle.</p>
-            <a href={PRODUCT_BUY_URL} className="inline-block animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(16px,3vw,32px)", padding: "14px 40px" }}>
+            <a href="/checkout" onClick={handleBuyClick} className="inline-block animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_4px_6px_rgba(0,0,0,0.5)] transition-all" style={{ ...BTN_STYLE, animation: undefined, fontSize: "clamp(16px,3vw,32px)", padding: "14px 40px" }}>
               🚀 GET INSTANT ACCESS — ONLY ₹249/- 🚀
             </a>
             <p className="text-white/50 text-xs mt-4">⚡ Instant Access &nbsp;|&nbsp; ✅ Pre-Activated &nbsp;|&nbsp; 🍎 Mac & 🪟 Windows</p>
