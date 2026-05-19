@@ -80,12 +80,20 @@ function ProductCard({ name, img, value, bg = "white" }: { name: string; img?: s
 
 export default function SoftwareFunnelPage() {
   const [products, setProducts] = useState<any[]>([]);
+  const [banner, setBanner] = useState<any>(null);
 
   useEffect(() => {
+    // Fetch products
     fetch("/api/products?all=1").then(r => r.json()).then(d => {
       const list = Array.isArray(d) ? d : (d.products || []);
-      // Filter out the actual bundle product if it's there so it's not listed as a bonus for itself
       setProducts(list.filter((p: any) => p.title && !p.title.toLowerCase().includes("adobe all")));
+    }).catch(() => {});
+
+    // Fetch banners
+    fetch("/api/banners").then(r => r.json()).then(d => {
+      if (Array.isArray(d) && d.length > 0) {
+        setBanner(d[0]); // Use first active banner
+      }
     }).catch(() => {});
   }, []);
 
@@ -116,7 +124,7 @@ export default function SoftwareFunnelPage() {
             </p>
             {/* Adobe Bundle Image */}
             <div className="mx-auto mb-6 rounded-lg overflow-hidden border border-gray-600 shadow-2xl relative" style={{ maxWidth: 800, aspectRatio: "16/9", background: "#111", display: "flex", alignItems: "center", justifyItems: "center" }}>
-               <img src="https://media.licdn.com/dms/image/D4D12AQGg4FhYvYlFwA/article-cover_image-shrink_720_1280/0/1689108390829?e=2147483647&v=beta&t=aI8jVq8vQZ3PZ4b1_O7m9L8-K_rTzJg5nL3x-5Qc4Kk" alt="Adobe All Premium Software Bundle Collection 2026" className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = "https://grabnext.pages.dev/api/placeholder?w=800&h=450&text=Adobe+All+Premium+Collection+2026"; }} />
+               <img src={banner?.imageUrl || "https://media.licdn.com/dms/image/D4D12AQGg4FhYvYlFwA/article-cover_image-shrink_720_1280/0/1689108390829?e=2147483647&v=beta&t=aI8jVq8vQZ3PZ4b1_O7m9L8-K_rTzJg5nL3x-5Qc4Kk"} alt="Adobe All Premium Software Bundle Collection 2026" className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = "https://grabnext.pages.dev/api/placeholder?w=800&h=450&text=Adobe+All+Premium+Collection+2026"; }} />
                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-center pb-4">
                   <span className="bg-red-600 text-white font-bold px-4 py-1 rounded-full text-sm shadow-lg">⚡ Instant Download Included</span>
                </div>
@@ -196,10 +204,10 @@ export default function SoftwareFunnelPage() {
 
         {/* ── 7. COMPARISON TABLE ── */}
         <section className="py-12 px-4 bg-gray-50">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             <h2 className="text-center font-black text-3xl text-gray-800 mb-8">Grabnext vs. Adobe Subscription</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full rounded-2xl overflow-hidden shadow-lg">
+            <div className="overflow-x-auto w-full pb-4">
+              <table className="w-full min-w-[600px] rounded-2xl overflow-hidden shadow-lg mx-auto">
                 <thead>
                   <tr className="bg-[#00114E] text-white">
                     <th className="py-3 px-4 text-left font-bold">Feature</th>
