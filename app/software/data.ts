@@ -12,9 +12,9 @@ export const INCLUDED_SOFTWARE = [
   { name: "Adobe Audition 2026", logo: "https://img.icons8.com/color/96/adobe-audition--v1.png" },
   { name: "Adobe Animate 2026", logo: "https://img.icons8.com/color/96/adobe-animate--v1.png" },
   { name: "Adobe Dreamweaver", logo: "https://img.icons8.com/color/96/adobe-dreamweaver--v1.png" },
-  { name: "Adobe Media Encoder", logo: "https://grabnext.pages.dev/api/placeholder?w=96&h=96&text=Me" },
-  { name: "Adobe Character Animator", logo: "https://grabnext.pages.dev/api/placeholder?w=96&h=96&text=Ch" },
-  { name: "Adobe InCopy", logo: "https://grabnext.pages.dev/api/placeholder?w=96&h=96&text=Ic" },
+  { name: "Adobe Media Encoder", logo: "https://img.icons8.com/color/96/adobe-media-encoder.png" },
+  { name: "Adobe Character Animator", logo: "/adobe/character-animator.svg" },
+  { name: "Adobe InCopy", logo: "/adobe/incopy.svg" },
   { name: "Adobe Bridge", logo: "https://img.icons8.com/color/96/adobe-bridge--v1.png" },
 ];
 

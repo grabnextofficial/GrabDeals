@@ -206,30 +206,30 @@ export default function SoftwareFunnelPage() {
         <section className="py-12 px-4 bg-gray-50">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-center font-black text-3xl text-gray-800 mb-8">Grabnext vs. Adobe Subscription</h2>
-            <div className="overflow-x-auto w-full pb-4">
-              <table className="w-full min-w-[600px] rounded-2xl overflow-hidden shadow-lg mx-auto">
+            <div className="w-full max-w-2xl mx-auto overflow-hidden rounded-2xl shadow-xl border border-gray-200">
+              <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-[#00114E] text-white">
-                    <th className="py-3 px-4 text-left font-bold">Feature</th>
-                    <th className="py-3 px-4 text-center font-bold text-[#afff3d]">Grabnext Bundle</th>
-                    <th className="py-3 px-4 text-center font-bold text-red-300">Adobe Official</th>
+                    <th className="py-3 px-3 text-left font-bold text-xs sm:text-sm">Feature</th>
+                    <th className="py-3 px-3 text-center font-bold text-[#afff3d] text-xs sm:text-sm">Grabnext Bundle</th>
+                    <th className="py-3 px-3 text-center font-bold text-red-300 text-xs sm:text-sm">Adobe Official</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white">
                   {[
-                    ["Price", "₹249 One-Time", "₹5,500/month"],
+                    ["Price", "₹249 Once", "₹5,500/mo"],
                     ["All 15+ Apps", "✅ Yes", "✅ Yes"],
-                    ["Pre-Activated", "✅ Instant", "❌ Subscription Required"],
-                    ["Lifetime Access", "✅ Forever", "❌ Monthly Renewal"],
+                    ["Pre-Activated", "✅ Instant", "❌ Sub Required"],
+                    ["Lifetime Access", "✅ Lifetime", "❌ Monthly Fee"],
                     ["Windows & Mac", "✅ Both", "✅ Both"],
                     ["M1/M2/M3/M4 Support", "✅ Yes", "✅ Yes"],
-                    ["Instant Download", "✅ Seconds", "⏳ Slow Install"],
-                    ["Total Cost/Year", "₹249 (ONCE!)", "₹66,000+/year"],
+                    ["Instant Download", "✅ Instant", "⏳ Slow Install"],
+                    ["Total Cost/Year", "₹249 (Total)", "₹66,000+/yr"],
                   ].map(([feat, g, a], i) => (
-                    <tr key={feat} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                      <td className="py-3 px-4 text-gray-700 font-medium text-sm">{feat}</td>
-                      <td className="py-3 px-4 text-center text-green-600 font-bold text-sm">{g}</td>
-                      <td className="py-3 px-4 text-center text-red-500 text-sm">{a}</td>
+                    <tr key={feat} className={`${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"} border-t border-gray-100 hover:bg-blue-50/20 transition-colors`}>
+                      <td className="py-2.5 px-3 text-gray-700 font-semibold text-[11px] sm:text-sm">{feat}</td>
+                      <td className="py-2.5 px-3 text-center text-green-600 font-bold text-[11px] sm:text-sm">{g}</td>
+                      <td className="py-2.5 px-3 text-center text-red-500 font-medium text-[11px] sm:text-sm">{a}</td>
                     </tr>
                   ))}
                 </tbody>
