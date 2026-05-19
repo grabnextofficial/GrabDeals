@@ -92,7 +92,6 @@ export default function SoftwareFunnelPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
         @keyframes animatedgradient {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
