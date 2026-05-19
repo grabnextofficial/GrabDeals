@@ -261,13 +261,158 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 /* Product image card */
 function ProductCard({ name, img, value, bg = "white" }: { name: string; img?: string; value?: string; bg?: string }) {
+  const [imageError, setImageError] = useState(false);
+
+  // Helper to extract brand initials and colors dynamically matching Adobe's branding
+  const getInitialsAndColors = (appName: string) => {
+    const clean = appName.replace("Adobe ", "").replace(" Studio", "").replace(" Pro", "").trim();
+    let initials = "";
+    const parts = clean.split(" ");
+    
+    if (parts.length >= 2) {
+      initials = parts[0][0] + (parts[1][0] || "");
+    } else if (clean.length >= 2) {
+      initials = clean.substring(0, 2);
+    } else {
+      initials = clean;
+    }
+    // E.g., Ps, Ai, Pr, Ae, Ch, Ic, etc.
+    initials = initials.charAt(0).toUpperCase() + initials.slice(1).toLowerCase();
+
+    // Default dark slate background
+    let bgGradient = "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)";
+    let textColor = "#ffffff";
+    let borderColor = "#ffffff20";
+
+    const nameLower = appName.toLowerCase();
+    if (nameLower.includes("photoshop")) {
+      bgGradient = "linear-gradient(135deg, #001c3a 0%, #002d5c 100%)";
+      textColor = "#31a8ff";
+      borderColor = "#31a8ff50";
+      initials = "Ps";
+    } else if (nameLower.includes("illustrator")) {
+      bgGradient = "linear-gradient(135deg, #331b00 0%, #542d00 100%)";
+      textColor = "#ff9a00";
+      borderColor = "#ff9a0050";
+      initials = "Ai";
+    } else if (nameLower.includes("premiere")) {
+      bgGradient = "linear-gradient(135deg, #220033 0%, #3e005c 100%)";
+      textColor = "#ea77ff";
+      borderColor = "#ea77ff50";
+      initials = "Pr";
+    } else if (nameLower.includes("after effects")) {
+      bgGradient = "linear-gradient(135deg, #1d0033 0%, #32005c 100%)";
+      textColor = "#d291ff";
+      borderColor = "#d291ff50";
+      initials = "Ae";
+    } else if (nameLower.includes("acrobat")) {
+      bgGradient = "linear-gradient(135deg, #380000 0%, #5c0000 100%)";
+      textColor = "#ff4d4d";
+      borderColor = "#ff4d4d50";
+      initials = "Ac";
+    } else if (nameLower.includes("indesign")) {
+      bgGradient = "linear-gradient(135deg, #330018 0%, #540028 100%)";
+      textColor = "#ff55b8";
+      borderColor = "#ff55b850";
+      initials = "Id";
+    } else if (nameLower.includes("lightroom")) {
+      bgGradient = "linear-gradient(135deg, #002b33 0%, #004754 100%)";
+      textColor = "#3be2ff";
+      borderColor = "#3be2ff50";
+      initials = "Lr";
+    } else if (nameLower.includes("xd")) {
+      bgGradient = "linear-gradient(135deg, #330026 0%, #54003f 100%)";
+      textColor = "#ff61d5";
+      borderColor = "#ff61d550";
+      initials = "Xd";
+    } else if (nameLower.includes("audition")) {
+      bgGradient = "linear-gradient(135deg, #003328 0%, #005442 100%)";
+      textColor = "#00e5ba";
+      borderColor = "#00e5ba50";
+      initials = "Au";
+    } else if (nameLower.includes("animate")) {
+      bgGradient = "linear-gradient(135deg, #3d0500 0%, #5c0800 100%)";
+      textColor = "#ff4f38";
+      borderColor = "#ff4f3850";
+      initials = "An";
+    } else if (nameLower.includes("dreamweaver")) {
+      bgGradient = "linear-gradient(135deg, #2b3300 0%, #455400 100%)";
+      textColor = "#d4ff00";
+      borderColor = "#d4ff0050";
+      initials = "Dw";
+    } else if (nameLower.includes("media encoder")) {
+      bgGradient = "linear-gradient(135deg, #1c002b 0%, #2f0047 100%)";
+      textColor = "#bc6eff";
+      borderColor = "#bc6eff50";
+      initials = "Me";
+    } else if (nameLower.includes("character animator")) {
+      bgGradient = "linear-gradient(135deg, #0b1a3d 0%, #112d69 100%)";
+      textColor = "#5eb3ff";
+      borderColor = "#5eb3ff50";
+      initials = "Ch";
+    } else if (nameLower.includes("incopy")) {
+      bgGradient = "linear-gradient(135deg, #380720 0%, #5c0d35 100%)";
+      textColor = "#ff57b2";
+      borderColor = "#ff57b250";
+      initials = "Ic";
+    } else if (nameLower.includes("substance")) {
+      bgGradient = "linear-gradient(135deg, #0b221e 0%, #153f38 100%)";
+      textColor = "#3be5c4";
+      borderColor = "#3be5c450";
+      initials = "Sa";
+    } else if (nameLower.includes("bridge")) {
+      bgGradient = "linear-gradient(135deg, #332400 0%, #543b00 100%)";
+      textColor = "#ffbe1a";
+      borderColor = "#ffbe1a50";
+      initials = "Br";
+    } else if (nameLower.includes("resolve")) {
+      bgGradient = "linear-gradient(135deg, #0a0f1d 0%, #111a2e 100%)";
+      textColor = "#3b82f6";
+      borderColor = "#3b82f640";
+      initials = "Dr";
+    } else if (nameLower.includes("elements")) {
+      bgGradient = "linear-gradient(135deg, #1c002b 0%, #2f0047 100%)";
+      textColor = "#bc6eff";
+      borderColor = "#bc6eff40";
+      initials = "El";
+    } else if (nameLower.includes("winrar")) {
+      bgGradient = "linear-gradient(135deg, #1b3d1b 0%, #2e692e 100%)";
+      textColor = "#a3ffa3";
+      borderColor = "#a3ffa340";
+      initials = "Wr";
+    } else if (nameLower.includes("vhs")) {
+      bgGradient = "linear-gradient(135deg, #1a1a1a 0%, #333333 100%)";
+      textColor = "#ffffff";
+      borderColor = "#ffffff30";
+      initials = "Vs";
+    }
+
+    return { initials, bgGradient, textColor, borderColor };
+  };
+
+  const { initials, bgGradient, textColor, borderColor } = getInitialsAndColors(name);
+
   return (
     <div className="flex flex-col items-center text-center rounded-xl overflow-hidden border border-gray-150 transition-transform duration-200 hover:-translate-y-0.5" style={{ background: bg, boxShadow: "0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04)", padding: 8 }}>
       <div className="w-full aspect-square relative overflow-hidden rounded-lg bg-gray-50 flex items-center justify-center">
-        {img ? (
-          <img src={img} alt={name} className="w-full h-full object-contain p-2" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+        {img && !imageError ? (
+          <img 
+            src={img} 
+            alt={name} 
+            className="w-full h-full object-contain p-2" 
+            onError={() => setImageError(true)} 
+          />
         ) : (
-          <span className="text-4xl text-blue-600 font-bold">{name.split(" ")[0]}</span>
+          <div 
+            className="w-16 h-16 rounded-xl flex items-center justify-center border font-black text-2xl tracking-tight select-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]"
+            style={{ 
+              background: bgGradient, 
+              color: textColor, 
+              borderColor: borderColor
+            }}
+          >
+            {initials}
+          </div>
         )}
       </div>
       <p className="text-gray-900 font-extrabold mt-2 text-xs sm:text-sm leading-tight px-1" style={{ fontFamily: "Poppins, sans-serif" }}>{name}</p>
@@ -435,44 +580,44 @@ export default function SoftwareFunnelPage() {
           </div>
         </section>
 
-        {/* ── 6. SPECIAL LAUNCH OFFER BONUSES (Deep Navy Blue Theme) ── */}
-        <section className="bg-[#000d3b] py-16 px-4 text-white">
+        {/* ── 6. SPECIAL LAUNCH OFFER BONUSES (Light-Themed Premium Section) ── */}
+        <section className="bg-gradient-to-b from-slate-50 via-slate-100 to-white py-16 px-4 text-slate-800 border-y border-slate-200">
           <div className="max-w-6xl mx-auto">
             {/* Main Header */}
             <div className="text-center mb-14">
               <span className="bg-yellow-400 text-black px-5 py-2 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider shadow-lg">
                 💥 Special Launch Offer Bonuses
               </span>
-              <h2 className="font-black mt-5 text-white" style={{ fontSize: "clamp(26px,4vw,44px)", fontFamily: "Poppins, sans-serif", lineHeight: 1.25 }}>
-                🎁 Get the Ultimate Graphic Designing Bundle & Video Editing Bundle For FREE!
+              <h2 className="font-black mt-5 text-[#FF3E3E]" style={{ fontSize: "clamp(26px,4vw,44px)", fontFamily: "Poppins, sans-serif", lineHeight: 1.25 }}>
+                🎁 Get the Ultimate Graphic Designing Bundle & Video Editing Bundle For <span className="bg-yellow-400 text-black px-4 py-1.5 rounded-xl inline-block transform hover:scale-105 transition-transform shadow-[0px_4px_10px_rgba(255,200,0,0.4)] border border-yellow-500 uppercase tracking-widest text-[1.05em] font-extrabold rotate-[-1deg] ml-2">FREE!</span>
               </h2>
-              <p className="text-[#00FFFF] max-w-3xl mx-auto mt-4 text-base sm:text-lg font-bold" style={{ fontFamily: "Poppins, sans-serif" }}>
-                Claim lifetime access to over ₹34,999 worth of premium editing presets, vector files, video courses, and templates when you buy the Adobe CC Bundle today.
+              <p className="text-slate-650 max-w-3xl mx-auto mt-5 text-base sm:text-lg font-extrabold" style={{ fontFamily: "Poppins, sans-serif" }}>
+                Claim lifetime access to over <span className="text-red-650 font-black">₹34,999</span> worth of premium editing presets, vector files, video courses, and templates when you buy the Adobe CC Bundle today.
               </p>
             </div>
 
             {/* Spotlight Bonus 1: Graphic Designing Bundle (800+ GB Plan) */}
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-10 mb-10 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-green-600 text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10 border-l border-b border-white/15">
+            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-10 mb-10 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-green-600 text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10 border-l border-b border-slate-200/30">
                 Bonus #1 Included
               </div>
               <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
                 {/* Left: Box Mockup */}
                 <div className="md:col-span-5 flex flex-col items-center">
                   <div className="relative group max-w-[310px] w-full">
-                    <div className="absolute -inset-1.5 bg-gradient-to-r from-yellow-400 to-[#afff3d] rounded-2xl blur opacity-25 group-hover:opacity-45 transition duration-500"></div>
-                    <div className="relative bg-[#00114E] rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+                    <div className="absolute -inset-1.5 bg-gradient-to-r from-yellow-400 to-green-400 rounded-2xl blur opacity-25 group-hover:opacity-45 transition duration-500"></div>
+                    <div className="relative bg-slate-900 rounded-2xl overflow-hidden shadow-xl border border-slate-200">
                       <img src="/images/graphic-bundle-675gb.png" alt="675 GB Graphics Bundle Box Mockup" className="w-full h-auto object-cover transform hover:scale-103 transition-transform duration-300" />
                     </div>
                   </div>
-                  <span className="text-xs text-white/60 mt-3 font-extrabold uppercase tracking-wider">
+                  <span className="text-xs text-slate-500 mt-3 font-extrabold uppercase tracking-wider">
                     800+ GB Plan Graphic Designing Bundle
                   </span>
                 </div>
 
                 {/* Right: Asset List */}
                 <div className="md:col-span-7">
-                  <h3 className="text-2xl font-black text-[#afff3d] mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>
+                  <h3 className="text-2xl font-black text-emerald-700 mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>
                     Ultimate Graphic Designing Bundle (800+ GB Plan)
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
@@ -490,22 +635,22 @@ export default function SoftwareFunnelPage() {
                       "Sales Scripts Pack (Email, LinkedIn, Instagram DM, Pitching Scripts)",
                       "Social Media Calendar, Digital V-Cards & Clip Art"
                     ].map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-sm text-white/90">
-                        <span className="text-green-400 font-extrabold shrink-0">✓</span>
+                      <div key={idx} className="flex items-start gap-2 text-sm text-slate-700">
+                        <span className="text-green-600 font-extrabold shrink-0">✓</span>
                         <span className="font-bold">{item}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* Access Instructions */}
-                  <div className="bg-yellow-400/10 border border-yellow-400/25 rounded-2xl p-4 flex gap-3 text-white">
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 text-amber-900">
                     <span className="text-2xl shrink-0">ℹ️</span>
                     <div>
-                      <p className="text-xs font-black uppercase text-yellow-400 tracking-wider mb-1">
+                      <p className="text-xs font-black uppercase text-amber-800 tracking-wider mb-1">
                         How to Access Your Graphic Bundle
                       </p>
-                      <p className="text-xs leading-relaxed text-white/80 font-medium">
-                        Download link for the Ultimate Graphic Designing Bundle is sent directly to your <strong className="text-white font-bold">email invoice</strong> immediately post-payment. Simply click <strong className="text-yellow-400 font-bold">“Click here to Download Graphic designing Bundle”</strong> on the invoice you receive.
+                      <p className="text-xs leading-relaxed text-amber-900 font-bold">
+                        Download link for the Ultimate Graphic Designing Bundle is sent directly to your <strong className="text-amber-950 font-black">email invoice</strong> immediately post-payment. Simply click <strong className="text-amber-850 font-black">“Click here to Download Graphic designing Bundle”</strong> on the invoice you receive.
                       </p>
                     </div>
                   </div>
@@ -514,19 +659,19 @@ export default function SoftwareFunnelPage() {
             </div>
 
             {/* Spotlight Bonus 2: Video Editing Bundle (Detailed Grid with Images) */}
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-10 mb-14 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-green-600 text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10 border-l border-b border-white/15">
+            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-10 mb-14 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-green-600 text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10 border-l border-b border-slate-200/30">
                 Bonus #2 Included
               </div>
               
               <div className="text-center md:text-left mb-8">
-                <span className="text-xs font-bold text-[#afff3d] uppercase tracking-wider block mb-1">
+                <span className="text-xs font-black text-green-600 uppercase tracking-wider block mb-1">
                   Premium Bonus Addition
                 </span>
-                <h3 className="text-3xl font-black text-white" style={{ fontFamily: "Poppins, sans-serif" }}>
+                <h3 className="text-3xl font-black text-slate-900" style={{ fontFamily: "Poppins, sans-serif" }}>
                   Mega Video Editing Assets & Courses Bundle
                 </h3>
-                <p className="text-white/70 text-sm sm:text-base mt-2 max-w-3xl font-medium">
+                <p className="text-slate-600 text-sm sm:text-base mt-2 max-w-3xl font-semibold">
                   Stop looking for assets online. Get lifetime access to this ultimate toolkit featuring premium transitions, LUTs, FX presets, overlays, templates, SFX, and full masterclass courses!
                 </p>
               </div>
@@ -534,8 +679,8 @@ export default function SoftwareFunnelPage() {
               {/* Detailed Grid Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
                 {VIDEO_BUNDLE_ITEMS.map((item) => (
-                  <div key={item.name} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden flex flex-col shadow-lg hover:bg-white/10 hover:border-white/20 transition-all duration-300">
-                    <div className="w-full aspect-video bg-black/40 overflow-hidden relative border-b border-white/5">
+                  <div key={item.name} className="bg-white border border-slate-200/85 rounded-2xl overflow-hidden flex flex-col shadow-md hover:shadow-xl hover:border-green-400 transition-all duration-300">
+                    <div className="w-full aspect-video bg-black/10 overflow-hidden relative border-b border-slate-100">
                       <img src={item.img} alt={item.name} className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300" onError={(e) => { (e.target as HTMLImageElement).src = "https://grabnext.pages.dev/api/placeholder?w=400&h=250&text=" + encodeURIComponent(item.name); }} />
                       <div className="absolute top-2 right-2 bg-yellow-400 text-black text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-md">
                         Worth {item.worth}
@@ -543,12 +688,12 @@ export default function SoftwareFunnelPage() {
                     </div>
                     <div className="p-4 flex-1 flex flex-col justify-between">
                       <div>
-                        <h4 className="font-extrabold text-white text-sm leading-snug mb-1">{item.name}</h4>
-                        <p className="text-white/60 text-xs leading-relaxed">{item.desc}</p>
+                        <h4 className="font-extrabold text-slate-800 text-sm leading-snug mb-1">{item.name}</h4>
+                        <p className="text-slate-500 text-xs leading-relaxed font-semibold">{item.desc}</p>
                       </div>
-                      <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-between text-xs font-semibold">
-                        <span className="text-[#afff3d] font-bold">✓ Included FREE</span>
-                        <span className="text-white/40 line-through">{item.worth}</span>
+                      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold">
+                        <span className="text-green-600 font-extrabold">✓ Included FREE</span>
+                        <span className="text-slate-400 line-through font-bold">{item.worth}</span>
                       </div>
                     </div>
                   </div>
@@ -556,13 +701,13 @@ export default function SoftwareFunnelPage() {
               </div>
 
               {/* Access Instructions for Video Bundle */}
-              <div className="bg-yellow-400/10 border border-yellow-400/25 rounded-2xl p-5 flex gap-3 text-white">
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex gap-3 text-amber-950">
                 <span className="text-2xl shrink-0">ℹ️</span>
                 <div>
-                  <p className="text-xs font-black uppercase text-yellow-400 tracking-wider mb-1">
+                  <p className="text-xs font-black uppercase text-amber-800 tracking-wider mb-1">
                     How to Access Your Video Editing Bundle
                   </p>
-                  <p className="text-xs leading-relaxed text-white/80 font-medium">
+                  <p className="text-xs leading-relaxed text-amber-900 font-bold">
                     The full direct high-speed download link for the Video Editing Bundle is embedded securely inside your post-checkout PDF invoice. You can download all collections with a single click instantly after completing the purchase.
                   </p>
                 </div>
@@ -572,10 +717,10 @@ export default function SoftwareFunnelPage() {
             {/* 11 Mega Creative Collections Grid */}
             <div className="mb-14">
               <div className="text-center mb-8">
-                <h3 className="text-2xl font-black text-white" style={{ fontFamily: "Poppins, sans-serif" }}>
+                <h3 className="text-2xl font-black text-slate-900" style={{ fontFamily: "Poppins, sans-serif" }}>
                   11 Mega Creative Collections Included
                 </h3>
-                <p className="text-white/60 text-xs sm:text-sm mt-1">
+                <p className="text-slate-550 text-xs sm:text-sm mt-1 font-bold">
                   Ready-to-use project assets, templates, and libraries to speed up your workflow.
                 </p>
               </div>
@@ -593,14 +738,14 @@ export default function SoftwareFunnelPage() {
                   { num: "10", name: "Adobe InDesign Collection", desc: "Books, magazines, resumes, and brochures layouts." },
                   { num: "11", name: "PowerPoint Collection", desc: "Slide decks, pitch templates, and business presentations." }
                 ].map((col) => (
-                  <div key={col.num} className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors shadow-lg">
-                    <span className="text-xs font-bold text-[#afff3d] uppercase tracking-wider block mb-1">
+                  <div key={col.num} className="bg-white border border-slate-200 rounded-2xl p-5 hover:border-green-400 hover:shadow-lg transition-all shadow-md">
+                    <span className="text-xs font-black text-green-600 uppercase tracking-wider block mb-1">
                       Collection {col.num}
                     </span>
-                    <h4 className="font-extrabold text-white text-sm mb-1.5" style={{ fontFamily: "Poppins, sans-serif" }}>
+                    <h4 className="font-extrabold text-slate-800 text-sm mb-1.5" style={{ fontFamily: "Poppins, sans-serif" }}>
                       {col.name}
                     </h4>
-                    <p className="text-white/60 text-xs leading-relaxed">
+                    <p className="text-slate-600 text-xs leading-relaxed font-semibold">
                       {col.desc}
                     </p>
                   </div>
@@ -610,8 +755,8 @@ export default function SoftwareFunnelPage() {
 
             {/* Live Store Products secondary list */}
             {products.length > 0 && (
-              <div className="border-t border-white/10 pt-10">
-                <h4 className="text-center font-bold text-white mb-6 text-sm sm:text-base uppercase tracking-wide">
+              <div className="border-t border-slate-200 pt-10">
+                <h4 className="text-center font-black text-slate-800 mb-6 text-sm sm:text-base uppercase tracking-wide">
                   🎁 Plus, Get All These Active Products from Our Catalog Free!
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
