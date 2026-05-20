@@ -839,28 +839,32 @@ export default function SoftwareFunnelPage() {
                 </p>
               </div>
               
-              {/* Two Column Layout list with Green Checkmarks */}
+              {/* Two Column Layout list with Green Checkmarks and Images */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto relative z-10">
                 {[
-                  { num: "01", name: "Photoshop Collection", desc: "Premium brushes, actions, overlays, shapes, and tools." },
-                  { num: "02", name: "Corel Draw Collection", desc: "Vector CDR files, designs, visiting cards, and letterheads." },
-                  { num: "03", name: "Logos", desc: "10,000+ high-quality customizable logo templates." },
-                  { num: "04", name: "Fonts", desc: "5,000+ premium localized and corporate font families." },
-                  { num: "05", name: "Mockups", desc: "T-shirts, packaging, apparel, and branding templates." },
-                  { num: "06", name: "PNG Images Collection", desc: "High-definition transparent assets for quick compositing." },
-                  { num: "07", name: "Adobe Illustrator Collection", desc: "AI files, vectors, background patterns, and assets." },
-                  { num: "08", name: "Adobe Premiere Collection", desc: "Transitions, title cards, overlays, and color LUTs." },
-                  { num: "09", name: "Adobe After Effects Collection", desc: "Video templates, intro animations, and sound effects." },
-                  { num: "10", name: "Adobe InDesign Collection", desc: "Books, magazines, resumes, and brochures layouts." },
-                  { num: "11", name: "PowerPoint Collection", desc: "Slide decks, pitch templates, and business presentations." }
+                  { num: "01", name: "Photoshop Collection", desc: "Premium brushes, actions, overlays, shapes, and tools.", img: "https://images.unsplash.com/photo-1572044162444-ad60f128bdea?w=400&q=80" },
+                  { num: "02", name: "Corel Draw Collection", desc: "Vector CDR files, designs, visiting cards, and letterheads.", img: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=400&q=80" },
+                  { num: "03", name: "Logos", desc: "10,000+ high-quality customizable logo templates.", img: "https://images.unsplash.com/photo-1627398225056-f3a48ff98e21?w=400&q=80" },
+                  { num: "04", name: "Fonts", desc: "5,000+ premium localized and corporate font families.", img: "https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?w=400&q=80" },
+                  { num: "05", name: "Mockups", desc: "T-shirts, packaging, apparel, and branding templates.", img: "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=400&q=80" },
+                  { num: "06", name: "PNG Images Collection", desc: "High-definition transparent assets for quick compositing.", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80" },
+                  { num: "07", name: "Adobe Illustrator Collection", desc: "AI files, vectors, background patterns, and assets.", img: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&q=80" },
+                  { num: "08", name: "Adobe Premiere Collection", desc: "Transitions, title cards, overlays, and color LUTs.", img: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400&q=80" },
+                  { num: "09", name: "Adobe After Effects Collection", desc: "Video templates, intro animations, and sound effects.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80" },
+                  { num: "10", name: "Adobe InDesign Collection", desc: "Books, magazines, resumes, and brochures layouts.", img: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&q=80" },
+                  { num: "11", name: "PowerPoint Collection", desc: "Slide decks, pitch templates, and business presentations.", img: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&q=80" }
                 ].map((col) => (
-                  <div key={col.num} className="bg-[#070f35] border border-white/10 rounded-2xl p-5 hover:border-green-400 hover:shadow-xl transition-all shadow-lg flex items-start gap-4">
-                    <span className="text-[#05FF00] font-black text-xl shrink-0 mt-0.5">✓</span>
-                    <div>
-                      <h4 className="font-extrabold text-white text-base sm:text-[17px] mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>
-                        Collection {col.num}: {col.name}
+                  <div key={col.num} className="bg-[#070f35] border border-white/10 rounded-2xl p-4 hover:border-green-400 hover:shadow-[0_0_15px_rgba(5,255,0,0.2)] transition-all shadow-lg flex items-center gap-4 group">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border-2 border-white/10 group-hover:border-[#05FF00] transition-colors relative">
+                      <img src={col.img} alt={col.name} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-extrabold text-white text-base sm:text-[17px] mb-1 flex items-center gap-2" style={{ fontFamily: "Poppins, sans-serif" }}>
+                        <span className="text-[#05FF00] font-black text-lg">✓</span>
+                        {col.name}
                       </h4>
-                      <p className="text-white/70 text-sm leading-relaxed font-semibold">
+                      <p className="text-white/70 text-xs sm:text-sm leading-relaxed font-semibold">
                         {col.desc}
                       </p>
                     </div>
