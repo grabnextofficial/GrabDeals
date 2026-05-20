@@ -4,7 +4,6 @@ import { PRODUCT_BUY_URL, INCLUDED_SOFTWARE, TESTIMONIALS, FAQS, FEATURES } from
 import { useCart } from "@/contexts/cart-context";
 import { useRouter } from "next/navigation";
 import { trackAddToCart } from "@/lib/pixel";
-import { SimulatedChatPopup } from "@/components/simulated-chat-popup";
 
 /* ── Animated CTA Button (matches Elementor .btn class) ── */
 const BTN_STYLE: React.CSSProperties = {
@@ -566,6 +565,108 @@ export default function SoftwareFunnelPage() {
           </div>
         </section>
 
+        {/* ── 10. PRICING / BUY (High Converting White Theme) ── */}
+        <section id="buy" className="bg-white py-16 px-4 border-t border-gray-150 text-center">
+          <div className="max-w-4xl mx-auto flex flex-col items-center">
+            
+            {/* Main Headline */}
+            <h2 className="font-black text-gray-900 leading-tight mb-3" style={{ fontSize: "clamp(26px,4.5vw,42px)", fontFamily: "Poppins, sans-serif" }}>
+              Download, Install And Thanks Me Later As You'll Find It <span className="text-[#FF0000] block sm:inline">Value For Time And Money</span>
+            </h2>
+            
+            {/* Sub-headline */}
+            <p className="text-gray-600 text-sm sm:text-base font-extrabold mb-8 max-w-3xl" style={{ fontFamily: "Poppins, sans-serif" }}>
+              Get Lifetime Access To Done-For-You Premium Adobe CC Bundle & 8 Mega Bonuses With High-Speed Direct Downloads
+            </p>
+
+            {/* Offer Tier Details */}
+            <div className="flex flex-col items-center gap-1.5 mb-6 text-gray-900" style={{ fontFamily: "Poppins, sans-serif" }}>
+              <div className="text-lg sm:text-xl font-black uppercase tracking-wide text-gray-900">
+                Launch Offer : <span className="text-green-600">90% OFF</span>
+              </div>
+              <div className="text-base sm:text-lg font-bold text-gray-400 line-through">
+                General Price : ₹24,651/-
+              </div>
+              <div className="text-base sm:text-lg font-bold text-red-500 line-through">
+                Offer Price : ₹3,999/-
+              </div>
+              <div className="font-black text-[#22c55e] tracking-tight mt-2 animate-pulse" style={{ fontSize: "clamp(38px,7vw,60px)", lineHeight: 1.1 }}>
+                Today Only : ₹249/-
+              </div>
+            </div>
+
+            {/* Dashed Rating Badge */}
+            <div className="inline-flex items-center gap-2 border border-dashed border-gray-300 rounded-xl px-4 py-2 bg-gray-50 mb-8 shadow-sm">
+              <span className="text-yellow-400 text-sm sm:text-base flex select-none">⭐⭐⭐⭐⭐</span>
+              <span className="text-gray-700 font-extrabold text-xs sm:text-sm">Rating: 4.9 | 3426 Reviews</span>
+            </div>
+
+            {/* Giant Green CTA Button */}
+            <button 
+              onClick={handleBuyClick} 
+              className="w-full max-w-xl bg-[#00c853] hover:bg-[#00b24a] text-white font-black text-lg sm:text-2xl py-4 px-6 rounded-2xl shadow-[0_8px_25px_rgba(0,200,83,0.35)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 text-center uppercase tracking-wide animate-shake-cta"
+              style={{ fontFamily: "Poppins, sans-serif" }}
+            >
+              Yes, I Want The Adobe All Premium Bundle
+            </button>
+
+            {/* Urgency */}
+            <p className="text-gray-500 text-xs sm:text-sm font-extrabold mt-4 flex items-center justify-center gap-1">
+              ⏰ Limited Time Offer Price Will Increase Soon
+            </p>
+
+            {/* Payment Logos Row */}
+            <div className="flex flex-wrap items-center justify-center gap-5 mt-6 opacity-80 hover:opacity-100 transition-opacity">
+              {/* WhatsApp Pay Icon */}
+              <div className="flex items-center gap-1 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
+                <svg className="w-4 h-4 fill-[#25D366]" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.248 8.477 3.517 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.5-5.781-1.455L0 24zm6.335-1.662c1.596.947 3.551 1.448 5.616 1.449h.006c5.824 0 10.563-4.73 10.566-10.546a10.5 10.5 0 00-3.102-7.466 10.547 10.547 0 00-7.481-3.095c-5.824 0-10.564 4.73-10.567 10.546a10.43 10.43 0 001.488 5.168l-.974 3.559 3.644-.956z"/></svg>
+                <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">WhatsApp</span>
+              </div>
+              {/* BHIM Pay Icon */}
+              <div className="flex items-center gap-1 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
+                <span className="text-[10px] font-black text-gray-700 tracking-wider">BHIM</span>
+                <span className="w-1.5 h-3.5 bg-orange-500 transform rotate-12 inline-block rounded-xs"></span>
+                <span className="w-1.5 h-3.5 bg-green-500 transform rotate-12 inline-block rounded-xs"></span>
+              </div>
+              {/* Google Pay Icon */}
+              <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
+                <span className="text-[10px] font-black text-gray-600 tracking-wider flex items-center gap-1">
+                  <span className="text-blue-500">G</span>
+                  <span className="text-red-500">P</span>
+                  <span className="text-yellow-500">a</span>
+                  <span className="text-green-500">y</span>
+                </span>
+              </div>
+              {/* PhonePe Icon */}
+              <div className="flex items-center gap-1 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
+                <span className="w-3.5 h-3.5 bg-purple-600 rounded flex items-center justify-center text-white text-[8px] font-black">₹</span>
+                <span className="text-[10px] font-black text-purple-700 tracking-wider">PhonePe</span>
+              </div>
+              {/* Amazon Pay Icon */}
+              <div className="flex items-center gap-1 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
+                <span className="text-[10px] font-black text-gray-800 tracking-wider">amazon</span>
+                <span className="text-[10px] font-black text-amber-500 tracking-wider">pay</span>
+              </div>
+              {/* Paytm Icon */}
+              <div className="flex items-center gap-1 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
+                <span className="text-[10px] font-black text-blue-600 tracking-wider">paytm</span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ── 11. GUARANTEE (Selective green details) ── */}
+        <section className="bg-white py-12 px-4 border-b border-gray-150">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="text-6xl mb-4">🛡️</div>
+            <h2 className="font-black text-2xl text-gray-800 mb-3">100% Installation Support Guaranteed</h2>
+            <p className="text-gray-600 leading-relaxed font-bold text-sm sm:text-base">
+              If you face any issues during installation or the software doesn't work as described, our expert support team will help you resolve it — for free. <span className="text-green-600">Your satisfaction is our No.1 priority.</span> We've helped 3,929+ customers successfully!
+            </p>
+          </div>
+        </section>
+
         {/* ── 5. ALL SOFTWARE INCLUDED (Checklist with green highlights) ── */}
         <section className="py-14 px-4 bg-gray-55 border-y border-gray-200">
           <div className="max-w-5xl mx-auto">
@@ -865,108 +966,6 @@ export default function SoftwareFunnelPage() {
           </div>
         </section>
 
-        {/* ── 10. PRICING / BUY (High Converting White Theme) ── */}
-        <section id="buy" className="bg-white py-16 px-4 border-t border-gray-150 text-center">
-          <div className="max-w-4xl mx-auto flex flex-col items-center">
-            
-            {/* Main Headline */}
-            <h2 className="font-black text-gray-900 leading-tight mb-3" style={{ fontSize: "clamp(26px,4.5vw,42px)", fontFamily: "Poppins, sans-serif" }}>
-              Download, Install And Thanks Me Later As You'll Find It <span className="text-[#FF0000] block sm:inline">Value For Time And Money</span>
-            </h2>
-            
-            {/* Sub-headline */}
-            <p className="text-gray-600 text-sm sm:text-base font-extrabold mb-8 max-w-3xl" style={{ fontFamily: "Poppins, sans-serif" }}>
-              Get Lifetime Access To Done-For-You Premium Adobe CC Bundle & 8 Mega Bonuses With High-Speed Direct Downloads
-            </p>
-
-            {/* Offer Tier Details */}
-            <div className="flex flex-col items-center gap-1.5 mb-6 text-gray-900" style={{ fontFamily: "Poppins, sans-serif" }}>
-              <div className="text-lg sm:text-xl font-black uppercase tracking-wide text-gray-900">
-                Launch Offer : <span className="text-green-600">90% OFF</span>
-              </div>
-              <div className="text-base sm:text-lg font-bold text-gray-400 line-through">
-                General Price : ₹24,651/-
-              </div>
-              <div className="text-base sm:text-lg font-bold text-red-500 line-through">
-                Offer Price : ₹3,999/-
-              </div>
-              <div className="font-black text-[#22c55e] tracking-tight mt-2 animate-pulse" style={{ fontSize: "clamp(38px,7vw,60px)", lineHeight: 1.1 }}>
-                Today Only : ₹249/-
-              </div>
-            </div>
-
-            {/* Dashed Rating Badge */}
-            <div className="inline-flex items-center gap-2 border border-dashed border-gray-300 rounded-xl px-4 py-2 bg-gray-50 mb-8 shadow-sm">
-              <span className="text-yellow-400 text-sm sm:text-base flex select-none">⭐⭐⭐⭐⭐</span>
-              <span className="text-gray-700 font-extrabold text-xs sm:text-sm">Rating: 4.9 | 3426 Reviews</span>
-            </div>
-
-            {/* Giant Green CTA Button */}
-            <button 
-              onClick={handleBuyClick} 
-              className="w-full max-w-xl bg-[#00c853] hover:bg-[#00b24a] text-white font-black text-lg sm:text-2xl py-4 px-6 rounded-2xl shadow-[0_8px_25px_rgba(0,200,83,0.35)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 text-center uppercase tracking-wide animate-shake-cta"
-              style={{ fontFamily: "Poppins, sans-serif" }}
-            >
-              Yes, I Want The Adobe All Premium Bundle
-            </button>
-
-            {/* Urgency */}
-            <p className="text-gray-500 text-xs sm:text-sm font-extrabold mt-4 flex items-center justify-center gap-1">
-              ⏰ Limited Time Offer Price Will Increase Soon
-            </p>
-
-            {/* Payment Logos Row */}
-            <div className="flex flex-wrap items-center justify-center gap-5 mt-6 opacity-80 hover:opacity-100 transition-opacity">
-              {/* WhatsApp Pay Icon */}
-              <div className="flex items-center gap-1 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
-                <svg className="w-4 h-4 fill-[#25D366]" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.248 8.477 3.517 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.5-5.781-1.455L0 24zm6.335-1.662c1.596.947 3.551 1.448 5.616 1.449h.006c5.824 0 10.563-4.73 10.566-10.546a10.5 10.5 0 00-3.102-7.466 10.547 10.547 0 00-7.481-3.095c-5.824 0-10.564 4.73-10.567 10.546a10.43 10.43 0 001.488 5.168l-.974 3.559 3.644-.956z"/></svg>
-                <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">WhatsApp</span>
-              </div>
-              {/* BHIM Pay Icon */}
-              <div className="flex items-center gap-1 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
-                <span className="text-[10px] font-black text-gray-700 tracking-wider">BHIM</span>
-                <span className="w-1.5 h-3.5 bg-orange-500 transform rotate-12 inline-block rounded-xs"></span>
-                <span className="w-1.5 h-3.5 bg-green-500 transform rotate-12 inline-block rounded-xs"></span>
-              </div>
-              {/* Google Pay Icon */}
-              <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
-                <span className="text-[10px] font-black text-gray-600 tracking-wider flex items-center gap-1">
-                  <span className="text-blue-500">G</span>
-                  <span className="text-red-500">P</span>
-                  <span className="text-yellow-500">a</span>
-                  <span className="text-green-500">y</span>
-                </span>
-              </div>
-              {/* PhonePe Icon */}
-              <div className="flex items-center gap-1 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
-                <span className="w-3.5 h-3.5 bg-purple-600 rounded flex items-center justify-center text-white text-[8px] font-black">₹</span>
-                <span className="text-[10px] font-black text-purple-700 tracking-wider">PhonePe</span>
-              </div>
-              {/* Amazon Pay Icon */}
-              <div className="flex items-center gap-1 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
-                <span className="text-[10px] font-black text-gray-800 tracking-wider">amazon</span>
-                <span className="text-[10px] font-black text-amber-500 tracking-wider">pay</span>
-              </div>
-              {/* Paytm Icon */}
-              <div className="flex items-center gap-1 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
-                <span className="text-[10px] font-black text-blue-600 tracking-wider">paytm</span>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        {/* ── 11. GUARANTEE (Selective green details) ── */}
-        <section className="bg-white py-12 px-4 border-b border-gray-150">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="text-6xl mb-4">🛡️</div>
-            <h2 className="font-black text-2xl text-gray-800 mb-3">100% Installation Support Guaranteed</h2>
-            <p className="text-gray-600 leading-relaxed font-bold text-sm sm:text-base">
-              If you face any issues during installation or the software doesn't work as described, our expert support team will help you resolve it — for free. <span className="text-green-600">Your satisfaction is our No.1 priority.</span> We've helped 3,929+ customers successfully!
-            </p>
-          </div>
-        </section>
-
         {/* ── 12. FAQ ── */}
         <section className="bg-gray-50 py-14 px-4">
           <div className="max-w-3xl mx-auto">
@@ -1006,8 +1005,6 @@ export default function SoftwareFunnelPage() {
         {/* ── 15. CONVERSION WIDGETS & PLUGINS ── */}
         <StickyCheckoutBar onBuy={handleBuyClick} />
         <WhatsAppWidget />
-        <SimulatedChatPopup />
-
         {/* CSS Animations for sticky bar, shaking button, and pulsing WhatsApp widget */}
         <style dangerouslySetInnerHTML={{ __html: `
           @keyframes slideUp {

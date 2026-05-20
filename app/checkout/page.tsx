@@ -4,28 +4,21 @@ import type React from "react"
 import { useState, useCallback, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { 
-  Lock, Mail, User, Phone, CheckCircle2, Loader2, Package, 
+  Lock, Mail, User, Phone, CheckCircle2, Loader2,
   ShieldCheck, CreditCard, Truck, ArrowLeft, ChevronRight, 
-  Award, ShoppingBag, Shield, Zap 
+  Award, ShoppingBag, Zap, Gift
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { StoreHeader } from "@/components/store-header"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { toast } from "@/hooks/use-toast"
 import Link from "next/link"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { Logo } from "@/components/logo"
 import { trackInitiateCheckout } from "@/lib/pixel"
 
@@ -42,10 +35,8 @@ export default function CheckoutPage() {
   const { user, refreshUser } = useAuth()
   const [loading, setLoading] = useState(false)
   const [activeGateway, setActiveGateway] = useState<string>("xpay")
-  // Prevent duplicate InitiateCheckout fires on the same session
   const hasFiredCheckout = useRef(false)
 
-  // Two-step checkout states
   const [checkoutStep, setCheckoutStep] = useState<1 | 2>(1)
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null)
 
@@ -60,9 +51,9 @@ export default function CheckoutPage() {
     zipCode: "",
     country: "India",
   })
+  
   const isDigitalOnly = items.every(item => item.product.downloadUrl)
 
-  // Load active payment gateway from settings
   useEffect(() => {
     fetch("/api/settings")
       .then((r) => r.json())
@@ -70,7 +61,6 @@ export default function CheckoutPage() {
       .catch(() => setActiveGateway("xpay"))
   }, [])
 
-  // Load Razorpay script when needed
   useEffect(() => {
     if (activeGateway === "razorpay") {
       if (!document.querySelector('script[src*="razorpay"]')) {
@@ -82,7 +72,6 @@ export default function CheckoutPage() {
     }
   }, [activeGateway])
 
-  // Meta Pixel: InitiateCheckout – fire once per checkout session
   useEffect(() => {
     if (totalAmount > 0 && !hasFiredCheckout.current) {
       hasFiredCheckout.current = true
@@ -100,9 +89,8 @@ export default function CheckoutPage() {
         } : undefined
       )
     }
-  }, [totalAmount, items])
+  }, [totalAmount, items, user])
 
-  // Pre-fill from logged-in user
   useEffect(() => {
     if (user) {
       setFormData((f) => ({
@@ -161,17 +149,12 @@ export default function CheckoutPage() {
     return "guest"
   }
 
-  // ─── XPay ────────────────────────────────────────────────────────────
   const handleXPay = (orderId: string) => {
     if (!window.XPay) {
       toast({ title: "Payment system loading, please try again", variant: "destructive" })
       return
     }
-    const orderTitle =
-      items.length === 1
-        ? items[0].product.title
-        : `${items[0].product.title} + ${items.length - 1} more`
-
+    const orderTitle = items.length === 1 ? items[0].product.title : `${items[0].product.title} + ${items.length - 1} more`
     const xpay = new window.XPay({
       api_key: "xp_live_wtm5vj64kseuylg9cfmsl9",
       amount: Math.round(totalAmount),
@@ -180,19 +163,16 @@ export default function CheckoutPage() {
         setLoading(false)
         await updateOrder(orderId, data.utr)
         clearCart()
-        toast({ title: "🎉 Payment Successful!", description: `UTR: ${data.utr}` })
         router.push(`/checkout/success?utr=${data.utr}`)
       },
       onClose: () => {
         setLoading(false)
         router.push(`/dashboard`)
-        toast({ title: "Order Saved", description: "Your order is pending. You can complete payment from your dashboard." })
       },
     })
     xpay.open()
   }
 
-  // ─── Razorpay ────────────────────────────────────────────────────────
   const handleRazorpay = async (orderId: string) => {
     const orderRes = await fetch("/api/razorpay/create-order", {
       method: "POST",
@@ -201,13 +181,13 @@ export default function CheckoutPage() {
     })
     const orderData = await orderRes.json()
     if (!orderData.orderId) {
-      toast({ title: orderData.error || "Failed to create Razorpay order", variant: "destructive" })
+      toast({ title: orderData.error || "Failed to create order", variant: "destructive" })
       setLoading(false)
       return
     }
 
     if (!window.Razorpay) {
-      toast({ title: "Razorpay not loaded, please try again", variant: "destructive" })
+      toast({ title: "Payment gateway not loaded", variant: "destructive" })
       setLoading(false)
       return
     }
@@ -230,14 +210,12 @@ export default function CheckoutPage() {
         const paymentId = response.razorpay_payment_id
         await updateOrder(orderId, paymentId)
         clearCart()
-        toast({ title: "🎉 Payment Successful!", description: `Payment ID: ${paymentId}` })
         router.push(`/checkout/success?utr=${paymentId}`)
       },
       modal: {
         ondismiss: () => {
           setLoading(false)
           router.push(`/dashboard`)
-          toast({ title: "Order Saved", description: "Your order is pending. You can complete payment from your dashboard." })
         },
       },
     }
@@ -248,22 +226,12 @@ export default function CheckoutPage() {
 
   const handleContinueToPayment = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (items.length === 0) {
-      toast({ title: "Your cart is empty", variant: "destructive" })
-      return
-    }
-    if (!formData.email) {
-      toast({ title: "Please enter your email address", variant: "destructive" })
-      return
-    }
-
+    if (items.length === 0) return toast({ title: "Cart is empty", variant: "destructive" })
+    if (!formData.email) return toast({ title: "Email required", variant: "destructive" })
+    
     setLoading(true)
-
     try {
-      // 1. Ensure user is registered/logged in first
       const userId = await getOrCreateUserId()
-
-      // 2. Create a "Pending" order immediately
       const orderRes = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -286,15 +254,11 @@ export default function CheckoutPage() {
       })
 
       const orderData = await orderRes.json()
-      if (!orderData.id) {
-        throw new Error("Failed to initialize order")
-      }
+      if (!orderData.id) throw new Error("Failed to initialize order")
 
       setPendingOrderId(orderData.id)
-      setCheckoutStep(2) // Move to step 2 (Payment UI will auto-open)
-      toast({ title: "Processing Payment...", description: "Securely opening the payment gateway." })
-
-      // Auto-trigger payment gateway immediately
+      setCheckoutStep(2)
+      
       if (activeGateway === "razorpay") {
         await handleRazorpay(orderData.id)
       } else {
@@ -307,10 +271,7 @@ export default function CheckoutPage() {
   }
 
   const handlePayNow = async () => {
-    if (!pendingOrderId) {
-      toast({ title: "Missing order ID, please try again", variant: "destructive" })
-      return
-    }
+    if (!pendingOrderId) return
     setLoading(true)
     try {
       if (activeGateway === "razorpay") {
@@ -324,25 +285,24 @@ export default function CheckoutPage() {
     }
   }
 
-  // Helper component for the progress stepper
   const Stepper = ({ currentStep }: { currentStep: number }) => (
-    <div className="flex items-center justify-between w-full relative">
-      <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gray-100 -translate-y-1/2 z-0" />
-      <div className="absolute top-1/2 left-0 h-[2px] bg-primary -translate-y-1/2 z-0 transition-all duration-500" style={{ width: currentStep === 1 ? '50%' : '100%' }} />
+    <div className="flex items-center justify-between w-full relative max-w-sm mx-auto mb-8">
+      <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gray-200 -translate-y-1/2 z-0" />
+      <div className="absolute top-1/2 left-0 h-[2px] bg-green-500 -translate-y-1/2 z-0 transition-all duration-500" style={{ width: currentStep === 1 ? '50%' : '100%' }} />
       
       {[
-        { step: 1, label: "Information", icon: User },
+        { step: 1, label: "Details", icon: User },
         { step: 2, label: "Payment", icon: CreditCard },
-        { step: 3, label: "Confirmation", icon: CheckCircle2 },
+        { step: 3, label: "Done", icon: CheckCircle2 },
       ].map((s) => (
         <div key={s.step} className="relative z-10 flex flex-col items-center">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-            currentStep >= s.step ? "bg-primary text-white" : "bg-white border-2 border-gray-100 text-gray-300"
+            currentStep >= s.step ? "bg-green-500 text-white shadow-md shadow-green-500/30" : "bg-white border-2 border-gray-200 text-gray-400"
           }`}>
-            <s.icon className="h-5 w-5" />
+            <s.icon className="h-4 w-4" />
           </div>
-          <span className={`text-[10px] font-semibold mt-2 uppercase tracking-wider ${
-            currentStep >= s.step ? "text-primary" : "text-gray-300"
+          <span className={`text-[11px] font-bold mt-2 uppercase tracking-wider ${
+            currentStep >= s.step ? "text-gray-900" : "text-gray-400"
           }`}>
             {s.label}
           </span>
@@ -360,8 +320,7 @@ export default function CheckoutPage() {
              <ShoppingBag className="h-8 w-8 text-gray-300" />
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">Your cart is empty</h2>
-          <p className="text-gray-500 text-sm mb-8">Add something to your cart to continue with checkout.</p>
-          <Button asChild size="lg" className="rounded-xl px-10 font-semibold bg-primary hover:bg-primary/90">
+          <Button asChild size="lg" className="mt-4">
             <Link href="/products">Browse Store</Link>
           </Button>
         </div>
@@ -370,66 +329,38 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-gray-900 font-sans">
-      {/* Mini Header with Site Branding */}
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20">
       <header className="bg-white border-b sticky top-0 z-[50]">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-          <Logo 
-            className="group" 
-            textClassName="text-primary group-hover:text-primary/90" 
-            iconContainerClassName="bg-primary/10 text-primary border-primary/20 h-10 w-10" 
-            iconClassName="h-6 w-6" 
-          />
-          <Link href="/cart" className="text-sm font-medium text-gray-500 hover:text-primary flex items-center gap-2 transition-colors">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Cart
-          </Link>
+          <Logo />
+          <div className="flex items-center gap-2 text-sm font-semibold text-green-700 bg-green-50 px-3 py-1.5 rounded-full">
+            <Lock className="h-4 w-4" />
+            256-Bit Secure Checkout
+          </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          {/* Section Summary Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-8">
-            <div className="space-y-1">
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">Secure Checkout</h1>
-              <p className="text-sm text-gray-500">Order Ref: <span className="font-mono text-primary font-medium">#{items[0]?.productId.substring(0, 8).toUpperCase()}</span></p>
-            </div>
-            <div className="w-full md:w-[400px] shrink-0">
-               <Stepper currentStep={checkoutStep} />
-            </div>
-          </div>
+          <Stepper currentStep={checkoutStep} />
 
-          <div className="grid lg:grid-cols-[1fr_360px] gap-10 items-start">
+          <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-start">
             {/* Left Column: Form Sections */}
             <form onSubmit={checkoutStep === 1 ? handleContinueToPayment : (e) => e.preventDefault()} className="space-y-6">
               
-              {/* Profile Link (Guest) */}
-              {!user && checkoutStep === 1 && (
-                <div className="bg-white border rounded-2xl p-4 flex gap-4 items-center shadow-sm text-sm">
-                  <div className="h-9 w-9 rounded-xl bg-primary/5 flex items-center justify-center shrink-0">
-                    <User className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1 font-medium">
-                    Returning customer? <Link href="/auth/login" className="text-primary font-bold hover:underline">Sign in for faster checkout</Link>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 1: Customer Info */}
-              <div className={`space-y-6 transition-all duration-300 ${checkoutStep === 2 ? "opacity-30 scale-[0.99] pointer-events-none" : ""}`}>
-                <Card className="border shadow-none rounded-xl bg-white">
-                  <CardHeader className="px-8 py-6 border-b border-gray-50">
-                    <CardTitle className="text-lg font-semibold flex items-center gap-3">
-                       Customer Information
+              <div className={`space-y-6 transition-all duration-300 ${checkoutStep === 2 ? "opacity-30 pointer-events-none" : ""}`}>
+                <Card className="border shadow-md rounded-2xl bg-white overflow-hidden">
+                  <div className="bg-[#00114E] text-white px-6 py-4">
+                    <CardTitle className="text-xl font-black flex items-center gap-3 tracking-wide">
+                       Step 1: Contact Information
                     </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-8 space-y-6">
-                    <div className="grid gap-6">
+                  </div>
+                  <CardContent className="p-6 md:p-8 space-y-6">
+                    <div className="grid gap-5">
                       <div className="space-y-2">
-                        <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address</Label>
+                        <Label htmlFor="email" className="text-sm font-bold text-gray-700">Email Address *</Label>
                         <div className="relative">
-                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                           <Input
                             id="email"
                             name="email"
@@ -438,27 +369,27 @@ export default function CheckoutPage() {
                             onChange={handleInputChange}
                             required
                             disabled={!!user?.email}
-                            placeholder="yourname@example.com"
-                            className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-1 focus:ring-primary rounded-lg text-base"
+                            placeholder="Enter your best email..."
+                            className="pl-12 h-14 bg-gray-50 border-gray-200 focus:bg-white focus:border-green-500 focus:ring-green-500 rounded-xl text-base"
                           />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-2">
-                          <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">First Name</Label>
-                          <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required className="h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-1 focus:ring-primary rounded-lg text-base" />
+                          <Label htmlFor="firstName" className="text-sm font-bold text-gray-700">First Name *</Label>
+                          <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required className="h-14 bg-gray-50 border-gray-200 focus:bg-white focus:border-green-500 focus:ring-green-500 rounded-xl text-base" />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">Last Name</Label>
-                          <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} className="h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-1 focus:ring-primary rounded-lg text-base" />
+                          <Label htmlFor="lastName" className="text-sm font-bold text-gray-700">Last Name</Label>
+                          <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} className="h-14 bg-gray-50 border-gray-200 focus:bg-white focus:border-green-500 focus:ring-green-500 rounded-xl text-base" />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone Number</Label>
+                        <Label htmlFor="phone" className="text-sm font-bold text-gray-700">WhatsApp / Phone Number *</Label>
                         <div className="relative">
-                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                           <Input
                             id="phone"
                             name="phone"
@@ -466,8 +397,8 @@ export default function CheckoutPage() {
                             value={formData.phone}
                             onChange={handleInputChange}
                             required
-                            placeholder="Enter your phone number"
-                            className="pl-11 h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-1 focus:ring-primary rounded-lg text-base"
+                            placeholder="Your active WhatsApp number..."
+                            className="pl-12 h-14 bg-gray-50 border-gray-200 focus:bg-white focus:border-green-500 focus:ring-green-500 rounded-xl text-base"
                           />
                         </div>
                       </div>
@@ -475,189 +406,164 @@ export default function CheckoutPage() {
                   </CardContent>
                 </Card>
 
-                {/* Step 2 (Optional): Shipping */}
-                {!isDigitalOnly && (
-                <Card className="border shadow-none rounded-xl bg-white">
-                    <CardHeader className="px-8 py-6 border-b border-gray-50">
-                       <CardTitle className="text-lg font-semibold">
-                         Shipping Address
-                       </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-8 space-y-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="address" className="text-sm font-medium text-gray-700">Street Address</Label>
-                        <Input id="address" name="address" value={formData.address} onChange={handleInputChange} required className="h-12 bg-gray-50 border-gray-200 focus:bg-white rounded-lg text-base" />
-                      </div>
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label htmlFor="city" className="text-sm font-medium text-gray-700">City</Label>
-                          <Input id="city" name="city" value={formData.city} onChange={handleInputChange} required className="h-12 bg-gray-50 border-gray-200 focus:bg-white rounded-lg text-base" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="state" className="text-sm font-medium text-gray-700">State</Label>
-                          <Input id="state" name="state" value={formData.state} onChange={handleInputChange} required className="h-12 bg-gray-50 border-gray-200 focus:bg-white rounded-lg text-base" />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label htmlFor="zipCode" className="text-sm font-medium text-gray-700">Zip Code</Label>
-                          <Input id="zipCode" name="zipCode" value={formData.zipCode} onChange={handleInputChange} required className="h-12 bg-gray-50 border-gray-200 focus:bg-white rounded-lg text-base" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="country" className="text-sm font-medium text-gray-700">Country</Label>
-                          <Input id="country" name="country" value={formData.country} onChange={handleInputChange} required className="h-12 bg-gray-50 border-gray-200 focus:bg-white rounded-lg text-base" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Digital Banner */}
                 {isDigitalOnly && (
-                  <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-6 flex gap-4">
-                    <div className="h-10 w-10 rounded-lg bg-white border border-emerald-200 flex items-center justify-center shrink-0 shadow-sm">
-                      <Zap className="h-5 w-5 text-emerald-500" fill="currentColor" />
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5 flex gap-4 shadow-sm">
+                    <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                      <Zap className="h-6 w-6 text-emerald-600" fill="currentColor" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm text-emerald-900">Digital Access Enabled</h3>
-                      <p className="text-xs text-emerald-700/80 mt-1 leading-relaxed">
-                        Your digital items will be available for instant download in your dashboard immediately after payment.
+                      <h3 className="font-extrabold text-base text-emerald-900">Instant Digital Delivery</h3>
+                      <p className="text-sm text-emerald-700 mt-1 font-medium leading-relaxed">
+                        No physical shipping required! Your premium assets and tools will be instantly delivered to your email and dashboard right after successful payment.
                       </p>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Step 2: Payment Action */}
               {checkoutStep === 2 && (
-                  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                    <Card className="border shadow-lg rounded-2xl bg-white text-center p-12">
-                       <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-primary/10">
-                          <ShieldCheck className="h-10 w-10 text-primary" />
+                  <div className="space-y-8 animate-in fade-in duration-500">
+                    <Card className="border shadow-xl rounded-2xl bg-white text-center p-12">
+                       <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-100">
+                          <ShieldCheck className="h-12 w-12 text-green-600" />
                        </div>
-                       <h3 className="text-2xl font-bold text-gray-900 mb-4">Complete Your Payment</h3>
-                       <p className="text-sm text-gray-500 max-w-[320px] mx-auto mb-10 leading-relaxed">
-                          Please proceed to complete your payment securely via <span className="font-semibold text-primary">{activeGateway === "razorpay" ? "Razorpay" : "XPay"}</span>.
+                       <h3 className="text-3xl font-black text-gray-900 mb-4">Complete Payment</h3>
+                       <p className="text-base font-medium text-gray-500 max-w-[320px] mx-auto mb-10">
+                          Securely complete your payment via our trusted gateway.
                        </p>
                        <Button 
                         type="button" 
                         onClick={handlePayNow} 
                         disabled={loading}
-                        className="w-full h-14 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold text-lg shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                        className="w-full h-16 rounded-xl bg-green-600 hover:bg-green-700 text-white font-black text-xl shadow-[0px_8px_20px_rgba(22,163,74,0.4)] transition-all hover:-translate-y-1"
                        >
                         {loading ? (
-                          <><Loader2 className="h-5 w-5 mr-3 animate-spin" />Processing...</>
+                          <><Loader2 className="h-6 w-6 mr-3 animate-spin" />Processing...</>
                         ) : (
-                          <>Pay {formatPrice(totalAmount)} Now</>
+                          <>Pay {formatPrice(totalAmount)} Now &lt;&lt;</>
                         )}
                        </Button>
-                       
-                       <div className="flex items-center justify-center gap-8 mt-12 opacity-50 grayscale hover:opacity-100 transition-opacity">
-                          <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" className="h-6" />
-                          <img src="https://img.icons8.com/color/48/mastercard.png" alt="Mastercard" className="h-6" />
-                          <img src="https://img.icons8.com/color/48/upi.png" alt="UPI" className="h-6" />
+                       <div className="flex items-center justify-center gap-6 mt-10 grayscale opacity-60">
+                          <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" className="h-8" />
+                          <img src="https://img.icons8.com/color/48/mastercard.png" alt="Mastercard" className="h-8" />
+                          <img src="https://img.icons8.com/color/48/upi.png" alt="UPI" className="h-8" />
                        </div>
                     </Card>
-                    
-                    <button type="button" onClick={() => setCheckoutStep(1)} className="w-full text-sm font-medium text-gray-400 hover:text-primary transition-colors cursor-pointer text-center">
-                       ← Return to registration details
+                    <button type="button" onClick={() => setCheckoutStep(1)} className="w-full font-bold text-gray-400 hover:text-gray-700 transition-colors cursor-pointer text-center">
+                       ← Edit Registration Details
                     </button>
                  </div>
               )}
             </form>
 
-            {/* Sidebar: Order Review */}
-            <aside className="sticky top-28">
-              <Card className="border shadow-none rounded-xl overflow-hidden bg-white">
-                <CardHeader className="bg-gray-50/30 px-6 py-5 border-b border-gray-100">
-                   <div className="flex items-center justify-between">
-                     <CardTitle className="text-base font-semibold">Order Summary</CardTitle>
-                     <Badge variant="outline" className="rounded-full px-3 font-medium border-primary/20 text-primary">
-                        {items.length} {items.length === 1 ? 'Item' : 'Items'}
-                     </Badge>
-                   </div>
+            {/* Right Column: Order Summary & Bonuses */}
+            <aside className="sticky top-28 space-y-6">
+              <Card className="border-4 border-[#00114E] shadow-2xl rounded-2xl overflow-hidden bg-white">
+                <CardHeader className="bg-[#00114E] text-white px-6 py-5">
+                   <CardTitle className="text-xl font-black text-center tracking-wide">
+                     Order Summary
+                   </CardTitle>
                 </CardHeader>
                 
-                <CardContent className="p-6 space-y-6">
-                  <div className="space-y-5 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
+                <CardContent className="p-6">
+                  <div className="space-y-5">
                     {items.map((item) => (
-                      <div key={item.productId} className="flex gap-4">
-                        <div className="h-16 w-16 rounded-lg bg-gray-50 border border-gray-100 flex-shrink-0 overflow-hidden">
-                           <img src={item.product.imageUrl || "/placeholder.svg"} alt={item.product.title} className="h-full w-full object-cover" />
+                      <div key={item.productId} className="flex gap-4 items-center">
+                        <div className="h-16 w-20 rounded border border-gray-200 overflow-hidden shrink-0">
+                           <img src={item.product.imageUrl || "https://images.unsplash.com/photo-1626785776985-c472c50436bc?w=800&q=80"} alt={item.product.title} className="h-full w-full object-cover" />
                         </div>
-                        <div className="flex-1 min-w-0 flex flex-col justify-center">
-                           <h4 className="text-sm font-medium text-gray-900 line-clamp-1 mb-1">{item.product.title}</h4>
-                           <div className="flex items-center justify-between">
-                              <span className="text-xs text-gray-500">Qty: {item.quantity}</span>
-                              <span className="text-sm font-semibold text-gray-900">{formatPrice(item.product.price * item.quantity)}</span>
-                           </div>
+                        <div className="flex-1">
+                           <h4 className="font-bold text-gray-900 leading-tight">{item.product.title}</h4>
+                           <span className="text-xs font-semibold text-green-600 uppercase">Lifetime Access</span>
+                        </div>
+                        <div className="text-right">
+                           <span className="font-black text-gray-900 text-lg">{formatPrice(item.product.price)}</span>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <Separator className="bg-gray-100" />
+                  <Separator className="my-6 border-dashed border-gray-300" />
 
-                  <div className="space-y-4">
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>Subtotal</span>
-                      <span className="text-gray-900 font-medium">{formatPrice(totalAmount)}</span>
+                  {/* FREE BONUSES SECTION (Crucial for conversions) */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-bl-lg uppercase">
+                       Limited Time
                     </div>
-                    <div className="flex justify-between text-sm font-medium text-emerald-600">
+                    <h5 className="font-black text-amber-900 flex items-center gap-2 mb-3 text-[15px]">
+                      <Gift className="h-5 w-5 text-amber-600" />
+                      Free Bonuses Included:
+                    </h5>
+                    <ul className="space-y-2">
+                      <li className="flex items-start gap-2 text-sm">
+                        <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+                        <span className="font-medium text-amber-950"><strong>Mega Video Editing Assets</strong> <span className="text-amber-700/80">(₹35,000 Value)</span></span>
+                      </li>
+                      <li className="flex items-start gap-2 text-sm">
+                        <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+                        <span className="font-medium text-amber-950"><strong>11 Mega Creative Collections</strong> <span className="text-amber-700/80">(₹15,000 Value)</span></span>
+                      </li>
+                      <li className="flex items-start gap-2 text-sm">
+                        <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+                        <span className="font-medium text-amber-950"><strong>800+ GB Graphics Bundle</strong> <span className="text-amber-700/80">(₹25,000 Value)</span></span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm font-semibold text-gray-500">
+                      <span>Total Value:</span>
+                      <span className="line-through">₹75,000+</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-semibold text-gray-500">
+                      <span>Subtotal</span>
+                      <span>{formatPrice(totalAmount)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-bold text-green-600">
                       <span>Shipping</span>
-                      <span>Free</span>
+                      <span>FREE</span>
                     </div>
                     
-                    <div className="pt-6 flex justify-between items-center border-t border-gray-100 mt-2">
-                      <span className="text-base font-bold text-gray-900 uppercase tracking-tight">Total</span>
-                      <span className="text-2xl font-bold text-primary tracking-tight">
+                    <div className="pt-4 pb-2 flex justify-between items-center border-t-2 border-gray-100 mt-2">
+                      <span className="text-lg font-black text-gray-900 uppercase">You Pay Only</span>
+                      <span className="text-3xl font-black text-green-600">
                         {formatPrice(totalAmount)}
                       </span>
                     </div>
                   </div>
 
                   {checkoutStep === 1 && (
-                    <div className="pt-4">
+                    <div className="pt-6">
                        <Button 
                         onClick={handleContinueToPayment} 
                         disabled={loading}
-                        className="w-full h-14 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold text-base shadow-lg shadow-primary/10 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        className="w-full h-16 rounded-xl bg-green-600 hover:bg-green-700 text-white font-black text-[17px] uppercase shadow-[0px_8px_20px_rgba(22,163,74,0.3)] transition-all hover:-translate-y-1"
                        >
                         {loading ? (
                           <><Loader2 className="h-5 w-5 mr-3 animate-spin" />Processing...</>
                         ) : (
-                          <>Continue to Payment <ChevronRight className="h-5 w-5 ml-1" /></>
+                          <>Continue To Payment <ChevronRight className="h-6 w-6 ml-1" /></>
                         )}
                        </Button>
                     </div>
                   )}
-
-                  {/* Trust Indicators */}
-                  <div className="grid grid-cols-3 gap-2 pt-8 border-t border-gray-50 mt-8">
-                    <div className="flex flex-col items-center text-center gap-2">
-                       <ShieldCheck className="h-5 w-5 text-gray-400" />
-                       <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Secure</span>
-                    </div>
-                    <div className="flex flex-col items-center text-center gap-2 border-x border-gray-100 px-2">
-                       <Truck className="h-5 w-5 text-gray-400" />
-                       <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Shipping</span>
-                    </div>
-                    <div className="flex flex-col items-center text-center gap-2">
-                       <Award className="h-5 w-5 text-gray-400" />
-                       <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Quality</span>
-                    </div>
-                  </div>
+                  
+                  <p className="text-center text-xs font-bold text-gray-400 mt-4 flex items-center justify-center gap-1">
+                     <Lock className="h-3 w-3" /> Guaranteed Safe & Secure Checkout
+                  </p>
                 </CardContent>
               </Card>
+
+              {/* Badges / Guarantees below summary */}
+              <div className="bg-white rounded-xl border p-5 shadow-sm text-center">
+                 <div className="text-4xl mb-2">🛡️</div>
+                 <h4 className="font-black text-gray-900 text-sm mb-1">100% Satisfaction Guarantee</h4>
+                 <p className="text-xs text-gray-500 font-medium">Full installation support provided. Your purchase is fully protected.</p>
+              </div>
             </aside>
           </div>
         </div>
       </main>
-
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
-      `}</style>
     </div>
   )
 }
