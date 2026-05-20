@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { Send, ShoppingBag, Sparkles, ShoppingCart, Zap, Star, ExternalLink, X } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import type { Product } from "@/lib/types"
@@ -57,8 +57,12 @@ const CHARS_PER_TICK = 4
 const TICK_MS = 18
 
 export function ShopAIChat() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE])
+
+  if (pathname === "/software") return null
+
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
