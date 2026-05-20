@@ -3,23 +3,10 @@
 import type React from "react"
 import { useState, useCallback, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { 
-  Lock, Mail, User, Phone, CheckCircle2, Loader2,
-  ShieldCheck, CreditCard, Truck, ArrowLeft, ChevronRight, 
-  Award, ShoppingBag, Zap, Gift
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { StoreHeader } from "@/components/store-header"
+import { Loader2, ArrowRight } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { toast } from "@/hooks/use-toast"
-import Link from "next/link"
-import { Logo } from "@/components/logo"
 import { trackInitiateCheckout } from "@/lib/pixel"
 
 declare global {
@@ -45,14 +32,7 @@ export default function CheckoutPage() {
     firstName: "",
     lastName: "",
     phone: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "India",
   })
-  
-  const isDigitalOnly = items.every(item => item.product.downloadUrl)
 
   useEffect(() => {
     fetch("/api/settings")
@@ -258,12 +238,8 @@ export default function CheckoutPage() {
 
       setPendingOrderId(orderData.id)
       setCheckoutStep(2)
+      setLoading(false)
       
-      if (activeGateway === "razorpay") {
-        await handleRazorpay(orderData.id)
-      } else {
-        handleXPay(orderData.id)
-      }
     } catch (err: any) {
       setLoading(false)
       toast({ title: "Error", description: err.message, variant: "destructive" })
@@ -285,285 +261,199 @@ export default function CheckoutPage() {
     }
   }
 
-  const Stepper = ({ currentStep }: { currentStep: number }) => (
-    <div className="flex items-center justify-between w-full relative max-w-sm mx-auto mb-8">
-      <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gray-200 -translate-y-1/2 z-0" />
-      <div className="absolute top-1/2 left-0 h-[2px] bg-green-500 -translate-y-1/2 z-0 transition-all duration-500" style={{ width: currentStep === 1 ? '50%' : '100%' }} />
-      
-      {[
-        { step: 1, label: "Details", icon: User },
-        { step: 2, label: "Payment", icon: CreditCard },
-        { step: 3, label: "Done", icon: CheckCircle2 },
-      ].map((s) => (
-        <div key={s.step} className="relative z-10 flex flex-col items-center">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-            currentStep >= s.step ? "bg-green-500 text-white shadow-md shadow-green-500/30" : "bg-white border-2 border-gray-200 text-gray-400"
-          }`}>
-            <s.icon className="h-4 w-4" />
-          </div>
-          <span className={`text-[11px] font-bold mt-2 uppercase tracking-wider ${
-            currentStep >= s.step ? "text-gray-900" : "text-gray-400"
-          }`}>
-            {s.label}
-          </span>
-        </div>
-      ))}
-    </div>
-  )
-
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-white">
-        <StoreHeader />
-        <div className="container mx-auto px-4 py-24 text-center">
-          <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-             <ShoppingBag className="h-8 w-8 text-gray-300" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Your cart is empty</h2>
-          <Button asChild size="lg" className="mt-4">
-            <Link href="/products">Browse Store</Link>
-          </Button>
+      <div className="min-h-screen bg-[#151221] text-white flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-3xl font-black mb-4">Your cart is empty</h2>
+          <button onClick={() => router.push("/products")} className="bg-yellow-400 text-black px-8 py-3 font-bold rounded hover:bg-yellow-500">
+            Browse Store
+          </button>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-20">
-      <header className="bg-white border-b sticky top-0 z-[50]">
-        <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-          <Logo />
-          <div className="flex items-center gap-2 text-sm font-semibold text-green-700 bg-green-50 px-3 py-1.5 rounded-full">
-            <Lock className="h-4 w-4" />
-            256-Bit Secure Checkout
+    <div className="min-h-screen bg-[#151221] font-sans overflow-x-hidden selection:bg-yellow-400 selection:text-black">
+      {/* HEADER SECTION */}
+      <div className="w-full bg-gradient-to-b from-[#1c223c] to-[#151221] pt-12 pb-8 px-4 text-center border-b border-white/5">
+        <h1 className="text-white text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-wide mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>
+          Congrats! You are just one step away from
+        </h1>
+        <h2 className="text-[#FFE600] text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wider drop-shadow-md" style={{ fontFamily: "Montserrat, sans-serif" }}>
+          ACCESSING YOUR PREMIUM ADOBE BUNDLE
+        </h2>
+      </div>
+
+      {/* MAIN CONTENT GRID */}
+      <div className="max-w-[1200px] mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+          
+          {/* LEFT COLUMN: BONUSES */}
+          <div className="text-white pt-4">
+            <h3 className="text-2xl md:text-3xl font-bold mb-10 leading-tight" style={{ fontFamily: "Montserrat, sans-serif" }}>
+              Also, Buy before the deadline to <br className="hidden md:block" />
+              unlock <span className="text-[#FFE600]">Bonuses worth Rs. 75,000 for FREE!</span>
+            </h3>
+
+            <div className="space-y-8 text-lg font-medium tracking-wide">
+              <p>
+                <strong><span className="underline decoration-white underline-offset-4">BONUS 1:</span></strong> Mega Video Editing Assets | <span className="text-[#FFE600]">Value : 35,000 INR</span>
+              </p>
+              <p>
+                <strong><span className="underline decoration-white underline-offset-4">BONUS 2:</span></strong> 11 Mega Creative Collections | <span className="text-[#FFE600]">Value : 15,000 INR</span>
+              </p>
+              <p>
+                <strong><span className="underline decoration-white underline-offset-4">BONUS 3:</span></strong> 800+ GB Graphics Bundle | <span className="text-[#FFE600]">Value : 25,000 INR</span>
+              </p>
+              <p>
+                <strong><span className="underline decoration-white underline-offset-4">BONUS 4:</span></strong> Premium WhatsApp Pro Community Access | <span className="text-[#FFE600]">Value : 2,000 INR</span>
+              </p>
+            </div>
+
+            <div className="mt-14 pt-4 text-center lg:text-left">
+              <h4 className="text-[#FFE600] text-xl md:text-2xl font-bold inline-block">
+                Register Before today midnight <span className="text-white ml-2 text-lg md:text-xl font-bold">to grab all the bonuses</span>
+              </h4>
+            </div>
           </div>
-        </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          <Stepper currentStep={checkoutStep} />
-
-          <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-start">
-            {/* Left Column: Form Sections */}
-            <form onSubmit={checkoutStep === 1 ? handleContinueToPayment : (e) => e.preventDefault()} className="space-y-6">
+          {/* RIGHT COLUMN: FORM BOX */}
+          <div className="relative">
+            <div className="bg-white rounded shadow-2xl overflow-hidden w-full max-w-[550px] mx-auto lg:mx-0">
               
-              <div className={`space-y-6 transition-all duration-300 ${checkoutStep === 2 ? "opacity-30 pointer-events-none" : ""}`}>
-                <Card className="border shadow-md rounded-2xl bg-white overflow-hidden">
-                  <div className="bg-[#00114E] text-white px-6 py-4">
-                    <CardTitle className="text-xl font-black flex items-center gap-3 tracking-wide">
-                       Step 1: Contact Information
-                    </CardTitle>
+              {/* YELLOW BANNER */}
+              <div className="bg-[#FFF000] text-black text-center py-4 font-bold text-lg relative z-10">
+                Unlock the exclusive bonuses, Now!
+                {/* CSS Triangle */}
+                <div className="absolute -bottom-[10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[12px] border-t-[#FFF000]"></div>
+              </div>
+
+              {/* STEPPER TABS */}
+              <div className="flex border-b border-gray-200 mt-2">
+                <div className={`flex-1 flex items-center justify-center py-4 px-2 gap-3 transition-colors ${checkoutStep === 1 ? 'bg-white' : 'bg-gray-50'}`}>
+                  <span className={`text-2xl font-black ${checkoutStep === 1 ? 'text-gray-900' : 'text-gray-400'}`}>1</span>
+                  <div className="flex flex-col">
+                    <span className={`text-sm font-bold ${checkoutStep === 1 ? 'text-gray-900' : 'text-gray-400'}`}>Contact</span>
+                    <span className="text-[11px] text-gray-500">Your Contact Info</span>
                   </div>
-                  <CardContent className="p-6 md:p-8 space-y-6">
-                    <div className="grid gap-5">
-                      <div className="space-y-2">
-                        <Label htmlFor="email" className="text-sm font-bold text-gray-700">Email Address *</Label>
-                        <div className="relative">
-                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                          <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            required
-                            disabled={!!user?.email}
-                            placeholder="Enter your best email..."
-                            className="pl-12 h-14 bg-gray-50 border-gray-200 focus:bg-white focus:border-green-500 focus:ring-green-500 rounded-xl text-base"
-                          />
-                        </div>
-                      </div>
+                </div>
+                <div className={`flex-1 flex items-center justify-center py-4 px-2 gap-3 border-l border-gray-200 transition-colors ${checkoutStep === 2 ? 'bg-white' : 'bg-gray-50'}`}>
+                  <span className={`text-2xl font-black ${checkoutStep === 2 ? 'text-gray-900' : 'text-gray-400'}`}>2</span>
+                  <div className="flex flex-col">
+                    <span className={`text-sm font-bold ${checkoutStep === 2 ? 'text-gray-900' : 'text-gray-400'}`}>Payment</span>
+                    <span className="text-[11px] text-gray-500">Of your order</span>
+                  </div>
+                </div>
+              </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <Label htmlFor="firstName" className="text-sm font-bold text-gray-700">First Name *</Label>
-                          <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required className="h-14 bg-gray-50 border-gray-200 focus:bg-white focus:border-green-500 focus:ring-green-500 rounded-xl text-base" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="lastName" className="text-sm font-bold text-gray-700">Last Name</Label>
-                          <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} className="h-14 bg-gray-50 border-gray-200 focus:bg-white focus:border-green-500 focus:ring-green-500 rounded-xl text-base" />
-                        </div>
+              {/* FORM CONTENT */}
+              <div className="p-8">
+                {checkoutStep === 1 && (
+                  <form onSubmit={handleContinueToPayment} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="space-y-1.5">
+                        <label className="text-sm text-gray-700 font-medium">First name <span className="text-red-500">*</span></label>
+                        <input
+                          name="firstName"
+                          value={formData.firstName}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full px-3 py-2.5 border border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 bg-white text-gray-900"
+                        />
                       </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-sm font-bold text-gray-700">WhatsApp / Phone Number *</Label>
-                        <div className="relative">
-                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                          <Input
-                            id="phone"
-                            name="phone"
-                            type="tel"
-                            value={formData.phone}
-                            onChange={handleInputChange}
-                            required
-                            placeholder="Your active WhatsApp number..."
-                            className="pl-12 h-14 bg-gray-50 border-gray-200 focus:bg-white focus:border-green-500 focus:ring-green-500 rounded-xl text-base"
-                          />
-                        </div>
+                      <div className="space-y-1.5">
+                        <label className="text-sm text-gray-700 font-medium">Last name <span className="text-red-500">*</span></label>
+                        <input
+                          name="lastName"
+                          value={formData.lastName}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full px-3 py-2.5 border border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 bg-white text-gray-900"
+                        />
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
 
-                {isDigitalOnly && (
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5 flex gap-4 shadow-sm">
-                    <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                      <Zap className="h-6 w-6 text-emerald-600" fill="currentColor" />
+                    <div className="space-y-1.5">
+                      <label className="text-sm text-gray-700 font-medium">Phone <span className="text-red-500">*</span></label>
+                      <input
+                        name="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full px-3 py-2.5 border border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 bg-white text-gray-900"
+                      />
                     </div>
-                    <div>
-                      <h3 className="font-extrabold text-base text-emerald-900">Instant Digital Delivery</h3>
-                      <p className="text-sm text-emerald-700 mt-1 font-medium leading-relaxed">
-                        No physical shipping required! Your premium assets and tools will be instantly delivered to your email and dashboard right after successful payment.
-                      </p>
+
+                    <div className="space-y-1.5">
+                      <label className="text-sm text-gray-700 font-medium">Email address <span className="text-red-500">*</span></label>
+                      <input
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                        disabled={!!user?.email}
+                        className="w-full px-3 py-2.5 border border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 bg-white text-gray-900"
+                      />
+                    </div>
+
+                    <div className="pt-2">
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-[#1A8242] hover:bg-[#146b35] text-white py-4 px-4 flex flex-col items-center justify-center transition-colors disabled:opacity-70"
+                      >
+                        <div className="flex items-center gap-2 font-bold text-lg">
+                          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5" />}
+                          {loading ? "Processing..." : "Next Step"}
+                        </div>
+                        <span className="text-xs font-semibold mt-1">Yes! I want this offer!</span>
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {checkoutStep === 2 && (
+                  <div className="space-y-6 animate-in fade-in">
+                    <div className="bg-gray-50 border border-gray-200 p-4 mb-6">
+                       <h4 className="font-bold text-gray-800 border-b pb-2 mb-3">Order Summary</h4>
+                       <div className="flex justify-between items-center mb-2">
+                         <span className="text-gray-600 text-sm">{items.length}x Premium Assets</span>
+                         <span className="font-medium text-gray-800">{formatPrice(totalAmount)}</span>
+                       </div>
+                       <div className="flex justify-between items-center text-lg font-black mt-4 pt-4 border-t border-gray-200">
+                         <span>Total</span>
+                         <span className="text-[#1A8242]">{formatPrice(totalAmount)}</span>
+                       </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <button
+                        onClick={handlePayNow}
+                        disabled={loading}
+                        className="w-full bg-[#1A8242] hover:bg-[#146b35] text-white py-4 px-4 flex flex-col items-center justify-center transition-colors shadow-lg disabled:opacity-70"
+                      >
+                        <div className="flex items-center gap-2 font-bold text-lg">
+                          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5" />}
+                          {loading ? "Processing..." : `Complete Payment of ${formatPrice(totalAmount)}`}
+                        </div>
+                        <span className="text-xs font-semibold mt-1">100% Secure Checkout</span>
+                      </button>
+                      <button onClick={() => setCheckoutStep(1)} className="w-full text-center text-sm text-gray-400 mt-4 hover:text-gray-700 font-medium">
+                        ← Back to Contact Info
+                      </button>
                     </div>
                   </div>
                 )}
               </div>
-
-              {checkoutStep === 2 && (
-                  <div className="space-y-8 animate-in fade-in duration-500">
-                    <Card className="border shadow-xl rounded-2xl bg-white text-center p-12">
-                       <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-100">
-                          <ShieldCheck className="h-12 w-12 text-green-600" />
-                       </div>
-                       <h3 className="text-3xl font-black text-gray-900 mb-4">Complete Payment</h3>
-                       <p className="text-base font-medium text-gray-500 max-w-[320px] mx-auto mb-10">
-                          Securely complete your payment via our trusted gateway.
-                       </p>
-                       <Button 
-                        type="button" 
-                        onClick={handlePayNow} 
-                        disabled={loading}
-                        className="w-full h-16 rounded-xl bg-green-600 hover:bg-green-700 text-white font-black text-xl shadow-[0px_8px_20px_rgba(22,163,74,0.4)] transition-all hover:-translate-y-1"
-                       >
-                        {loading ? (
-                          <><Loader2 className="h-6 w-6 mr-3 animate-spin" />Processing...</>
-                        ) : (
-                          <>Pay {formatPrice(totalAmount)} Now &lt;&lt;</>
-                        )}
-                       </Button>
-                       <div className="flex items-center justify-center gap-6 mt-10 grayscale opacity-60">
-                          <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" className="h-8" />
-                          <img src="https://img.icons8.com/color/48/mastercard.png" alt="Mastercard" className="h-8" />
-                          <img src="https://img.icons8.com/color/48/upi.png" alt="UPI" className="h-8" />
-                       </div>
-                    </Card>
-                    <button type="button" onClick={() => setCheckoutStep(1)} className="w-full font-bold text-gray-400 hover:text-gray-700 transition-colors cursor-pointer text-center">
-                       ← Edit Registration Details
-                    </button>
-                 </div>
-              )}
-            </form>
-
-            {/* Right Column: Order Summary & Bonuses */}
-            <aside className="sticky top-28 space-y-6">
-              <Card className="border-4 border-[#00114E] shadow-2xl rounded-2xl overflow-hidden bg-white">
-                <CardHeader className="bg-[#00114E] text-white px-6 py-5">
-                   <CardTitle className="text-xl font-black text-center tracking-wide">
-                     Order Summary
-                   </CardTitle>
-                </CardHeader>
-                
-                <CardContent className="p-6">
-                  <div className="space-y-5">
-                    {items.map((item) => (
-                      <div key={item.productId} className="flex gap-4 items-center">
-                        <div className="h-16 w-20 rounded border border-gray-200 overflow-hidden shrink-0">
-                           <img src={item.product.imageUrl || "https://images.unsplash.com/photo-1626785776985-c472c50436bc?w=800&q=80"} alt={item.product.title} className="h-full w-full object-cover" />
-                        </div>
-                        <div className="flex-1">
-                           <h4 className="font-bold text-gray-900 leading-tight">{item.product.title}</h4>
-                           <span className="text-xs font-semibold text-green-600 uppercase">Lifetime Access</span>
-                        </div>
-                        <div className="text-right">
-                           <span className="font-black text-gray-900 text-lg">{formatPrice(item.product.price)}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <Separator className="my-6 border-dashed border-gray-300" />
-
-                  {/* FREE BONUSES SECTION (Crucial for conversions) */}
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-bl-lg uppercase">
-                       Limited Time
-                    </div>
-                    <h5 className="font-black text-amber-900 flex items-center gap-2 mb-3 text-[15px]">
-                      <Gift className="h-5 w-5 text-amber-600" />
-                      Free Bonuses Included:
-                    </h5>
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
-                        <span className="font-medium text-amber-950"><strong>Mega Video Editing Assets</strong> <span className="text-amber-700/80">(₹35,000 Value)</span></span>
-                      </li>
-                      <li className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
-                        <span className="font-medium text-amber-950"><strong>11 Mega Creative Collections</strong> <span className="text-amber-700/80">(₹15,000 Value)</span></span>
-                      </li>
-                      <li className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
-                        <span className="font-medium text-amber-950"><strong>800+ GB Graphics Bundle</strong> <span className="text-amber-700/80">(₹25,000 Value)</span></span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm font-semibold text-gray-500">
-                      <span>Total Value:</span>
-                      <span className="line-through">₹75,000+</span>
-                    </div>
-                    <div className="flex justify-between text-sm font-semibold text-gray-500">
-                      <span>Subtotal</span>
-                      <span>{formatPrice(totalAmount)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm font-bold text-green-600">
-                      <span>Shipping</span>
-                      <span>FREE</span>
-                    </div>
-                    
-                    <div className="pt-4 pb-2 flex justify-between items-center border-t-2 border-gray-100 mt-2">
-                      <span className="text-lg font-black text-gray-900 uppercase">You Pay Only</span>
-                      <span className="text-3xl font-black text-green-600">
-                        {formatPrice(totalAmount)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {checkoutStep === 1 && (
-                    <div className="pt-6">
-                       <Button 
-                        onClick={handleContinueToPayment} 
-                        disabled={loading}
-                        className="w-full h-16 rounded-xl bg-green-600 hover:bg-green-700 text-white font-black text-[17px] uppercase shadow-[0px_8px_20px_rgba(22,163,74,0.3)] transition-all hover:-translate-y-1"
-                       >
-                        {loading ? (
-                          <><Loader2 className="h-5 w-5 mr-3 animate-spin" />Processing...</>
-                        ) : (
-                          <>Continue To Payment <ChevronRight className="h-6 w-6 ml-1" /></>
-                        )}
-                       </Button>
-                    </div>
-                  )}
-                  
-                  <p className="text-center text-xs font-bold text-gray-400 mt-4 flex items-center justify-center gap-1">
-                     <Lock className="h-3 w-3" /> Guaranteed Safe & Secure Checkout
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Badges / Guarantees below summary */}
-              <div className="bg-white rounded-xl border p-5 shadow-sm text-center">
-                 <div className="text-4xl mb-2">🛡️</div>
-                 <h4 className="font-black text-gray-900 text-sm mb-1">100% Satisfaction Guarantee</h4>
-                 <p className="text-xs text-gray-500 font-medium">Full installation support provided. Your purchase is fully protected.</p>
-              </div>
-            </aside>
+            </div>
           </div>
+
         </div>
-      </main>
+      </div>
     </div>
   )
 }
