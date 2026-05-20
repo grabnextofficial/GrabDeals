@@ -580,9 +580,9 @@ export default function SoftwareFunnelPage() {
           </div>
         </section>
 
-        {/* ── 6. SPECIAL LAUNCH OFFER BONUSES (Light-Themed Premium Section) ── */}
-        <section className="bg-gradient-to-b from-slate-50 via-slate-100 to-white py-16 px-4 text-slate-800 border-y border-slate-200">
-          <div className="max-w-6xl mx-auto">
+        {/* ── 6. SPECIAL LAUNCH OFFER BONUSES (Alternating Soft Light & Deep Navy Theme) ── */}
+        <section className="bg-gradient-to-b from-slate-50 via-slate-100 to-slate-200 py-16 px-4 text-slate-800 border-y border-slate-200">
+          <div className="max-w-6xl mx-auto relative z-10">
             {/* Main Header */}
             <div className="text-center mb-14">
               <span className="bg-yellow-400 text-black px-5 py-2 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider shadow-lg">
@@ -591,36 +591,41 @@ export default function SoftwareFunnelPage() {
               <h2 className="font-black mt-5 text-[#FF3E3E]" style={{ fontSize: "clamp(26px,4vw,44px)", fontFamily: "Poppins, sans-serif", lineHeight: 1.25 }}>
                 🎁 Get the Ultimate Graphic Designing Bundle & Video Editing Bundle For <span className="bg-yellow-400 text-black px-4 py-1.5 rounded-xl inline-block transform hover:scale-105 transition-transform shadow-[0px_4px_10px_rgba(255,200,0,0.4)] border border-yellow-500 uppercase tracking-widest text-[1.05em] font-extrabold rotate-[-1deg] ml-2">FREE!</span>
               </h2>
-              <p className="text-slate-650 max-w-3xl mx-auto mt-5 text-base sm:text-lg font-extrabold" style={{ fontFamily: "Poppins, sans-serif" }}>
+              <p className="text-slate-700 max-w-3xl mx-auto mt-5 text-base sm:text-lg font-extrabold" style={{ fontFamily: "Poppins, sans-serif" }}>
                 Claim lifetime access to over <span className="text-red-650 font-black">₹34,999</span> worth of premium editing presets, vector files, video courses, and templates when you buy the Adobe CC Bundle today.
               </p>
             </div>
 
-            {/* Spotlight Bonus 1: Graphic Designing Bundle (800+ GB Plan) */}
-            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-10 mb-10 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-green-600 text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10 border-l border-b border-slate-200/30">
+            {/* Spotlight Bonus 1: Graphic Designing Bundle (800+ GB Plan) - Premium Navy Blue Card */}
+            <div className="bg-[#00114E] border border-white/10 rounded-3xl p-6 md:p-10 mb-10 shadow-2xl relative overflow-hidden text-white">
+              {/* Glowing internal orb for depth */}
+              <div className="absolute" style={{ width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(5,255,0,0.08) 0%, rgba(255,255,255,0) 70%)", top: -100, right: -100, pointerEvents: "none" }} />
+              
+              <div className="absolute top-0 right-0 bg-green-600 text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10 border-l border-b border-white/15">
                 Bonus #1 Included
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
                 {/* Left: Box Mockup */}
                 <div className="md:col-span-5 flex flex-col items-center">
                   <div className="relative group max-w-[310px] w-full">
                     <div className="absolute -inset-1.5 bg-gradient-to-r from-yellow-400 to-green-400 rounded-2xl blur opacity-25 group-hover:opacity-45 transition duration-500"></div>
-                    <div className="relative bg-slate-900 rounded-2xl overflow-hidden shadow-xl border border-slate-200">
+                    <div className="relative bg-slate-900 rounded-2xl overflow-hidden shadow-xl border border-white/10">
                       <img src="/images/graphic-bundle-675gb.png" alt="675 GB Graphics Bundle Box Mockup" className="w-full h-auto object-cover transform hover:scale-103 transition-transform duration-300" />
                     </div>
                   </div>
-                  <span className="text-xs text-slate-500 mt-3 font-extrabold uppercase tracking-wider">
+                  <span className="text-xs text-white/70 mt-3 font-extrabold uppercase tracking-wider">
                     800+ GB Plan Graphic Designing Bundle
                   </span>
                 </div>
 
                 {/* Right: Asset List */}
                 <div className="md:col-span-7">
-                  <h3 className="text-2xl font-black text-emerald-700 mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>
+                  <h3 className="text-2xl sm:text-3xl font-black text-[#05FF00] mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>
                     Ultimate Graphic Designing Bundle (800+ GB Plan)
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                  
+                  {/* Single Column List with Green Tick Marks & Larger Fonts */}
+                  <div className="grid grid-cols-1 gap-4 mb-6">
                     {[
                       "8,000+ Lightroom Presets",
                       "20+ Free Video Courses",
@@ -635,22 +640,22 @@ export default function SoftwareFunnelPage() {
                       "Sales Scripts Pack (Email, LinkedIn, Instagram DM, Pitching Scripts)",
                       "Social Media Calendar, Digital V-Cards & Clip Art"
                     ].map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-sm text-slate-700">
-                        <span className="text-green-600 font-extrabold shrink-0">✓</span>
-                        <span className="font-bold">{item}</span>
+                      <div key={idx} className="flex items-start gap-3.5 text-base sm:text-lg text-white/95 leading-relaxed">
+                        <span className="text-[#05FF00] font-black shrink-0 text-xl">✓</span>
+                        <span className="font-extrabold">{item}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* Access Instructions */}
-                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 text-amber-900">
+                  <div className="bg-yellow-400/10 border border-yellow-400/25 rounded-2xl p-4 flex gap-3 text-white">
                     <span className="text-2xl shrink-0">ℹ️</span>
                     <div>
-                      <p className="text-xs font-black uppercase text-amber-800 tracking-wider mb-1">
+                      <p className="text-xs font-black uppercase text-yellow-400 tracking-wider mb-1">
                         How to Access Your Graphic Bundle
                       </p>
-                      <p className="text-xs leading-relaxed text-amber-900 font-bold">
-                        Download link for the Ultimate Graphic Designing Bundle is sent directly to your <strong className="text-amber-950 font-black">email invoice</strong> immediately post-payment. Simply click <strong className="text-amber-850 font-black">“Click here to Download Graphic designing Bundle”</strong> on the invoice you receive.
+                      <p className="text-xs leading-relaxed text-white/80 font-medium">
+                        Download link for the Ultimate Graphic Designing Bundle is sent directly to your <strong className="text-yellow-400 font-black">email invoice</strong> immediately post-payment. Simply click <strong className="text-yellow-350 font-black">“Click here to Download Graphic designing Bundle”</strong> on the invoice you receive.
                       </p>
                     </div>
                   </div>
@@ -658,8 +663,8 @@ export default function SoftwareFunnelPage() {
               </div>
             </div>
 
-            {/* Spotlight Bonus 2: Video Editing Bundle (Detailed Grid with Images) */}
-            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-10 mb-14 shadow-xl relative overflow-hidden">
+            {/* Spotlight Bonus 2: Video Editing Bundle (Detailed Grid with Images) - Clean High-Contrast White Card */}
+            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-10 mb-10 shadow-xl relative overflow-hidden text-slate-900">
               <div className="absolute top-0 right-0 bg-green-600 text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10 border-l border-b border-slate-200/30">
                 Bonus #2 Included
               </div>
@@ -679,8 +684,8 @@ export default function SoftwareFunnelPage() {
               {/* Detailed Grid Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
                 {VIDEO_BUNDLE_ITEMS.map((item) => (
-                  <div key={item.name} className="bg-white border border-slate-200/85 rounded-2xl overflow-hidden flex flex-col shadow-md hover:shadow-xl hover:border-green-400 transition-all duration-300">
-                    <div className="w-full aspect-video bg-black/10 overflow-hidden relative border-b border-slate-100">
+                  <div key={item.name} className="bg-slate-50 border border-slate-200/80 rounded-2xl overflow-hidden flex flex-col shadow-md hover:shadow-xl hover:border-green-500 transition-all duration-300">
+                    <div className="w-full aspect-video bg-black/10 overflow-hidden relative border-b border-slate-150">
                       <img src={item.img} alt={item.name} className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300" onError={(e) => { (e.target as HTMLImageElement).src = "https://grabnext.pages.dev/api/placeholder?w=400&h=250&text=" + encodeURIComponent(item.name); }} />
                       <div className="absolute top-2 right-2 bg-yellow-400 text-black text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-md">
                         Worth {item.worth}
@@ -688,10 +693,10 @@ export default function SoftwareFunnelPage() {
                     </div>
                     <div className="p-4 flex-1 flex flex-col justify-between">
                       <div>
-                        <h4 className="font-extrabold text-slate-800 text-sm leading-snug mb-1">{item.name}</h4>
-                        <p className="text-slate-500 text-xs leading-relaxed font-semibold">{item.desc}</p>
+                        <h4 className="font-extrabold text-slate-800 text-base sm:text-[17px] leading-snug mb-1">{item.name}</h4>
+                        <p className="text-slate-650 text-sm leading-relaxed font-semibold">{item.desc}</p>
                       </div>
-                      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold">
+                      <div className="mt-3 pt-3 border-t border-slate-200/80 flex items-center justify-between text-xs font-semibold">
                         <span className="text-green-600 font-extrabold">✓ Included FREE</span>
                         <span className="text-slate-400 line-through font-bold">{item.worth}</span>
                       </div>
@@ -714,17 +719,22 @@ export default function SoftwareFunnelPage() {
               </div>
             </div>
 
-            {/* 11 Mega Creative Collections Grid */}
-            <div className="mb-14">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-black text-slate-900" style={{ fontFamily: "Poppins, sans-serif" }}>
+            {/* 11 Mega Creative Collections - Deep Navy Blue Panel */}
+            <div className="bg-[#00114E] border border-white/10 rounded-3xl p-6 md:p-10 mb-14 shadow-2xl relative overflow-hidden text-white">
+              {/* Glowing internal orb for depth */}
+              <div className="absolute" style={{ width: 450, height: 450, borderRadius: "50%", background: "radial-gradient(circle, rgba(175,255,61,0.06) 0%, rgba(255,255,255,0) 70%)", bottom: -150, left: -100, pointerEvents: "none" }} />
+              
+              <div className="text-center mb-8 relative z-10">
+                <h3 className="text-2xl sm:text-3xl font-black text-white" style={{ fontFamily: "Poppins, sans-serif" }}>
                   11 Mega Creative Collections Included
                 </h3>
-                <p className="text-slate-550 text-xs sm:text-sm mt-1 font-bold">
+                <p className="text-white/75 text-sm sm:text-base mt-1 font-bold">
                   Ready-to-use project assets, templates, and libraries to speed up your workflow.
                 </p>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              
+              {/* Two Column Layout list with Green Checkmarks */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto relative z-10">
                 {[
                   { num: "01", name: "Photoshop Collection", desc: "Premium brushes, actions, overlays, shapes, and tools." },
                   { num: "02", name: "Corel Draw Collection", desc: "Vector CDR files, designs, visiting cards, and letterheads." },
@@ -738,16 +748,16 @@ export default function SoftwareFunnelPage() {
                   { num: "10", name: "Adobe InDesign Collection", desc: "Books, magazines, resumes, and brochures layouts." },
                   { num: "11", name: "PowerPoint Collection", desc: "Slide decks, pitch templates, and business presentations." }
                 ].map((col) => (
-                  <div key={col.num} className="bg-white border border-slate-200 rounded-2xl p-5 hover:border-green-400 hover:shadow-lg transition-all shadow-md">
-                    <span className="text-xs font-black text-green-600 uppercase tracking-wider block mb-1">
-                      Collection {col.num}
-                    </span>
-                    <h4 className="font-extrabold text-slate-800 text-sm mb-1.5" style={{ fontFamily: "Poppins, sans-serif" }}>
-                      {col.name}
-                    </h4>
-                    <p className="text-slate-600 text-xs leading-relaxed font-semibold">
-                      {col.desc}
-                    </p>
+                  <div key={col.num} className="bg-[#070f35] border border-white/10 rounded-2xl p-5 hover:border-green-400 hover:shadow-xl transition-all shadow-lg flex items-start gap-4">
+                    <span className="text-[#05FF00] font-black text-xl shrink-0 mt-0.5">✓</span>
+                    <div>
+                      <h4 className="font-extrabold text-white text-base sm:text-[17px] mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>
+                        Collection {col.num}: {col.name}
+                      </h4>
+                      <p className="text-white/70 text-sm leading-relaxed font-semibold">
+                        {col.desc}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -755,7 +765,7 @@ export default function SoftwareFunnelPage() {
 
             {/* Live Store Products secondary list */}
             {products.length > 0 && (
-              <div className="border-t border-slate-200 pt-10">
+              <div className="border-t border-slate-300 pt-10">
                 <h4 className="text-center font-black text-slate-800 mb-6 text-sm sm:text-base uppercase tracking-wide">
                   🎁 Plus, Get All These Active Products from Our Catalog Free!
                 </h4>
