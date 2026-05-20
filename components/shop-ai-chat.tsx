@@ -61,8 +61,6 @@ export function ShopAIChat() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE])
 
-  if (pathname === "/software") return null
-
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
@@ -263,6 +261,8 @@ export function ShopAIChat() {
   const formatTime = (iso: string) => {
     try { return new Date(iso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) } catch { return "" }
   }
+
+  if (pathname === "/software") return null
 
   return (
     <>
