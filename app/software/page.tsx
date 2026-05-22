@@ -461,7 +461,7 @@ export default function SoftwareFunnelPage() {
       title: "Adobe All Premium Software Bundle 2026",
       price: 249,
       category: "software",
-      imageUrl: banner?.imageUrl || "https://media.licdn.com/dms/image/D4D12AQGg4FhYvYlFwA/article-cover_image-shrink_720_1280/0/1689108390829?e=2147483647&v=beta&t=aI8jVq8vQZ3PZ4b1_O7m9L8-K_rTzJg5nL3x-5Qc4Kk",
+      imageUrl: "/hero-bundle.png",
       downloadUrl: "[]",
       isActive: true,
       tags: ["adobe", "bundle", "lifetime"]
@@ -510,13 +510,8 @@ export default function SoftwareFunnelPage() {
               All 20+ Premium Creative Apps — Windows & Mac — Pre-Activated for Lifetime!
             </p>
             {/* Adobe Bundle Image */}
-            <div className="mx-auto mb-10 rounded-2xl overflow-hidden border border-white/20 shadow-2xl relative bg-black/60" style={{ maxWidth: 840, aspectRatio: "16/9", display: "flex", alignItems: "center", justifyItems: "center" }}>
-               <img src={banner?.imageUrl || "https://media.licdn.com/dms/image/D4D12AQGg4FhYvYlFwA/article-cover_image-shrink_720_1280/0/1689108390829?e=2147483647&v=beta&t=aI8jVq8vQZ3PZ4b1_O7m9L8-K_rTzJg5nL3x-5Qc4Kk"} alt="Adobe All Premium Software Bundle Collection 2026" className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = "https://grabnext.pages.dev/api/placeholder?w=800&h=450&text=Adobe+All+Premium+Collection+2026"; }} />
-               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-center pb-5">
-                  <span className="bg-green-600 text-white font-black px-6 py-2 rounded-full text-sm sm:text-base shadow-xl flex items-center gap-2 border border-green-500">
-                    <span className="text-yellow-300">⚡</span> Direct High-Speed Download Included
-                  </span>
-               </div>
+            <div className="mx-auto mb-10 rounded-2xl overflow-hidden shadow-2xl" style={{ maxWidth: 1000 }}>
+               <img src="/hero-bundle.png" alt="All Adobe Software Bundle" className="w-full h-auto" />
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
               <button onClick={handleBuyClick} className="hover:-translate-y-0.5 active:translate-y-0 hover:shadow-[0px_10px_25px_rgba(5,255,0,0.4)] transition-all duration-200" style={{ ...BTN_STYLE, fontSize: "clamp(18px,2.8vw,32px)", padding: "16px 48px", width: "min(90%,580px)" }}>
