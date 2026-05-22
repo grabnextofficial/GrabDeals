@@ -681,8 +681,8 @@ export default function SoftwareFunnelPage() {
           </div>
         </section>
 
-        {/* ── 6. SPECIAL LAUNCH OFFER BONUSES (Alternating Soft Light & Deep Navy Theme) ── */}
-        <section className="bg-gradient-to-b from-slate-50 via-slate-100 to-slate-200 py-16 px-4 text-slate-800 border-y border-slate-200">
+        {/* ── 6. SPECIAL LAUNCH OFFER BONUSES (Clean White/Blue Theme) ── */}
+        <section className="bg-slate-50 py-16 px-4 text-slate-800 border-y border-slate-200">
           <div className="max-w-6xl mx-auto relative z-10">
             {/* Main Header */}
             <div className="text-center mb-14">
@@ -690,73 +690,68 @@ export default function SoftwareFunnelPage() {
                 💥 Special Launch Offer Bonuses
               </span>
               <h2 className="font-black mt-5 text-[#FF3E3E]" style={{ fontSize: "clamp(26px,4vw,44px)", fontFamily: "Poppins, sans-serif", lineHeight: 1.25 }}>
-                🎁 Get the Ultimate Graphic Designing Bundle & Video Editing Bundle For <span className="bg-yellow-400 text-black px-4 py-1.5 rounded-xl inline-block transform hover:scale-105 transition-transform shadow-[0px_4px_10px_rgba(255,200,0,0.4)] border border-yellow-500 uppercase tracking-widest text-[1.05em] font-extrabold rotate-[-1deg] ml-2">FREE!</span>
+                🎁 Get 3 Exclusive Mega Bonuses For <span className="bg-[#00114E] text-white px-4 py-1.5 rounded-xl inline-block transform hover:scale-105 transition-transform shadow-md uppercase tracking-widest text-[0.9em] font-black ml-2">FREE!</span>
               </h2>
-              <p className="text-slate-700 max-w-3xl mx-auto mt-5 text-base sm:text-lg font-extrabold" style={{ fontFamily: "Poppins, sans-serif" }}>
-                Claim lifetime access to over <span className="text-red-650 font-black">₹34,999</span> worth of premium editing presets, vector files, video courses, and templates when you buy the Adobe CC Bundle today.
+              <p className="text-slate-700 max-w-3xl mx-auto mt-5 text-base sm:text-lg font-extrabold font-sans">
+                Claim lifetime access to over <span className="text-red-650 font-black">₹34,999</span> worth of premium editing presets, vector files, video courses, website templates, and pre-activated tools when you buy the Adobe CC Bundle today.
               </p>
             </div>
 
-            {/* Spotlight Bonus 1: Graphic Designing Bundle (800+ GB Plan) - Premium Navy Blue Card */}
-            <div className="bg-[#00114E] border border-white/10 rounded-3xl p-6 md:p-10 mb-10 shadow-2xl relative overflow-hidden text-white">
-              {/* Glowing internal orb for depth */}
-              <div className="absolute" style={{ width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(5,255,0,0.08) 0%, rgba(255,255,255,0) 70%)", top: -100, right: -100, pointerEvents: "none" }} />
-              
-              <div className="absolute top-0 right-0 bg-green-600 text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10 border-l border-b border-white/15">
+            {/* Spotlight Bonus 1: Graphic Designing Bundle (800+ GB Plan) - Clean White Card with Blue Border */}
+            <div className="bg-white border-2 border-[#00114E] rounded-3xl p-6 md:p-10 mb-10 shadow-xl relative overflow-hidden text-slate-800">
+              <div className="absolute top-0 right-0 bg-[#00114E] text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10">
                 Bonus #1 Included
               </div>
               <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
                 {/* Left: Box Mockup */}
                 <div className="md:col-span-5 flex flex-col items-center">
                   <div className="relative group max-w-[310px] w-full">
-                    <div className="absolute -inset-1.5 bg-gradient-to-r from-yellow-400 to-green-400 rounded-2xl blur opacity-25 group-hover:opacity-45 transition duration-500"></div>
-                    <div className="relative bg-slate-900 rounded-2xl overflow-hidden shadow-xl border border-white/10">
-                      <img src="/images/graphic-bundle-675gb.png" alt="675 GB Graphics Bundle Box Mockup" className="w-full h-auto object-cover transform hover:scale-103 transition-transform duration-300" />
+                    <div className="absolute -inset-1.5 bg-gradient-to-r from-blue-500 to-[#00114E] rounded-2xl blur opacity-20 group-hover:opacity-35 transition duration-500"></div>
+                    <div className="relative bg-white rounded-2xl overflow-hidden shadow-md border border-slate-200">
+                      <img src="/images/graphic-bundle-675gb.png" alt="800 GB Graphics Bundle Mockup" className="w-full h-auto object-cover transform hover:scale-103 transition-transform duration-300" />
                     </div>
                   </div>
-                  <span className="text-xs text-white/70 mt-3 font-extrabold uppercase tracking-wider">
-                    800+ GB Plan Graphic Designing Bundle
+                  <span className="text-xs text-slate-500 mt-3 font-extrabold uppercase tracking-wider">
+                    800+ GB Graphic Designing Bundle
                   </span>
                 </div>
 
                 {/* Right: Asset List */}
                 <div className="md:col-span-7">
-                  <h3 className="text-2xl sm:text-3xl font-black text-[#05FF00] mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>
+                  <h3 className="text-2xl sm:text-3xl font-black text-[#00114E] mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>
                     Ultimate Graphic Designing Bundle (800+ GB Plan)
                   </h3>
                   
-                  {/* Single Column List with Green Tick Marks & Larger Fonts */}
-                  <div className="grid grid-cols-1 gap-4 mb-6">
+                  {/* Single Column List with Blue Tick Marks */}
+                  <div className="grid grid-cols-1 gap-3.5 mb-6">
                     {[
-                      "8,000+ Lightroom Presets",
-                      "20+ Free Video Courses",
-                      "500+ Resume / CV Templates",
-                      "1,000+ PSD Graphic Data & PSD Cards",
-                      "300+ Social Media Premium Templates",
-                      "CorelDraw (CDR) Pack (Visiting Cards, letterheads)",
-                      "Visiting Cards, Letterheads, Logos, etc.",
+                      "8,000+ Lightroom Presets (Ready-to-use)",
+                      "20+ Free Graphic Design Video Courses",
+                      "500+ Resume / CV Templates (Fully Editable)",
+                      "1,000+ PSD Graphics (Logos, Cards, Letterheads)",
+                      "300+ Premium Social Media Templates",
+                      "CorelDraw (CDR) Pack & Visiting Cards",
                       "Wedding Collection & Wedding Album Templates",
-                      "HD Icons & Motion Graphics",
-                      "Banners: Real Estate, Grocery, Education, Dental, Lubricant Oil & 100+ Restaurant Banners",
-                      "Sales Scripts Pack (Email, LinkedIn, Instagram DM, Pitching Scripts)",
-                      "Social Media Calendar, Digital V-Cards & Clip Art"
+                      "HD Icons & Motion Graphics Pack",
+                      "Banners for Real Estate, Gyms, Restaurants, etc.",
+                      "Sales & Digital Marketing Pitch Scripts"
                     ].map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-3.5 text-base sm:text-lg text-white/95 leading-relaxed">
-                        <span className="text-[#05FF00] font-black shrink-0 text-xl">✓</span>
+                      <div key={idx} className="flex items-start gap-3.5 text-base sm:text-[17px] text-slate-700 leading-relaxed">
+                        <span className="text-[#00114E] font-black shrink-0 text-xl">✓</span>
                         <span className="font-extrabold">{item}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* Access Instructions */}
-                  <div className="bg-yellow-400/10 border border-yellow-400/25 rounded-2xl p-4 flex gap-3 text-white">
-                    <span className="text-2xl shrink-0">ℹ️</span>
+                  <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex gap-3 text-slate-800">
+                    <span className="text-xl shrink-0">💡</span>
                     <div>
-                      <p className="text-xs font-black uppercase text-yellow-400 tracking-wider mb-1">
+                      <p className="text-xs font-black uppercase text-[#00114E] tracking-wider mb-1">
                         How to Access Your Graphic Bundle
                       </p>
-                      <p className="text-xs leading-relaxed text-white/80 font-medium">
-                        Download link for the Ultimate Graphic Designing Bundle is sent directly to your <strong className="text-yellow-400 font-black">email invoice</strong> immediately post-payment. Simply click <strong className="text-yellow-350 font-black">“Click here to Download Graphic designing Bundle”</strong> on the invoice you receive.
+                      <p className="text-xs leading-relaxed font-semibold">
+                        Aapko Graphic Designing Bundle ka direct download link payment ke turant baad **Email Invoice** par mil jayega. Click karke aasaani se download karein!
                       </p>
                     </div>
                   </div>
@@ -764,41 +759,41 @@ export default function SoftwareFunnelPage() {
               </div>
             </div>
 
-            {/* Spotlight Bonus 2: Video Editing Bundle (Detailed Grid with Images) - Clean High-Contrast White Card */}
-            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-10 mb-10 shadow-xl relative overflow-hidden text-slate-900">
-              <div className="absolute top-0 right-0 bg-green-600 text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10 border-l border-b border-slate-200/30">
+            {/* Spotlight Bonus 2: Video Editing Bundle - Clean Card with Blue Border */}
+            <div className="bg-white border-2 border-[#00114E] rounded-3xl p-6 md:p-10 mb-10 shadow-xl relative overflow-hidden text-slate-900">
+              <div className="absolute top-0 right-0 bg-[#00114E] text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10">
                 Bonus #2 Included
               </div>
               
               <div className="text-center md:text-left mb-8">
-                <span className="text-xs font-black text-green-600 uppercase tracking-wider block mb-1">
-                  Premium Bonus Addition
+                <span className="text-xs font-black text-[#00114E] uppercase tracking-wider block mb-1">
+                  Premium Video Asset Library
                 </span>
-                <h3 className="text-3xl font-black text-slate-900" style={{ fontFamily: "Poppins, sans-serif" }}>
-                  Mega Video Editing Assets & Courses Bundle
+                <h3 className="text-2xl sm:text-3xl font-black text-[#00114E]" style={{ fontFamily: "Poppins, sans-serif" }}>
+                  Mega Video Editing Assets & Masterclass Bundle
                 </h3>
-                <p className="text-slate-600 text-sm sm:text-base mt-2 max-w-3xl font-semibold">
-                  Stop looking for assets online. Get lifetime access to this ultimate toolkit featuring premium transitions, LUTs, FX presets, overlays, templates, SFX, and full masterclass courses!
+                <p className="text-slate-650 text-sm sm:text-base mt-2 max-w-3xl font-semibold">
+                  Aapko editing ke liye files aur sound effects dhoondhne ki koi zaroorat nahi hai. Get Transitions, LUTs, Premiere & After Effects presets, overlays, and complete editing course for 100% Free!
                 </p>
               </div>
 
               {/* Detailed Grid Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
                 {VIDEO_BUNDLE_ITEMS.map((item) => (
-                  <div key={item.name} className="bg-slate-50 border border-slate-200/80 rounded-2xl overflow-hidden flex flex-col shadow-md hover:shadow-xl hover:border-green-500 transition-all duration-300">
+                  <div key={item.name} className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-md hover:border-[#00114E] transition-all duration-300">
                     <div className="w-full aspect-video bg-black/10 overflow-hidden relative border-b border-slate-150">
                       <img src={item.img} alt={item.name} className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300" onError={(e) => { (e.target as HTMLImageElement).src = "https://grabnext.pages.dev/api/placeholder?w=400&h=250&text=" + encodeURIComponent(item.name); }} />
-                      <div className="absolute top-2 right-2 bg-yellow-400 text-black text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-md">
+                      <div className="absolute top-2 right-2 bg-[#00114E] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-md">
                         Worth {item.worth}
                       </div>
                     </div>
                     <div className="p-4 flex-1 flex flex-col justify-between">
                       <div>
                         <h4 className="font-extrabold text-slate-800 text-base sm:text-[17px] leading-snug mb-1">{item.name}</h4>
-                        <p className="text-slate-650 text-sm leading-relaxed font-semibold">{item.desc}</p>
+                        <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-semibold">{item.desc}</p>
                       </div>
-                      <div className="mt-3 pt-3 border-t border-slate-200/80 flex items-center justify-between text-xs font-semibold">
-                        <span className="text-green-600 font-extrabold">✓ Included FREE</span>
+                      <div className="mt-3 pt-3 border-t border-slate-200 flex items-center justify-between text-xs font-semibold">
+                        <span className="text-[#00114E] font-extrabold">✓ Included FREE</span>
                         <span className="text-slate-400 line-through font-bold">{item.worth}</span>
                       </div>
                     </div>
@@ -807,59 +802,114 @@ export default function SoftwareFunnelPage() {
               </div>
 
               {/* Access Instructions for Video Bundle */}
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex gap-3 text-amber-950">
-                <span className="text-2xl shrink-0">ℹ️</span>
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 flex gap-3 text-slate-800">
+                <span className="text-2xl shrink-0">💡</span>
                 <div>
-                  <p className="text-xs font-black uppercase text-amber-800 tracking-wider mb-1">
+                  <p className="text-xs font-black uppercase text-[#00114E] tracking-wider mb-1">
                     How to Access Your Video Editing Bundle
                   </p>
-                  <p className="text-xs leading-relaxed text-amber-900 font-bold">
-                    The full direct high-speed download link for the Video Editing Bundle is embedded securely inside your post-checkout PDF invoice. You can download all collections with a single click instantly after completing the purchase.
+                  <p className="text-xs leading-relaxed font-bold">
+                    The full direct download link for the Video Editing Bundle is sent to your Email Invoice. You can download all files with a single click instantly after completing the purchase!
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* 11 Mega Creative Collections - Deep Navy Blue Panel */}
-            <div className="bg-[#00114E] border border-white/10 rounded-3xl p-6 md:p-10 mb-14 shadow-2xl relative overflow-hidden text-white">
-              {/* Glowing internal orb for depth */}
-              <div className="absolute" style={{ width: 450, height: 450, borderRadius: "50%", background: "radial-gradient(circle, rgba(175,255,61,0.06) 0%, rgba(255,255,255,0) 70%)", bottom: -150, left: -100, pointerEvents: "none" }} />
-              
+            {/* Spotlight Bonus 3: WordPress Themes & Plugins Bundle - Clean Card with Blue Border */}
+            <div className="bg-white border-2 border-[#00114E] rounded-3xl p-6 md:p-10 mb-10 shadow-xl relative overflow-hidden text-slate-800">
+              <div className="absolute top-0 right-0 bg-[#00114E] text-white font-black px-6 py-2 rounded-bl-2xl text-xs uppercase tracking-wider z-10">
+                Bonus #3 Included
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
+                {/* Left: Box Mockup / Image */}
+                <div className="md:col-span-5 flex flex-col items-center">
+                  <div className="relative group max-w-[310px] w-full">
+                    <div className="absolute -inset-1.5 bg-gradient-to-r from-blue-500 to-[#00114E] rounded-2xl blur opacity-20 group-hover:opacity-35 transition duration-500"></div>
+                    <div className="relative bg-white rounded-2xl overflow-hidden shadow-md border border-slate-200">
+                      <img src="https://images.unsplash.com/photo-1618477388954-7852f32655ec?w=600&q=80" alt="WordPress Premium Themes & Plugins Bundle Mockup" className="w-full h-auto object-cover transform hover:scale-103 transition-transform duration-300" />
+                    </div>
+                  </div>
+                  <span className="text-xs text-slate-500 mt-3 font-extrabold uppercase tracking-wider">
+                    WordPress Premium Web Tools Bundle
+                  </span>
+                </div>
+
+                {/* Right: Asset List */}
+                <div className="md:col-span-7">
+                  <h3 className="text-2xl sm:text-3xl font-black text-[#00114E] mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>
+                    Premium WordPress Themes & Plugins Bundle (Worth ₹19,999)
+                  </h3>
+                  
+                  {/* Single Column List with Blue Tick Marks */}
+                  <div className="grid grid-cols-1 gap-3.5 mb-6">
+                    {[
+                      "500+ Premium GPL WordPress Themes (Astra Pro, Divi, WoodMart, Newspaper)",
+                      "300+ Premium GPL Plugins (Elementor Pro, WP Rocket, WPBakery, Slider Revolution)",
+                      "100% Virus-Free & Safe (Pre-Activated / Pre-patched)",
+                      "Lifetime Free Updates Included",
+                      "Drag-and-drop landing page templates ready to import",
+                      "E-commerce themes & payment integration tools"
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-3.5 text-base sm:text-[17px] text-slate-700 leading-relaxed">
+                        <span className="text-[#00114E] font-black shrink-0 text-xl">✓</span>
+                        <span className="font-extrabold">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Access Instructions */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex gap-3 text-slate-800">
+                    <span className="text-xl shrink-0">💡</span>
+                    <div>
+                      <p className="text-xs font-black uppercase text-[#00114E] tracking-wider mb-1">
+                        How to Access Your WordPress Bundle
+                      </p>
+                      <p className="text-xs leading-relaxed font-semibold">
+                        Aapko WordPress Themes & Plugins Bundle ka secure download link payments ke baad direct aapki **Email Invoice** par mil jayega. Click karke download karein aur beautiful website banayein!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 11 Mega Creative Collections - Clean White Background Panel */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-10 mb-14 shadow-lg relative overflow-hidden text-slate-800">
               <div className="text-center mb-8 relative z-10">
-                <h3 className="text-2xl sm:text-3xl font-black text-white" style={{ fontFamily: "Poppins, sans-serif" }}>
+                <h3 className="text-2xl sm:text-3xl font-black text-[#00114E]" style={{ fontFamily: "Poppins, sans-serif" }}>
                   11 Mega Creative Collections Included
                 </h3>
-                <p className="text-white/75 text-sm sm:text-base mt-1 font-bold">
+                <p className="text-slate-600 text-sm sm:text-base mt-1 font-bold">
                   Ready-to-use project assets, templates, and libraries to speed up your workflow.
                 </p>
               </div>
               
-              {/* Two Column Layout list with Green Checkmarks and Images */}
+              {/* Two Column Layout list with Blue Checkmarks and Images */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto relative z-10">
                 {[
-                  { num: "01", name: "Photoshop Collection", desc: "Premium brushes, actions, overlays, shapes, and tools.", img: "https://images.unsplash.com/photo-1572044162444-ad60f128bdea?w=400&q=80" },
+                  { num: "01", name: "Photoshop Collection", desc: "Premium brushes, actions, overlays, shapes, and tools.", img: "https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=400&q=80" },
                   { num: "02", name: "Corel Draw Collection", desc: "Vector CDR files, designs, visiting cards, and letterheads.", img: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=400&q=80" },
-                  { num: "03", name: "Logos", desc: "10,000+ high-quality customizable logo templates.", img: "https://images.unsplash.com/photo-1627398225056-f3a48ff98e21?w=400&q=80" },
-                  { num: "04", name: "Fonts", desc: "5,000+ premium localized and corporate font families.", img: "https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?w=400&q=80" },
-                  { num: "05", name: "Mockups", desc: "T-shirts, packaging, apparel, and branding templates.", img: "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=400&q=80" },
-                  { num: "06", name: "PNG Images Collection", desc: "High-definition transparent assets for quick compositing.", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80" },
-                  { num: "07", name: "Adobe Illustrator Collection", desc: "AI files, vectors, background patterns, and assets.", img: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&q=80" },
-                  { num: "08", name: "Adobe Premiere Collection", desc: "Transitions, title cards, overlays, and color LUTs.", img: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400&q=80" },
-                  { num: "09", name: "Adobe After Effects Collection", desc: "Video templates, intro animations, and sound effects.", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80" },
-                  { num: "10", name: "Adobe InDesign Collection", desc: "Books, magazines, resumes, and brochures layouts.", img: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&q=80" },
+                  { num: "03", name: "Logos Collection", desc: "10,000+ high-quality customizable logo templates.", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80" },
+                  { num: "04", name: "Fonts Collection", desc: "5,000+ premium localized and corporate font families.", img: "https://images.unsplash.com/photo-1561070791-26c113006238?w=400&q=80" },
+                  { num: "05", name: "Mockups Collection", desc: "T-shirts, packaging, apparel, and branding templates.", img: "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=400&q=80" },
+                  { num: "06", name: "PNG Images Collection", desc: "High-definition transparent assets for quick compositing.", img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80" },
+                  { num: "07", name: "Adobe Illustrator Collection", desc: "AI files, vectors, background patterns, and assets.", img: "https://images.unsplash.com/photo-1572044162444-ad60f128bdea?w=400&q=80" },
+                  { num: "08", name: "Adobe Premiere Collection", desc: "Transitions, title cards, overlays, and color LUTs.", img: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&q=80" },
+                  { num: "09", name: "Adobe After Effects Collection", desc: "Video templates, intro animations, and sound effects.", img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&q=80" },
+                  { num: "10", name: "Adobe InDesign Collection", desc: "Books, magazines, resumes, and brochures layouts.", img: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80" },
                   { num: "11", name: "PowerPoint Collection", desc: "Slide decks, pitch templates, and business presentations.", img: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&q=80" }
                 ].map((col) => (
-                  <div key={col.num} className="bg-[#070f35] border border-white/10 rounded-2xl p-4 hover:border-green-400 hover:shadow-[0_0_15px_rgba(5,255,0,0.2)] transition-all shadow-lg flex items-center gap-4 group">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border-2 border-white/10 group-hover:border-[#05FF00] transition-colors relative">
+                  <div key={col.num} className="bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:border-[#00114E] hover:shadow-md transition-all shadow-sm flex items-center gap-4 group">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border-2 border-slate-200 group-hover:border-[#00114E] transition-colors relative">
                       <img src={col.img} alt={col.name} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                      <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-extrabold text-white text-base sm:text-[17px] mb-1 flex items-center gap-2" style={{ fontFamily: "Poppins, sans-serif" }}>
-                        <span className="text-[#05FF00] font-black text-lg">✓</span>
+                      <h4 className="font-extrabold text-slate-800 text-base sm:text-[17px] mb-1 flex items-center gap-2" style={{ fontFamily: "Poppins, sans-serif" }}>
+                        <span className="text-[#00114E] font-black text-lg">✓</span>
                         {col.name}
                       </h4>
-                      <p className="text-white/70 text-xs sm:text-sm leading-relaxed font-semibold">
+                      <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-semibold">
                         {col.desc}
                       </p>
                     </div>
