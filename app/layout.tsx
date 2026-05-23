@@ -2,7 +2,6 @@ import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { AuthProvider } from "@/contexts/auth-context"
-import { CurrencyProvider } from "@/contexts/currency-context"
 import { CartProvider } from "@/contexts/cart-context"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
@@ -180,15 +179,13 @@ html {
         </noscript>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <AuthProvider>
-            <CurrencyProvider>
-              <CartProvider>
-                {/* Tracks PageView on every SPA route change */}
-                <FacebookPixelRouteTracker />
-                {children}
-                <Toaster />
-                <ShopAIChat />
-              </CartProvider>
-            </CurrencyProvider>
+            <CartProvider>
+              {/* Tracks PageView on every SPA route change */}
+              <FacebookPixelRouteTracker />
+              {children}
+              <Toaster />
+              <ShopAIChat />
+            </CartProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

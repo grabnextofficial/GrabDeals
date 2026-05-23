@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
 import { useCart } from "@/contexts/cart-context"
-import { useCurrency } from "@/contexts/currency-context"
 import Link from "next/link"
 
 interface CartDrawerProps {
@@ -16,7 +15,13 @@ interface CartDrawerProps {
 
 export function CartDrawer({ children }: CartDrawerProps) {
   const { items, totalItems, totalAmount, updateQuantity, removeFromCart, isDrawerOpen, setDrawerOpen } = useCart()
-  const { formatPrice } = useCurrency()
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+    }).format(price)
+  }
 
   return (
     <Sheet open={isDrawerOpen} onOpenChange={setDrawerOpen}>

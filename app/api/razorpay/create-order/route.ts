@@ -24,9 +24,6 @@ export async function POST(request: NextRequest) {
 
         // Create Razorpay order via their API
         const auth = btoa(`${keyId}:${keySecret}`)
-        const isZeroDecimal = currency === 'JPY'
-        const finalAmount = isZeroDecimal ? Math.round(amount) : Math.round(amount * 100)
-
         const res = await fetch('https://api.razorpay.com/v1/orders', {
             method: 'POST',
             headers: {
@@ -34,7 +31,7 @@ export async function POST(request: NextRequest) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                amount: finalAmount,
+                amount: Math.round(amount * 100), // Razorpay needs paise
                 currency,
                 receipt: receipt || `rcpt_${Date.now()}`,
             }),

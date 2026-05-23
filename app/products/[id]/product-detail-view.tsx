@@ -16,7 +16,6 @@ import { StoreHeader } from "@/components/store-header"
 import { Footer } from "@/components/footer"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
-import { useCurrency } from "@/contexts/currency-context"
 import { fetchProductReviews, submitReview, fetchProducts } from "@/lib/d1-client"
 import { toast } from "@/hooks/use-toast"
 import type { Product } from "@/lib/types"
@@ -165,7 +164,8 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
         finally { setSubmittingReview(false) }
     }
 
-    const { formatPrice } = useCurrency()
+    const formatPrice = (price: number) =>
+        new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(price)
 
     const images: string[] = (() => {
         const arr = Array.isArray((product as any).images) ? (product as any).images : []
@@ -494,7 +494,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                             {rp.title}
                                         </h4>
                                         <p className="text-sm font-bold text-gray-900 mt-1">
-                                            {formatPrice(rp.price)}
+                                            {new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(rp.price)}
                                         </p>
                                     </div>
                                 </Link>

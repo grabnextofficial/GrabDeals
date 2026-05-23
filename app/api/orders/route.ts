@@ -29,17 +29,13 @@ export async function POST(request: NextRequest) {
     const now = Date.now()
 
     await executeQuery(`
-      INSERT INTO orders (id, userId, userEmail, userName, userPhone, items, totalAmount, currency, status, paymentId, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO orders (id, userId, items, totalAmount, status, paymentId, createdAt, updatedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       id,
       data.userId || 'guest',
-      data.userEmail || null,
-      data.userName || null,
-      data.userPhone || null,
       JSON.stringify(data.items || []),
       data.totalAmount || 0,
-      data.currency || 'INR',
       data.status || 'pending',
       data.paymentId || null,
       now,

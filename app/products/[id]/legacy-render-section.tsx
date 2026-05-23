@@ -7,7 +7,6 @@ import { StoreHeader } from "@/components/store-header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/contexts/cart-context"
-import { useCurrency } from "@/contexts/currency-context"
 import { Zap, ShoppingCart, Star, Loader2, Trash2, GripHorizontal } from "lucide-react"
 import { LandingSection, FloatingNode } from "@/lib/types"
 import type { Product } from "@/lib/types"
@@ -156,7 +155,7 @@ function EditableText({ value, onChange, isBuilder, className, tagName: Tag = 'd
 function HeroSection({ section, product, isBuilder, onChange }: { section: LandingSection; product: Product; isBuilder?: boolean; onChange?: (s: LandingSection) => void }) {
     const router = useRouter()
     const { addToCart, setDrawerOpen } = useCart()
-    const { formatPrice: fmt } = useCurrency()
+    const fmt = (p: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(p)
     return (
         <AnimatedWrapper animation={(section as any).animation}>
             <section style={getSpacingStyles(section as LandingSection)} className="px-4">
