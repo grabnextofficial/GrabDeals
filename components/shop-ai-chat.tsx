@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { Send, ShoppingBag, Sparkles, ShoppingCart, Zap, Star, ExternalLink, X } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
+import { useCurrency } from "@/contexts/currency-context"
 import type { Product } from "@/lib/types"
 import Link from "next/link"
 
@@ -58,6 +59,9 @@ const TICK_MS = 18
 
 export function ShopAIChat() {
   const pathname = usePathname()
+  if (pathname?.startsWith("/checkout")) {
+    return null
+  }
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE])
 
@@ -71,6 +75,7 @@ export function ShopAIChat() {
   const inputRef = useRef<HTMLInputElement>(null)
   const typewriterRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const { addToCart } = useCart()
+  const { formatPrice: currencyFormatPrice } = useCurrency()
   const router = useRouter()
 
   // ── Icon spin ──
@@ -253,8 +258,7 @@ export function ShopAIChat() {
       .replace(/\n/g, '<br/>')
   }
 
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(price)
+  const formatPrice = (price: number) => currencyFormatPrice(price)
 
   const getDiscount = (price: number, original: number) => Math.round((1 - price / original) * 100)
 

@@ -5,6 +5,7 @@ import { ShoppingCart, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useCart } from "@/contexts/cart-context"
+import { useCurrency } from "@/contexts/currency-context"
 import type { Product } from "@/lib/types"
 import { useState, useEffect, useRef } from "react"
 import { trackAddToCart } from "@/lib/pixel"
@@ -13,13 +14,11 @@ interface ProductCardProps { product: Product }
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart()
+  const { formatPrice } = useCurrency()
   const [added, setAdded] = useState(false)
   const [imgIdx, setImgIdx] = useState(0)
   const [fade, setFade] = useState(true)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
-
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(price)
 
   const p = product as any
   const origPrice: number | null = p.originalPrice ? Number(p.originalPrice) : null

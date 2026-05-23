@@ -7,16 +7,12 @@ import { Separator } from "@/components/ui/separator"
 import { StoreHeader } from "@/components/store-header"
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
+import { useCurrency } from "@/contexts/currency-context"
 
 export default function CartPage() {
   const { items, totalItems, totalAmount, updateQuantity, removeFromCart, clearCart } = useCart()
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-    }).format(price)
-  }
+  const { formatPrice } = useCurrency()
 
   return (
     <div className="min-h-screen bg-background">

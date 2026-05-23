@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { StoreHeader } from "@/components/store-header"
+import { useCurrency } from "@/contexts/currency-context"
 import { ProductCard } from "@/components/product-card"
 import { Footer } from "@/components/footer"
 import { Input } from "@/components/ui/input"
@@ -76,7 +77,7 @@ export function ProductsContent() {
     const categoryMap: Record<string, string> = {}
     categories.forEach((c) => { categoryMap[c.slug] = c.name })
     const uniqueCategorySlugs = Array.from(new Set(products.map(p => p.category)))
-    const formatPrice = (v: number) => `₹${v.toLocaleString("en-IN")}`
+    const { formatPrice } = useCurrency()
     const hasActiveFilters = !!searchTerm || !!selectedCategory || priceRange[0] > 0 || priceRange[1] < maxProductPrice
 
     const clearAll = () => { setSearchTerm(""); setSelectedCategory(null); setPriceRange([0, maxProductPrice]) }

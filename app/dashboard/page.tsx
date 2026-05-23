@@ -47,6 +47,36 @@ function formatDateTime(ts: number | string) {
     })
 }
 
+function formatOrderPrice(amount: number, currencyCode: string = "INR") {
+    const code = (currencyCode || "INR").toUpperCase()
+    const symbols: Record<string, string> = {
+        INR: "₹",
+        USD: "$",
+        EUR: "€",
+        GBP: "£",
+        CAD: "CA$",
+        AUD: "A$",
+        AED: "AED ",
+        SGD: "S$",
+        JPY: "¥",
+        HKD: "HK$",
+        MYR: "RM",
+        NZD: "NZ$",
+        ZAR: "R ",
+    }
+    const maxDigits = code === "INR" || code === "JPY" ? 0 : 2
+    try {
+        return new Intl.NumberFormat(undefined, {
+            style: "currency",
+            currency: code,
+            maximumFractionDigits: maxDigits,
+        }).format(amount)
+    } catch (e) {
+        const sym = symbols[code] || "$"
+        return `${sym}${amount.toFixed(maxDigits)}`
+    }
+}
+
 // ─── Blob-based download row ─────────────────────────────────────────────────
 function DownloadAssetRow({ asset, secureUrl }: { asset: any; secureUrl: string }) {
     const [downloading, setDownloading] = useState(false)
@@ -187,7 +217,7 @@ function OrderCard({ order, onPay }: { order: any, onPay?: (order: any) => void 
 
                 <div className="space-y-0.5 text-right">
                     <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Total</p>
-                    <p className="text-lg font-bold text-blue-600">₹{Number(order.totalAmount).toLocaleString("en-IN")}</p>
+                    <p className="text-lg font-bold text-blue-600">{formatOrderPrice(order.totalAmount, order.currency)}</p>
                 </div>
 
                 <div className="flex flex-col items-end gap-2">
@@ -257,11 +287,11 @@ function OrderCard({ order, onPay }: { order: any, onPay?: (order: any) => void 
                                                 <p className="font-semibold text-gray-800 line-clamp-2">{item.title}</p>
                                             )}
                                             <p className="text-xs text-gray-500 mt-0.5">
-                                                Qty: {item.quantity} × ₹{Number(item.price).toLocaleString("en-IN")}
+                                                Qty: {item.quantity} × {formatOrderPrice(item.price, order.currency)}
                                             </p>
                                         </div>
                                         <p className="font-bold text-gray-800 shrink-0">
-                                            ₹{(item.price * item.quantity).toLocaleString("en-IN")}
+                                            {formatOrderPrice(item.price * item.quantity, order.currency)}
                                         </p>
                                     </div>
 
@@ -409,10 +439,11 @@ export default function DashboardPage() {
         const orderId = order.id
 
         if (activeGateway === "razorpay") {
+            const orderCurrency = order.currency || "INR"
             const orderRes = await fetch("/api/razorpay/create-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount: order.totalAmount, currency: "INR" }),
+                body: JSON.stringify({ amount: order.totalAmount, currency: orderCurrency }),
             })
             const orderData = await orderRes.json()
             if (!orderData.orderId || !window.Razorpay) {
@@ -421,10 +452,13 @@ export default function DashboardPage() {
                 return
             }
 
+            const isZeroDecimal = orderCurrency === "JPY"
+            const optionsAmount = isZeroDecimal ? Math.round(order.totalAmount) : Math.round(order.totalAmount * 100)
+
             const options = {
                 key: orderData.keyId,
-                amount: Math.round(order.totalAmount * 100),
-                currency: "INR",
+                amount: optionsAmount,
+                currency: orderCurrency,
                 name: "Grabnext",
                 order_id: orderData.orderId,
                 prefill: {

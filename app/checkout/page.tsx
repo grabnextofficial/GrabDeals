@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Loader2, ArrowRight } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
+import { useCurrency } from "@/contexts/currency-context"
 import { toast } from "@/hooks/use-toast"
 import { trackInitiateCheckout } from "@/lib/pixel"
 
@@ -83,8 +84,7 @@ export default function CheckoutPage() {
     }
   }, [user])
 
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(price)
+  const { currency, formatPrice, convertPrice } = useCurrency()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -154,10 +154,11 @@ export default function CheckoutPage() {
   }
 
   const handleRazorpay = async (orderId: string) => {
+    const convertedAmount = convertPrice(totalAmount)
     const orderRes = await fetch("/api/razorpay/create-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: totalAmount, currency: "INR" }),
+      body: JSON.stringify({ amount: convertedAmount, currency: currency }),
     })
     const orderData = await orderRes.json()
     if (!orderData.orderId) {
@@ -172,10 +173,13 @@ export default function CheckoutPage() {
       return
     }
 
+    const isZeroDecimal = currency === "JPY"
+    const optionsAmount = isZeroDecimal ? Math.round(convertedAmount) : Math.round(convertedAmount * 100)
+
     const options = {
       key: orderData.keyId,
-      amount: Math.round(totalAmount * 100),
-      currency: "INR",
+      amount: optionsAmount,
+      currency: currency,
       name: "Grabnext",
       description: items.length === 1 ? items[0].product.title : `${items.length} items`,
       order_id: orderData.orderId,
@@ -223,12 +227,13 @@ export default function CheckoutPage() {
           items: items.map((i) => ({
             productId: i.productId,
             title: i.product.title,
-            price: i.product.price,
+            price: convertPrice(i.product.price),
             quantity: i.quantity,
             imageUrl: i.product.imageUrl,
             downloadUrl: i.product.downloadUrl
           })),
-          totalAmount,
+          totalAmount: convertPrice(totalAmount),
+          currency,
           status: "pending",
         }),
       })
@@ -306,9 +311,6 @@ export default function CheckoutPage() {
               </p>
               <p>
                 <strong><span className="underline decoration-white underline-offset-4">BONUS 3:</span></strong> 800+ GB Graphics Bundle | <span className="text-[#FFE600]">Value : 25,000 INR</span>
-              </p>
-              <p>
-                <strong><span className="underline decoration-white underline-offset-4">BONUS 4:</span></strong> Premium WhatsApp Pro Community Access | <span className="text-[#FFE600]">Value : 2,000 INR</span>
               </p>
             </div>
 
