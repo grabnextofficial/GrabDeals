@@ -11,6 +11,11 @@ export async function GET() {
         "ALTER TABLE products ADD COLUMN slug TEXT;",
         "ALTER TABLE products ADD COLUMN images TEXT;",
         "ALTER TABLE orders ADD COLUMN currency TEXT DEFAULT 'INR';",
+        "ALTER TABLE orders ADD COLUMN userEmail TEXT;",
+        "ALTER TABLE orders ADD COLUMN userName TEXT;",
+        "ALTER TABLE orders ADD COLUMN userPhone TEXT;",
+        "ALTER TABLE users ADD COLUMN state TEXT;",
+        "ALTER TABLE users ADD COLUMN isGuest INTEGER DEFAULT 0;",
         
         // Also create missing tables just in case
         `CREATE TABLE IF NOT EXISTS lp_analytics (
@@ -38,7 +43,7 @@ export async function GET() {
             results.push({ sql, status: 'success' })
         } catch (e: any) {
             // Ignore duplicate column errors, log others
-            if (e.message && e.message.includes('duplicate column name')) {
+            if (e.message && (e.message.includes('duplicate column name') || e.message.includes('already exists'))) {
                 results.push({ sql, status: 'already exists' })
             } else {
                 results.push({ sql, status: 'error', error: e.message })
