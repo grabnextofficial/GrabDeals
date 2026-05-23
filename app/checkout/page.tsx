@@ -239,7 +239,7 @@ export default function CheckoutPage() {
       })
 
       const orderData = await orderRes.json()
-      if (!orderData.id) throw new Error("Failed to initialize order")
+      if (!orderData.id) throw new Error(orderData.error || "Failed to initialize order")
 
       setPendingOrderId(orderData.id)
       setCheckoutStep(2)
