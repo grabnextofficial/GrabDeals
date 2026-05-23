@@ -19,6 +19,7 @@ export type StandardEvent =
   | "ViewContent"
   | "AddToCart"
   | "InitiateCheckout"
+  | "AddPaymentInfo"
   | "Purchase"
   | "Lead"
   | "CompleteRegistration"
@@ -117,6 +118,7 @@ export function trackViewContent(params: {
   content_name: string
   content_category?: string
   content_ids: string[]
+  contents?: Array<{ id: string; quantity: number; item_price?: number }>
   value: number
   currency?: string
 }, userData?: UserData): void {
@@ -130,6 +132,7 @@ export function trackViewContent(params: {
 export function trackAddToCart(params: {
   content_name: string
   content_ids: string[]
+  contents?: Array<{ id: string; quantity: number; item_price?: number }>
   value: number
   currency?: string
 }, userData?: UserData): void {
@@ -144,6 +147,7 @@ export function trackInitiateCheckout(params: {
   value: number
   num_items?: number
   content_ids?: string[]
+  contents?: Array<{ id: string; quantity: number; item_price?: number }>
   currency?: string
 }, userData?: UserData): void {
   trackEventWithCAPI("InitiateCheckout", {
@@ -152,9 +156,23 @@ export function trackInitiateCheckout(params: {
   }, userData)
 }
 
+export function trackAddPaymentInfo(params: {
+  value: number
+  num_items?: number
+  content_ids?: string[]
+  contents?: Array<{ id: string; quantity: number; item_price?: number }>
+  currency?: string
+}, userData?: UserData): void {
+  trackEventWithCAPI("AddPaymentInfo", {
+    currency: "INR",
+    ...params,
+  }, userData)
+}
+
 export function trackPurchase(params: {
   value: number
   content_ids: string[]
+  contents?: Array<{ id: string; quantity: number; item_price?: number }>
   currency?: string
 }, userData?: UserData): void {
   trackEventWithCAPI("Purchase", {

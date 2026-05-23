@@ -34,9 +34,6 @@ export async function POST(req: Request) {
     const hashedPhone = await hashData(userData?.phone)
     const hashedFirstName = await hashData(userData?.firstName)
     const hashedLastName = await hashData(userData?.lastName)
-    // External ID doesn't need hashing per Meta docs if it's already an opaque ID, but we hash it anyway for safety
-    const hashedExternalId = await hashData(userData?.external_id)
-
     const formattedUserData: any = {
       client_ip_address,
       client_user_agent,
@@ -46,7 +43,7 @@ export async function POST(req: Request) {
     if (hashedPhone) formattedUserData.ph = [hashedPhone]
     if (hashedFirstName) formattedUserData.fn = [hashedFirstName]
     if (hashedLastName) formattedUserData.ln = [hashedLastName]
-    if (hashedExternalId) formattedUserData.external_id = [hashedExternalId]
+    if (userData?.external_id) formattedUserData.external_id = [userData.external_id]
 
     // 4. Construct CAPI Payload
     const eventPayload: any = {

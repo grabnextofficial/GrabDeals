@@ -140,6 +140,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
             content_name: initialProduct.title,
             content_category: initialProduct.category,
             content_ids: [initialProduct.id || id],
+            contents: [{ id: initialProduct.id || id, quantity: 1, item_price: initialProduct.price }],
             value: initialProduct.price,
         })
     }, [id, initialProduct])
@@ -278,6 +279,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                         trackAddToCart({
                                             content_name: product.title,
                                             content_ids: [product.id || id],
+                                            contents: [{ id: product.id || id, quantity: 1, item_price: product.price }],
                                             value: product.price,
                                         })
                                         router.push("/checkout")

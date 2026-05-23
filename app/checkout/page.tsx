@@ -7,7 +7,7 @@ import { Loader2, ArrowRight } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { toast } from "@/hooks/use-toast"
-import { trackInitiateCheckout } from "@/lib/pixel"
+import { trackInitiateCheckout, trackAddPaymentInfo } from "@/lib/pixel"
 
 declare global {
   interface Window {
@@ -60,6 +60,11 @@ export default function CheckoutPage() {
           value: totalAmount,
           num_items: items.length,
           content_ids: items.map((i) => i.productId),
+          contents: items.map((i) => ({
+            id: i.productId,
+            quantity: i.quantity || 1,
+            item_price: i.product.price,
+          })),
         },
         user ? {
           email: user.email || undefined,
@@ -235,6 +240,27 @@ export default function CheckoutPage() {
 
       const orderData = await orderRes.json()
       if (!orderData.id) throw new Error("Failed to initialize order")
+
+      // Track AddPaymentInfo with filled checkout data for advanced matching
+      trackAddPaymentInfo(
+        {
+          value: totalAmount,
+          num_items: items.length,
+          content_ids: items.map((i) => i.productId),
+          contents: items.map((i) => ({
+            id: i.productId,
+            quantity: i.quantity || 1,
+            item_price: i.product.price,
+          })),
+        },
+        {
+          email: formData.email || undefined,
+          phone: formData.phone || undefined,
+          firstName: formData.firstName || undefined,
+          lastName: formData.lastName || undefined,
+          external_id: userId || undefined,
+        }
+      )
 
       setPendingOrderId(orderData.id)
       setCheckoutStep(2)

@@ -74,6 +74,7 @@ export function ProductCard({ product }: ProductCardProps) {
     trackAddToCart({
       content_name: product.title,
       content_ids: [product.id ?? ""],
+      contents: [{ id: product.id ?? "", quantity: 1, item_price: product.price }],
       value: product.price,
     })
     setAdded(true)

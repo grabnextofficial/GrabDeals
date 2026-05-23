@@ -471,6 +471,7 @@ export default function SoftwareFunnelPage() {
     trackAddToCart({
       content_name: targetProduct.title,
       content_ids: [targetProduct.id],
+      contents: [{ id: targetProduct.id, quantity: 1, item_price: targetProduct.price }],
       value: targetProduct.price,
     });
 

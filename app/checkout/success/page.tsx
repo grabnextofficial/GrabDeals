@@ -31,6 +31,11 @@ export default function CheckoutSuccessPage() {
                 {
                   value: data.totalAmount || 0,
                   content_ids: data.items?.map((i: any) => i.productId) || [],
+                  contents: data.items?.map((i: any) => ({
+                    id: i.productId,
+                    quantity: i.quantity || 1,
+                    item_price: i.price,
+                  })) || [],
                 },
                 {
                   email: data.userEmail,
