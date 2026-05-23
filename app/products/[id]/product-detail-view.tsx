@@ -371,7 +371,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                     <div className="p-4 sm:p-6 lg:p-8">
                         {/* Description */}
                         {activeTab === "description" && (
-                            <div>
+                            <div className="space-y-6">
                                 {pageLoading ? (
                                     <div className="animate-pulse space-y-3">
                                         {[...Array(5)].map((_, i) => (
@@ -381,17 +381,88 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                 ) : product.description ? (
                                     descIsHtml ? (
                                         <div
-                                            className="product-description max-w-none"
+                                            className="product-description max-w-none prose prose-blue"
                                             dangerouslySetInnerHTML={{ __html: product.description }}
                                         />
                                     ) : (
-                                        <p className="text-sm sm:text-base text-gray-600 leading-relaxed whitespace-pre-line">
-                                            {product.description}
-                                        </p>
+                                        <div className="space-y-3">
+                                            {product.description.split("\n").map((line, idx) => {
+                                                const trimmed = line.trim()
+                                                if (!trimmed) return <div key={idx} className="h-1.5" />
+                                                
+                                                if (trimmed.startsWith("###")) {
+                                                    return (
+                                                        <h3 key={idx} className="text-base sm:text-lg font-bold text-gray-900 mt-4 mb-2 flex items-center gap-2 border-b border-gray-100 pb-1">
+                                                            <span className="h-3.5 w-1 bg-blue-600 rounded-full inline-block" />
+                                                            {trimmed.replace(/^###\s*/, "")}
+                                                        </h3>
+                                                    )
+                                                }
+                                                if (trimmed.startsWith("##")) {
+                                                    return (
+                                                        <h2 key={idx} className="text-lg sm:text-xl font-extrabold text-gray-900 mt-5 mb-2.5 flex items-center gap-2 border-b border-gray-100 pb-1">
+                                                            <span className="h-4 w-1.5 bg-blue-600 rounded-full inline-block" />
+                                                            {trimmed.replace(/^##\s*/, "")}
+                                                        </h2>
+                                                    )
+                                                }
+                                                if (trimmed.startsWith("-") || trimmed.startsWith("*") || trimmed.startsWith("•")) {
+                                                    const content = trimmed.replace(/^[-*•]\s*/, "")
+                                                    return (
+                                                        <div key={idx} className="flex items-start gap-2.5 my-1 pl-1 group">
+                                                            <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-1 transition-transform group-hover:scale-110" />
+                                                            <span className="text-sm sm:text-base text-gray-600 leading-relaxed">{content}</span>
+                                                        </div>
+                                                    )
+                                                }
+                                                return (
+                                                    <p key={idx} className="text-sm sm:text-base text-gray-600 leading-relaxed">
+                                                        {line}
+                                                    </p>
+                                                )
+                                            })}
+                                        </div>
                                     )
                                 ) : (
                                     <p className="text-sm text-gray-400 text-center py-8">No description available.</p>
                                 )}
+
+                                {/* Trust Value Proposition Cards */}
+                                <div className="mt-8 pt-6 border-t border-gray-100">
+                                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                                        <Shield className="h-3.5 w-3.5 text-blue-600" /> Why buy from Grabnext?
+                                    </h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="flex gap-3 p-4 rounded-xl bg-blue-50/40 border border-blue-100/50 hover:bg-blue-50/60 transition-colors">
+                                            <Zap className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="font-semibold text-sm text-gray-900">Instant Access</p>
+                                                <p className="text-xs text-gray-500 mt-0.5">Your files are ready to download immediately after completing the payment.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3 p-4 rounded-xl bg-green-50/40 border border-green-100/50 hover:bg-green-50/60 transition-colors">
+                                            <Shield className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="font-semibold text-sm text-gray-900">100% Safe & Secure</p>
+                                                <p className="text-xs text-gray-500 mt-0.5">We use advanced encryption protocols to process your checkout details securely.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3 p-4 rounded-xl bg-purple-50/40 border border-purple-100/50 hover:bg-purple-50/60 transition-colors">
+                                            <Clock className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="font-semibold text-sm text-gray-900">Lifetime Updates</p>
+                                                <p className="text-xs text-gray-500 mt-0.5">Get future updates and releases for this package without paying anything extra.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3 p-4 rounded-xl bg-orange-50/40 border border-orange-100/50 hover:bg-orange-50/60 transition-colors">
+                                            <CheckCircle2 className="h-5 w-5 text-orange-600 shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="font-semibold text-sm text-gray-900">Verified & Tested</p>
+                                                <p className="text-xs text-gray-500 mt-0.5">All files are manually tested and verified to ensure they are 100% working.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
