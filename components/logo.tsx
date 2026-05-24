@@ -15,11 +15,14 @@ export function Logo({
 }: LogoProps = {}) {
     return (
         <Link href={href} className={cn("flex items-center shrink-0 w-fit transition-transform hover:opacity-90 hover:scale-[1.02]", className)}>
-            <img 
-                src="/logo.png" 
-                alt="GrabNext Logo" 
-                className="h-10 sm:h-12 w-auto object-contain drop-shadow-sm border-none outline-none" 
-            />
+            <div className="relative flex items-center">
+                <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/75 to-transparent rounded-lg opacity-0 dark:opacity-100 transition-opacity pointer-events-none" style={{ margin: "-2px -8px" }} />
+                <img 
+                    src="/logo.png" 
+                    alt="GrabNext Logo" 
+                    className="relative z-10 h-10 sm:h-12 w-auto object-contain drop-shadow-sm border-none outline-none" 
+                />
+            </div>
         </Link>
     )
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Search, ShoppingCart, User, Menu, ChevronDown, Package, LayoutGrid, Monitor, BookOpen, AlertTriangle } from "lucide-react"
+import { Search, ShoppingCart, User, Menu, ChevronDown, Package, LayoutGrid, Monitor, BookOpen, AlertTriangle, Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { useCart } from "@/contexts/cart-context"
 import { ADMIN_EMAIL } from "@/lib/auth"
 import { Logo } from "@/components/logo"
+import { useTheme } from "next-themes"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +27,7 @@ export function StoreHeader() {
   const [mounted, setMounted] = useState(false)
   const { user, userProfile } = useAuth()
   const { totalItems } = useCart()
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)
@@ -62,7 +64,7 @@ export function StoreHeader() {
       )}
 
       {/* Top Bar - Warm White Elegant Brand */}
-      <header className="bg-[#fdfaf6] text-slate-900 border-b border-orange-100/50 shadow-sm">
+      <header className="bg-[#fdfaf6] dark:bg-slate-950 text-slate-900 dark:text-slate-100 border-b border-orange-100/50 dark:border-slate-800 shadow-sm transition-colors">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
 
           {/* Logo */}
@@ -85,9 +87,9 @@ export function StoreHeader() {
               <Input
                 name="q"
                 placeholder="Search for products, brands and more"
-                className="pl-10 rounded-r-none bg-white text-gray-900 border-r-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-500 h-10"
+                className="pl-10 rounded-r-none bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 border-r-0 dark:border-slate-800 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-500 dark:placeholder:text-gray-400 h-10"
               />
-              <Button type="submit" className="rounded-l-none bg-yellow-400 text-gray-900 hover:bg-yellow-500 border border-l-0 font-medium px-6 h-10">
+              <Button type="submit" className="rounded-l-none bg-yellow-400 dark:bg-yellow-500 text-gray-900 dark:text-slate-950 hover:bg-yellow-500 dark:hover:bg-yellow-600 border border-l-0 dark:border-slate-800 font-medium px-6 h-10">
                 Search
               </Button>
             </form>
@@ -100,7 +102,7 @@ export function StoreHeader() {
             {mounted && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="hidden md:flex gap-1 text-slate-700 hover:bg-black/5 font-medium relative">
+                  <Button variant="ghost" className="hidden md:flex gap-1 text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 font-medium relative">
                     <User className="h-4 w-4 text-primary" />
                     <span className="max-w-[100px] truncate">{user.displayName || "Account"}</span>
                     {isGuest && (
@@ -159,9 +161,33 @@ export function StoreHeader() {
               </div>
             )}
 
+            {/* Theme Toggle (Beta) */}
+            {mounted && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="text-slate-700 hover:bg-black/5 dark:text-slate-350 dark:hover:bg-white/10 relative"
+                title="Toggle Dark Mode (Beta)"
+              >
+                {theme === "dark" ? (
+                  <div className="relative flex items-center justify-center">
+                    <Sun className="h-5 w-5 text-amber-500" />
+                    <span className="absolute -top-2.5 -right-2 text-[7px] font-black bg-yellow-500 text-slate-950 px-1 rounded-full scale-90">BETA</span>
+                  </div>
+                ) : (
+                  <div className="relative flex items-center justify-center">
+                    <Moon className="h-5 w-5 text-slate-700" />
+                    <span className="absolute -top-2.5 -right-2 text-[7px] font-black bg-slate-900 text-white px-1 rounded-full scale-90">BETA</span>
+                  </div>
+                )}
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            )}
+
             {/* Cart */}
             <CartDrawer>
-              <Button variant="ghost" className="flex items-center gap-2 text-slate-700 hover:bg-black/5">
+              <Button variant="ghost" className="flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10">
                 <div className="relative">
                   <ShoppingCart className="h-5 w-5 text-primary" />
                   {mounted && totalItems > 0 && (
@@ -195,6 +221,28 @@ export function StoreHeader() {
                       </Link>
                     </div>
                   )}
+                  
+                  {/* Mobile Theme Switcher */}
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-lg border-b pb-2 flex items-center justify-between">
+                      <span>Theme</span>
+                      <span className="text-[10px] font-black bg-yellow-400 text-slate-900 px-2 py-0.5 rounded-full uppercase tracking-wider scale-90">Beta</span>
+                    </h3>
+                    {mounted && (
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-between font-semibold"
+                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                      >
+                        <span className="flex items-center gap-2">
+                          {theme === "dark" ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-slate-700" />}
+                          {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">Switch</span>
+                      </Button>
+                    )}
+                  </div>
+
                   <div className="space-y-4">
                     <h3 className="font-semibold text-lg border-b pb-2">Categories</h3>
                     {categories.map((cat) => (

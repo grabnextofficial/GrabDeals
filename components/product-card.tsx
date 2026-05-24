@@ -86,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={href} className="block h-full">
       <Card
-        className="group relative bg-white border border-slate-100 hover:border-blue-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden h-full flex flex-col cursor-pointer"
+        className="group relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-500 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden h-full flex flex-col cursor-pointer"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -99,7 +99,7 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
 
         {/* Image with smooth crossfade */}
-        <div className="relative h-40 w-full bg-gray-50 overflow-hidden flex items-center justify-center p-2">
+        <div className="relative h-40 w-full bg-gray-50 dark:bg-slate-850 overflow-hidden flex items-center justify-center p-2 transition-colors">
           <img
             src={currentImg}
             alt={product?.title || "product"}
@@ -112,7 +112,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {images.length > 1 && (
             <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
               {images.map((_, i) => (
-                <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === imgIdx ? "w-4 bg-primary" : "w-1 bg-gray-300"}`} />
+                <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === imgIdx ? "w-4 bg-primary" : "w-1 bg-gray-300 dark:bg-gray-700"}`} />
               ))}
             </div>
           )}
@@ -120,7 +120,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Content */}
         <CardContent className="p-3 flex-1 flex flex-col gap-1">
-          <h3 className="font-medium text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-2 text-sm leading-snug">
+          <h3 className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 text-sm leading-snug">
             {product.title}
           </h3>
 
@@ -129,23 +129,23 @@ export function ProductCard({ product }: ProductCardProps) {
               <div className="flex items-center gap-0.5 bg-green-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
                 {avgRating.toFixed(1)} <Star className="h-2.5 w-2.5 fill-current ml-0.5" />
               </div>
-              <span className="text-xs text-gray-400">({reviewCount})</span>
+              <span className="text-xs text-gray-400 dark:text-slate-500">({reviewCount})</span>
             </div>
           ) : (
-            <div className="text-xs text-gray-400">No reviews yet</div>
+            <div className="text-xs text-gray-400 dark:text-slate-500">No reviews yet</div>
           )}
 
           <div className="mt-auto pt-1">
             <div className="flex items-baseline gap-1.5 flex-wrap">
-              <span className="text-base font-bold text-slate-900">{formatPrice(product.price)}</span>
+              <span className="text-base font-bold text-slate-900 dark:text-white">{formatPrice(product.price)}</span>
               {origPrice && origPrice > product.price && (
                 <>
-                  <span className="text-xs text-gray-400 line-through">{formatPrice(origPrice)}</span>
+                  <span className="text-xs text-gray-400 dark:text-slate-500 line-through">{formatPrice(origPrice)}</span>
                   <span className="text-xs font-semibold text-green-600">{discount}% off</span>
                 </>
               )}
             </div>
-            <div className="text-[10px] text-green-700 font-medium mt-0.5">Instant Delivery</div>
+            <div className="text-[10px] text-green-700 dark:text-green-500 font-medium mt-0.5">Instant Delivery</div>
           </div>
 
           <Button
