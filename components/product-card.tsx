@@ -99,7 +99,7 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
 
         {/* Image with smooth crossfade */}
-        <div className="relative h-40 w-full bg-gray-50 dark:bg-slate-950 overflow-hidden flex items-center justify-center p-2 transition-colors">
+        <div className="relative h-44 w-full bg-gray-50 dark:bg-slate-950 overflow-hidden flex items-center justify-center p-1 transition-colors">
           <img
             src={currentImg}
             alt={product?.title || "product"}
