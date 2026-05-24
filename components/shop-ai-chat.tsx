@@ -262,7 +262,14 @@ export function ShopAIChat() {
     try { return new Date(iso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) } catch { return "" }
   }
 
-  if (pathname === "/software") return null
+  if (
+    pathname.startsWith("/software") ||
+    pathname.startsWith("/lp") ||
+    pathname.startsWith("/checkout") ||
+    pathname.startsWith("/products")
+  ) {
+    return null
+  }
 
   return (
     <>
