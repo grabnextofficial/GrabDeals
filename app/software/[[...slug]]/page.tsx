@@ -1,4 +1,6 @@
 "use client";
+export const runtime = 'edge'
+export const dynamic = 'force-dynamic'
 import { useState, useEffect } from "react";
 import { PRODUCT_BUY_URL, INCLUDED_SOFTWARE, TESTIMONIALS, FAQS, FEATURES } from "../data";
 import { useCart } from "@/contexts/cart-context";
