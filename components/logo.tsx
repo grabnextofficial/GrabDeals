@@ -16,7 +16,7 @@ export function Logo({
     return (
         <Link href={href} className={cn("flex items-center shrink-0 w-fit transition-transform hover:opacity-90 hover:scale-[1.02]", className)}>
             <div className="relative flex items-center">
-                <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/75 to-transparent rounded-lg opacity-0 dark:opacity-100 transition-opacity pointer-events-none" style={{ margin: "-2px -8px" }} />
+                <div className="absolute inset-0 bg-white/95 shadow-sm rounded-lg opacity-0 dark:opacity-100 transition-opacity pointer-events-none" style={{ margin: "-2px -8px" }} />
                 <img 
                     src="/logo.png" 
                     alt="GrabNext Logo" 

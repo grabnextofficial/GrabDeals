@@ -370,3 +370,82 @@ table {
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+
+/* ===== Dark Theme Overrides for Product Description and Prose ===== */
+.dark .product-description,
+.dark .prose {
+  color: #d1d5db !important; /* light gray text */
+}
+
+.dark .product-description h1,
+.dark .product-description h2,
+.dark .product-description h3,
+.dark .product-description h4,
+.dark .product-description h5,
+.dark .product-description h6,
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose h4,
+.dark .prose h5,
+.dark .prose h6 {
+  color: #f3f4f6 !important; /* off-white headers */
+  border-color: #374151 !important; /* dark borders */
+}
+
+.dark .product-description p,
+.dark .prose p {
+  color: #9ca3af !important; /* cool gray text */
+}
+
+.dark .product-description strong,
+.dark .product-description b,
+.dark .prose strong,
+.dark .prose b {
+  color: #ffffff !important; /* white bold text */
+}
+
+.dark .product-description ul,
+.dark .product-description ol,
+.dark .prose ul,
+.dark .prose ol,
+.dark .prose li {
+  color: #9ca3af !important;
+}
+
+.dark .product-description blockquote,
+.dark .prose blockquote {
+  border-left-color: #4b5563;
+  color: #9ca3af;
+}
+
+.dark .product-description code,
+.dark .prose code {
+  background: #1f2937;
+  color: #f3f4f6;
+}
+
+.dark .product-description th {
+  background: #111827;
+  color: #ffffff;
+}
+
+.dark .product-description td,
+.dark .product-description th {
+  border-color: #374151;
+}
+
+.dark .product-description hr {
+  border-top-color: #374151;
+}
+
+/* Revert/override any inline color or background styles that break dark mode visibility */
+.dark .product-description [style*="color"],
+.dark .prose [style*="color"] {
+  color: inherit !important;
+}
+
+.dark .product-description [style*="background-color"],
+.dark .prose [style*="background-color"] {
+  background-color: transparent !important;
+}

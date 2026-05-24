@@ -194,7 +194,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                         <div className="flex flex-col gap-3 p-4 sm:p-6 lg:border-r lg:border-gray-100 dark:lg:border-slate-800">
                             {/* Main image */}
                             <div
-                                className="relative rounded-xl overflow-hidden cursor-zoom-in bg-gray-50 dark:bg-slate-850"
+                                className="relative rounded-xl overflow-hidden cursor-zoom-in bg-gray-50 dark:bg-slate-950"
                                 onClick={() => setZoomIdx(activeImg)}
                             >
                                 {product.salesCount > 100 && (
@@ -221,7 +221,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                             key={i}
                                             onMouseEnter={() => changeActiveImg(i)}
                                             onClick={() => changeActiveImg(i)}
-                                            className={`shrink-0 h-14 w-14 rounded-lg border-2 overflow-hidden transition-all duration-200 bg-gray-50 dark:bg-slate-850
+                                            className={`shrink-0 h-14 w-14 rounded-lg border-2 overflow-hidden transition-all duration-200 bg-gray-50 dark:bg-slate-950
                                                 ${i === activeImg ? "border-blue-600 dark:border-blue-500 shadow-md scale-105" : "border-gray-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500"}`}
                                         >
                                             <img src={img} alt={`View ${i + 1}`} className="w-full h-full object-contain p-1" />
@@ -332,14 +332,14 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                             <div className="flex gap-2 pt-1">
                                 <button
                                     className={`flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-medium border transition-all
-                                        ${wishlisted ? "text-red-500 border-red-200 bg-red-50 dark:border-red-950 dark:bg-red-950/20" : "text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-850"}`}
+                                        ${wishlisted ? "text-red-500 border-red-200 bg-red-50 dark:border-red-950 dark:bg-red-950/20" : "text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800"}`}
                                     onClick={() => setWishlisted(!wishlisted)}
                                 >
                                     <Heart className={`h-4 w-4 ${wishlisted ? "fill-red-500" : ""}`} />
                                     {wishlisted ? "Wishlisted" : "Wishlist"}
                                 </button>
                                 <button
-                                    className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-medium border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-850 transition-all"
+                                    className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-medium border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-all"
                                     onClick={() => { navigator.clipboard.writeText(window.location.href); toast({ title: "Link copied!" }) }}
                                 >
                                     <Share2 className="h-4 w-4" /> Share
