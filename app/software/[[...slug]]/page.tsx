@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { PRODUCT_BUY_URL, INCLUDED_SOFTWARE, TESTIMONIALS, FAQS, FEATURES } from "./data";
+import { PRODUCT_BUY_URL, INCLUDED_SOFTWARE, TESTIMONIALS, FAQS, FEATURES } from "../data";
 import { useCart } from "@/contexts/cart-context";
 import { useRouter } from "next/navigation";
 import { trackAddToCart } from "@/lib/pixel";
@@ -425,15 +425,21 @@ function ProductCard({ name, img, value, bg = "white" }: { name: string; img?: s
   );
 }
 
-export default function SoftwareFunnelPage() {
+export default function SoftwareFunnelPage({ params }: { params?: { slug?: string[] } }) {
   const [products, setProducts] = useState<any[]>([]);
   const [banner, setBanner] = useState<any>(null);
   const [adobeProduct, setAdobeProduct] = useState<any>(null);
+
+  // Popup countdown timer logic
+  const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 mins in seconds
+  const [showPopup, setShowPopup] = useState(false);
+  const [matchedProduct, setMatchedProduct] = useState<any>(null);
 
   const router = useRouter();
   const { addToCart, clearCart } = useCart();
 
   useEffect(() => {
+    const productSlug = params?.slug?.[0];
     // Fetch products
     fetch("/api/products?all=1").then(r => r.json()).then(d => {
       const list = Array.isArray(d) ? d : (d.products || []);
@@ -442,6 +448,15 @@ export default function SoftwareFunnelPage() {
         setAdobeProduct(found);
       }
       setProducts(list.filter((p: any) => p.title && !p.title.toLowerCase().includes("adobe all")));
+
+      // Dynamic slug matching for free bonus popup
+      if (productSlug) {
+        const matched = list.find((p: any) => p.slug === productSlug || p.id === productSlug);
+        if (matched) {
+          setMatchedProduct(matched);
+          setShowPopup(true);
+        }
+      }
     }).catch(() => {});
 
     // Fetch banners
@@ -450,7 +465,21 @@ export default function SoftwareFunnelPage() {
         setBanner(d[0]); // Use first active banner
       }
     }).catch(() => {});
-  }, []);
+  }, [params]);
+
+  useEffect(() => {
+    if (!showPopup) return;
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [showPopup]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
 
   const handleBuyClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -1000,6 +1029,91 @@ export default function SoftwareFunnelPage() {
         {/* ── 15. CONVERSION WIDGETS & PLUGINS ── */}
         <StickyCheckoutBar onBuy={handleBuyClick} />
         <WhatsAppWidget />
+
+        {/* Dynamic Free Bonus Popup Modal */}
+        {showPopup && matchedProduct && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out_forwards]">
+            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-md w-full border border-slate-100 flex flex-col text-center relative p-6 sm:p-8 animate-[scaleIn_0.3s_cubic-bezier(0.34,1.56,0.64,1)_forwards]">
+              
+              {/* Close Button */}
+              <button 
+                onClick={() => setShowPopup(false)} 
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-650 transition-colors w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center font-bold text-sm"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+
+              {/* Glowing Top Badge */}
+              <div className="inline-flex items-center gap-1.5 bg-blue-600 text-white font-black text-xs sm:text-sm px-4.5 py-1.5 rounded-full uppercase tracking-wider shadow-md mx-auto mb-5 animate-pulse">
+                🎁 Free Bonus Unlocked!
+              </div>
+
+              {/* Headline */}
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight mb-3" style={{ fontFamily: "Poppins, sans-serif" }}>
+                Get <span className="text-blue-600">{matchedProduct.title}</span> Free Of Cost!
+              </h2>
+
+              <p className="text-gray-500 text-xs sm:text-sm font-semibold leading-relaxed mb-6 px-1">
+                Yes! We have included this product in your bundle. Get the <strong>Adobe All Premium Software Bundle 2026</strong> today, and get this bonus <strong>completely FREE!</strong>
+              </p>
+
+              {/* Product Preview Card */}
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 flex items-center gap-4 mb-6 shadow-inner text-left">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border border-slate-200 bg-white flex items-center justify-center p-1.5 shadow-sm">
+                  <img 
+                    src={matchedProduct.imageUrl || "/placeholder.svg"} 
+                    alt={matchedProduct.title} 
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-slate-900 text-sm sm:text-base leading-snug line-clamp-2">
+                    {matchedProduct.title}
+                  </h4>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="text-[10px] sm:text-xs font-black bg-red-50 text-red-500 border border-red-150 rounded-full px-2.5 py-0.5 uppercase tracking-wider">
+                      Free Bonus
+                    </span>
+                    <span className="text-xs text-gray-400 line-through font-bold">
+                      Worth ₹{matchedProduct.price || 499}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Countdown Timer */}
+              <div className="bg-red-50 border border-red-100 rounded-2xl py-3 px-4 mb-6 flex flex-col items-center gap-1">
+                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-red-600/90 flex items-center gap-1 animate-pulse">
+                  ⚡ Offer Expires In:
+                </span>
+                <span className="text-2xl sm:text-3xl font-black text-red-650 tracking-wider">
+                  {formatTime(timeLeft)}
+                </span>
+              </div>
+
+              {/* Big CTA Button */}
+              <button 
+                onClick={(e) => {
+                  setShowPopup(false);
+                  handleBuyClick(e);
+                }} 
+                className="w-full bg-[#00c853] hover:bg-[#00b24a] text-white font-black text-base sm:text-lg py-3.5 px-6 rounded-2xl shadow-[0_6px_20px_rgba(0,200,83,0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 text-center uppercase tracking-wide animate-shake-cta"
+              >
+                Claim My Bundle + Free Bonus
+              </button>
+
+              <button 
+                onClick={() => setShowPopup(false)} 
+                className="text-xs text-gray-400 hover:text-gray-650 font-extrabold mt-4 uppercase tracking-wider underline transition-colors"
+              >
+                No, I don't want this free bonus
+              </button>
+
+            </div>
+          </div>
+        )}
+
         {/* CSS Animations for sticky bar, shaking button, and pulsing WhatsApp widget */}
         <style dangerouslySetInnerHTML={{ __html: `
           @keyframes slideUp {
@@ -1024,6 +1138,14 @@ export default function SoftwareFunnelPage() {
           }
           .animate-shake-cta {
             animation: shakeCTA 2.5s infinite ease-in-out;
+          }
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.93); }
+            to { opacity: 1; transform: scale(1); }
           }
         ` }} />
       </div>
