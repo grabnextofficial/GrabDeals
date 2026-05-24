@@ -6,6 +6,7 @@ import { PRODUCT_BUY_URL, INCLUDED_SOFTWARE, TESTIMONIALS, FAQS, FEATURES } from
 import { useCart } from "@/contexts/cart-context";
 import { useRouter } from "next/navigation";
 import { trackAddToCart } from "@/lib/pixel";
+import { toast } from "@/hooks/use-toast";
 
 /* ── Animated CTA Button (matches Elementor .btn class) ── */
 const BTN_STYLE: React.CSSProperties = {
@@ -456,7 +457,6 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
         const matched = list.find((p: any) => p.slug === productSlug || p.id === productSlug);
         if (matched) {
           setMatchedProduct(matched);
-          setShowPopup(true);
         }
       }
     }).catch(() => {});
@@ -468,6 +468,15 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
       }
     }).catch(() => {});
   }, [params]);
+
+  // Open dynamic popup after exactly 8 seconds if a matched product is found
+  useEffect(() => {
+    if (!matchedProduct) return;
+    const delayTimer = setTimeout(() => {
+      setShowPopup(true);
+    }, 8000);
+    return () => clearTimeout(delayTimer);
+  }, [matchedProduct]);
 
   useEffect(() => {
     if (!showPopup) return;
@@ -512,6 +521,53 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
     
     // Redirect to checkout
     router.push("/checkout");
+  };
+
+  const handleClaimClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    const targetProduct = adobeProduct || {
+      id: "adobe-all-premium-software-bundle-2026-for-windows-mac-420947",
+      title: "Adobe All Premium Software Bundle 2026",
+      price: 249,
+      category: "software",
+      imageUrl: "/hero-bundle.png",
+      downloadUrl: "[]",
+      isActive: true,
+      tags: ["adobe", "bundle", "lifetime"]
+    };
+
+    // Make the matched product free inside the cart
+    const freeProduct = {
+      ...matchedProduct,
+      price: 0,
+      title: `${matchedProduct.title} (FREE Bonus)`
+    };
+
+    // Add both items to the cart
+    clearCart();
+    addToCart(targetProduct);
+    addToCart(freeProduct);
+
+    // Track AddToCart event with both products for Facebook matching
+    trackAddToCart({
+      content_name: `${targetProduct.title} + ${freeProduct.title}`,
+      content_ids: [targetProduct.id, freeProduct.id],
+      contents: [
+        { id: targetProduct.id, quantity: 1, item_price: targetProduct.price },
+        { id: freeProduct.id, quantity: 1, item_price: 0 }
+      ],
+      value: targetProduct.price,
+    });
+
+    // Notify user they claimed it successfully
+    toast({
+      title: "🎁 Free Bonus Claimed!",
+      description: `"${matchedProduct.title}" has been added to your order for free. Continue reading the landing page below!`,
+    });
+
+    // Close the popup modal but keep user on landing page
+    setShowPopup(false);
   };
 
   return (
@@ -1035,79 +1091,62 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
         {/* Dynamic Free Bonus Popup Modal */}
         {showPopup && matchedProduct && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out_forwards]">
-            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-md w-full border border-slate-100 flex flex-col text-center relative p-6 sm:p-8 animate-[scaleIn_0.3s_cubic-bezier(0.34,1.56,0.64,1)_forwards]">
+            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-sm w-full border border-slate-100 flex flex-col text-center relative p-6 sm:p-7.5 animate-[scaleIn_0.3s_cubic-bezier(0.34,1.56,0.64,1)_forwards]">
               
               {/* Close Button */}
               <button 
                 onClick={() => setShowPopup(false)} 
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-650 transition-colors w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center font-bold text-sm"
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-655 transition-colors w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center font-bold text-sm"
                 aria-label="Close"
               >
                 ✕
               </button>
 
-              {/* Glowing Top Badge */}
-              <div className="inline-flex items-center gap-1.5 bg-blue-600 text-white font-black text-xs sm:text-sm px-4.5 py-1.5 rounded-full uppercase tracking-wider shadow-md mx-auto mb-5 animate-pulse">
-                🎁 Free Bonus Unlocked!
+              {/* Red Bold FREE Title */}
+              <div className="text-4xl font-black text-red-500 tracking-tight leading-none mb-1">FREE</div>
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Exclusive Premium Bonus</div>
+
+              {/* Product Preview Image Box */}
+              <div className="w-full aspect-video sm:aspect-[4/3] max-h-40 rounded-2xl bg-gray-50 flex items-center justify-center p-2 mb-4 border border-slate-150 relative shadow-sm">
+                <img 
+                  src={matchedProduct.imageUrl || "/placeholder.svg"} 
+                  alt={matchedProduct.title} 
+                  className="max-w-full max-h-full object-contain"
+                />
+                <div className="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded shadow">
+                  WORTH ₹{matchedProduct.price || 499}
+                </div>
               </div>
 
               {/* Headline */}
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight mb-3" style={{ fontFamily: "Poppins, sans-serif" }}>
-                Get <span className="text-blue-600">{matchedProduct.title}</span> Free Of Cost!
+              <h2 className="text-[17px] font-black text-slate-900 leading-snug mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>
+                {matchedProduct.title}
               </h2>
 
-              <p className="text-gray-500 text-xs sm:text-sm font-semibold leading-relaxed mb-6 px-1">
-                Yes! We have included this product in your bundle. Get the <strong>Adobe All Premium Software Bundle 2026</strong> today, and get this bonus <strong>completely FREE!</strong>
-              </p>
-
-              {/* Product Preview Card */}
-              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 flex items-center gap-4 mb-6 shadow-inner text-left">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border border-slate-200 bg-white flex items-center justify-center p-1.5 shadow-sm">
-                  <img 
-                    src={matchedProduct.imageUrl || "/placeholder.svg"} 
-                    alt={matchedProduct.title} 
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-slate-900 text-sm sm:text-base leading-snug line-clamp-2">
-                    {matchedProduct.title}
-                  </h4>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <span className="text-[10px] sm:text-xs font-black bg-red-50 text-red-500 border border-red-150 rounded-full px-2.5 py-0.5 uppercase tracking-wider">
-                      Free Bonus
-                    </span>
-                    <span className="text-xs text-gray-400 line-through font-bold">
-                      Worth ₹{matchedProduct.price || 499}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              {/* Product Short Description */}
+              {matchedProduct.description && (
+                <p className="text-slate-500 text-xs leading-relaxed line-clamp-2 max-w-sm mx-auto mb-4 font-semibold">
+                  {matchedProduct.description.replace(/<[^>]*>/g, '')}
+                </p>
+              )}
 
               {/* Countdown Timer */}
-              <div className="bg-red-50 border border-red-100 rounded-2xl py-3 px-4 mb-6 flex flex-col items-center gap-1">
-                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-red-600/90 flex items-center gap-1 animate-pulse">
-                  ⚡ Offer Expires In:
-                </span>
-                <span className="text-2xl sm:text-3xl font-black text-red-650 tracking-wider">
-                  {formatTime(timeLeft)}
-                </span>
+              <div className="flex items-center justify-center gap-1.5 bg-red-50 border border-red-100 rounded-full px-3.5 py-1 text-xs font-black text-red-600 mb-5 w-fit mx-auto">
+                <span>⏰ Offer Expires In:</span>
+                <span className="font-mono text-sm">{formatTime(timeLeft)}</span>
               </div>
 
-              {/* Big CTA Button */}
+              {/* Claim Button */}
               <button 
-                onClick={(e) => {
-                  setShowPopup(false);
-                  handleBuyClick(e);
-                }} 
-                className="w-full bg-[#00c853] hover:bg-[#00b24a] text-white font-black text-base sm:text-lg py-3.5 px-6 rounded-2xl shadow-[0_6px_20px_rgba(0,200,83,0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 text-center uppercase tracking-wide animate-shake-cta"
+                onClick={handleClaimClick} 
+                className="w-full bg-[#00c853] hover:bg-[#00b24a] text-white font-black text-base py-3 px-6 rounded-2xl shadow-[0_5px_15px_rgba(0,200,83,0.25)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 text-center uppercase tracking-wide animate-shake-cta"
               >
-                Claim My Bundle + Free Bonus
+                Claim My Free Bonus
               </button>
 
               <button 
                 onClick={() => setShowPopup(false)} 
-                className="text-xs text-gray-400 hover:text-gray-650 font-extrabold mt-4 uppercase tracking-wider underline transition-colors"
+                className="text-xs text-gray-400 hover:text-gray-650 font-extrabold mt-3.5 uppercase tracking-wider underline transition-colors"
               >
                 No, I don't want this free bonus
               </button>
