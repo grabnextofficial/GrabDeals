@@ -437,6 +437,7 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 mins in seconds
   const [showPopup, setShowPopup] = useState(false);
   const [matchedProduct, setMatchedProduct] = useState<any>(null);
+  const [isPopupHovered, setIsPopupHovered] = useState(false);
 
   const router = useRouter();
   const { addToCart, clearCart } = useCart();
@@ -469,12 +470,12 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
     }).catch(() => {});
   }, [params]);
 
-  // Open dynamic popup after exactly 8 seconds if a matched product is found
+  // Open dynamic popup after exactly 5 seconds if a matched product is found
   useEffect(() => {
     if (!matchedProduct) return;
     const delayTimer = setTimeout(() => {
       setShowPopup(true);
-    }, 8000);
+    }, 5000);
     return () => clearTimeout(delayTimer);
   }, [matchedProduct]);
 
@@ -1091,65 +1092,114 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
         {/* Dynamic Free Bonus Popup Modal */}
         {showPopup && matchedProduct && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out_forwards]">
-            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-sm w-full border border-slate-100 flex flex-col text-center relative p-6 sm:p-7.5 animate-[scaleIn_0.3s_cubic-bezier(0.34,1.56,0.64,1)_forwards]">
-              
-              {/* Close Button */}
-              <button 
-                onClick={() => setShowPopup(false)} 
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-655 transition-colors w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center font-bold text-sm"
-                aria-label="Close"
-              >
-                ✕
-              </button>
+            <div 
+              className="flex items-stretch gap-0 relative max-w-3xl w-full justify-center transition-all duration-300"
+              onMouseEnter={() => setIsPopupHovered(true)}
+              onMouseLeave={() => setIsPopupHovered(false)}
+            >
+              {/* Main Popup Card */}
+              <div className="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-sm w-full border border-slate-100 flex flex-col text-center relative p-6 sm:p-7.5 animate-[scaleIn_0.3s_cubic-bezier(0.34,1.56,0.64,1)_forwards] z-20 transition-all duration-300">
+                
+                {/* Close Button */}
+                <button 
+                  onClick={() => setShowPopup(false)} 
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-655 transition-colors w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center font-bold text-sm"
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
 
-              {/* Red Bold FREE Title */}
-              <div className="text-4xl font-black text-red-500 tracking-tight leading-none mb-1">FREE</div>
-              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Exclusive Premium Bonus</div>
+                {/* Red Bold FREE Title */}
+                <div className="text-4xl font-black text-red-500 tracking-tight leading-none mb-1">FREE</div>
+                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Exclusive Premium Bonus</div>
 
-              {/* Product Preview Image Box */}
-              <div className="w-full aspect-video sm:aspect-[4/3] max-h-40 rounded-2xl bg-gray-50 flex items-center justify-center p-2 mb-4 border border-slate-150 relative shadow-sm">
-                <img 
-                  src={matchedProduct.imageUrl || "/placeholder.svg"} 
-                  alt={matchedProduct.title} 
-                  className="max-w-full max-h-full object-contain"
-                />
-                <div className="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded shadow">
-                  WORTH ₹{matchedProduct.price || 499}
+                {/* Product Preview Image Box */}
+                <div className="w-full aspect-video sm:aspect-[4/3] max-h-40 rounded-2xl bg-gray-50 flex items-center justify-center p-2 mb-4 border border-slate-150 relative shadow-sm">
+                  <img 
+                    src={matchedProduct.imageUrl || "/placeholder.svg"} 
+                    alt={matchedProduct.title} 
+                    className="max-w-full max-h-full object-contain"
+                  />
+                  <div className="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded shadow">
+                    WORTH ₹{matchedProduct.price || 499}
+                  </div>
                 </div>
+
+                {/* Headline */}
+                <h2 className="text-[17px] font-black text-slate-900 leading-snug mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>
+                  {matchedProduct.title}
+                </h2>
+
+                {/* Product Short Description */}
+                {matchedProduct.description && (
+                  <p className="text-slate-500 text-xs leading-relaxed line-clamp-2 max-w-sm mx-auto mb-4 font-semibold">
+                    {matchedProduct.description.replace(/<[^>]*>/g, '')}
+                  </p>
+                )}
+
+                {/* Countdown Timer */}
+                <div className="flex items-center justify-center gap-1.5 bg-red-50 border border-red-100 rounded-full px-3.5 py-1 text-xs font-black text-red-600 mb-5 w-fit mx-auto">
+                  <span>⏰ Offer Expires In:</span>
+                  <span className="font-mono text-sm">{formatTime(timeLeft)}</span>
+                </div>
+
+                {/* Claim Button */}
+                <button 
+                  onClick={handleClaimClick} 
+                  className="w-full bg-[#00c853] hover:bg-[#00b24a] text-white font-black text-base py-3 px-6 rounded-2xl shadow-[0_5px_15px_rgba(0,200,83,0.25)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 text-center uppercase tracking-wide animate-shake-cta"
+                >
+                  Claim My Free Bonus
+                </button>
+
+                <button 
+                  onClick={() => setShowPopup(false)} 
+                  className="text-xs text-gray-400 hover:text-gray-655 font-extrabold mt-3.5 uppercase tracking-wider underline transition-colors"
+                >
+                  No, I don't want this free bonus
+                </button>
+
               </div>
 
-              {/* Headline */}
-              <h2 className="text-[17px] font-black text-slate-900 leading-snug mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>
-                {matchedProduct.title}
-              </h2>
-
-              {/* Product Short Description */}
+              {/* Side Hover Bar / Drawer showing the full description */}
               {matchedProduct.description && (
-                <p className="text-slate-500 text-xs leading-relaxed line-clamp-2 max-w-sm mx-auto mb-4 font-semibold">
-                  {matchedProduct.description.replace(/<[^>]*>/g, '')}
-                </p>
+                <div 
+                  className={`hidden sm:flex flex-col bg-slate-950 text-white rounded-r-3xl border-y border-r border-slate-800 p-6 w-80 text-left shadow-2xl transition-all duration-500 ease-in-out z-10 ${
+                    isPopupHovered 
+                      ? "translate-x-0 opacity-100 max-w-xs pointer-events-auto" 
+                      : "-translate-x-12 opacity-0 max-w-0 pointer-events-none"
+                  }`}
+                  style={{
+                    marginLeft: "-16px",
+                    transitionProperty: "transform, opacity, max-width",
+                  }}
+                >
+                  <div className="flex flex-col h-full justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-[#05FF00] font-black text-lg">✨</span>
+                        <h3 className="font-black text-sm uppercase tracking-wider text-slate-200" style={{ fontFamily: "Poppins, sans-serif" }}>
+                          Full Product Details
+                        </h3>
+                      </div>
+                      <div 
+                        className="popup-desc-container text-slate-300 text-xs sm:text-[13px] leading-relaxed overflow-y-auto max-h-[320px] pr-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent font-medium"
+                        dangerouslySetInnerHTML={{ __html: matchedProduct.description }}
+                      />
+                    </div>
+                    
+                    <div className="mt-4 pt-3 border-t border-slate-800 flex flex-col gap-1 text-[11px] text-slate-400 font-semibold">
+                      <div className="flex justify-between">
+                        <span>Status:</span>
+                        <span className="text-green-500 font-extrabold">Pre-Activated</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>License:</span>
+                        <span className="text-slate-300">Lifetime Access</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
-
-              {/* Countdown Timer */}
-              <div className="flex items-center justify-center gap-1.5 bg-red-50 border border-red-100 rounded-full px-3.5 py-1 text-xs font-black text-red-600 mb-5 w-fit mx-auto">
-                <span>⏰ Offer Expires In:</span>
-                <span className="font-mono text-sm">{formatTime(timeLeft)}</span>
-              </div>
-
-              {/* Claim Button */}
-              <button 
-                onClick={handleClaimClick} 
-                className="w-full bg-[#00c853] hover:bg-[#00b24a] text-white font-black text-base py-3 px-6 rounded-2xl shadow-[0_5px_15px_rgba(0,200,83,0.25)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 text-center uppercase tracking-wide animate-shake-cta"
-              >
-                Claim My Free Bonus
-              </button>
-
-              <button 
-                onClick={() => setShowPopup(false)} 
-                className="text-xs text-gray-400 hover:text-gray-650 font-extrabold mt-3.5 uppercase tracking-wider underline transition-colors"
-              >
-                No, I don't want this free bonus
-              </button>
 
             </div>
           </div>
@@ -1187,6 +1237,34 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
           @keyframes scaleIn {
             from { opacity: 0; transform: scale(0.93); }
             to { opacity: 1; transform: scale(1); }
+          }
+          .popup-desc-container::-webkit-scrollbar {
+            width: 4px;
+          }
+          .popup-desc-container::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .popup-desc-container::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 2px;
+          }
+          .popup-desc-container::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+          }
+          .popup-desc-container p {
+            margin-bottom: 0.5rem;
+          }
+          .popup-desc-container ul {
+            list-style-type: disc;
+            padding-left: 1rem;
+            margin-bottom: 0.5rem;
+          }
+          .popup-desc-container li {
+            margin-bottom: 0.25rem;
+          }
+          .popup-desc-container strong {
+            color: #fff;
+            font-weight: 700;
           }
         ` }} />
       </div>
