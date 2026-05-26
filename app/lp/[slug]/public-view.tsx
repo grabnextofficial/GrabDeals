@@ -9,6 +9,34 @@ interface Props {
     product: any
 }
 
+function interpolateProductData(value: any, product: any): any {
+    if (typeof value === 'string') {
+        const fmt = (p: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(p);
+        const priceStr = fmt(product.price);
+        const origPriceVal = (product as any).originalPrice || product.price * 2;
+        const origPriceStr = fmt(origPriceVal);
+        
+        return value
+            .replace(/\{\{price\}\}/g, priceStr)
+            .replace(/\{price\}/g, priceStr)
+            .replace(/\{\{originalPrice\}\}/g, origPriceStr)
+            .replace(/\{originalPrice\}/g, origPriceStr)
+            .replace(/\{\{title\}\}/g, product.title)
+            .replace(/\{title\}/g, product.title);
+    }
+    if (Array.isArray(value)) {
+        return value.map(item => interpolateProductData(item, product));
+    }
+    if (value && typeof value === 'object') {
+        const result: any = {};
+        for (const key in value) {
+            result[key] = interpolateProductData(value[key], product);
+        }
+        return result;
+    }
+    return value;
+}
+
 export default function LandingPagePublicView({ sections, product }: Props) {
     const { addToCart, setDrawerOpen } = useCart()
 
@@ -38,15 +66,16 @@ export default function LandingPagePublicView({ sections, product }: Props) {
 
     if (typeof sections === 'string') {
         return (
-            <div className="w-full lp-preview-container" dangerouslySetInnerHTML={{ __html: sections }} />
+            <div className="w-full lp-preview-container" dangerouslySetInnerHTML={{ __html: interpolateProductData(sections, product) }} />
         )
     }
 
     return (
         <>
-            {sections.map((sec: any) => (
-                <RenderSection key={sec.id} section={sec} product={product} />
-            ))}
+            {sections.map((sec: any) => {
+                const processedSec = interpolateProductData(sec, product);
+                return <RenderSection key={sec.id} section={processedSec} product={product} />
+            })}
         </>
     )
 }

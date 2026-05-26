@@ -438,6 +438,8 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
   const [showPopup, setShowPopup] = useState(false);
   const [matchedProduct, setMatchedProduct] = useState<any>(null);
   const [isPopupHovered, setIsPopupHovered] = useState(false);
+  
+  const [isBonusClaimed, setIsBonusClaimed] = useState(false);
 
   const router = useRouter();
   const { addToCart, clearCart } = useCart();
@@ -470,14 +472,24 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
     }).catch(() => {});
   }, [params]);
 
-  // Open dynamic popup after exactly 5 seconds if a matched product is found
+  // Initialize claims from localStorage
   useEffect(() => {
-    if (!matchedProduct) return;
+    if (matchedProduct) {
+      const claimed = localStorage.getItem(`claimed_bonus_${matchedProduct.id}`);
+      if (claimed === 'true') {
+        setIsBonusClaimed(true);
+      }
+    }
+  }, [matchedProduct]);
+
+  // Open dynamic popup after exactly 5 seconds if a matched product is found and has not been claimed yet
+  useEffect(() => {
+    if (!matchedProduct || isBonusClaimed) return;
     const delayTimer = setTimeout(() => {
       setShowPopup(true);
     }, 5000);
     return () => clearTimeout(delayTimer);
-  }, [matchedProduct]);
+  }, [matchedProduct, isBonusClaimed]);
 
   useEffect(() => {
     if (!showPopup) return;
@@ -567,6 +579,10 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
       description: `"${matchedProduct.title}" has been added to your order for free. Continue reading the landing page below!`,
     });
 
+    // Mark as claimed in state & localStorage
+    setIsBonusClaimed(true);
+    localStorage.setItem(`claimed_bonus_${matchedProduct.id}`, 'true');
+
     // Close the popup modal but keep user on landing page
     setShowPopup(false);
   };
@@ -578,7 +594,7 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
         {/* ── 1. TOP URGENCY BAR (High visibility green positive alert) ── */}
         <div style={{ backgroundColor: "#05FF00" }} className="text-black text-center py-2.5 px-4 font-black text-sm sm:text-base sticky top-0 z-50 shadow-md">
           🔥 Adobe All Premium Software Bundle 2026! &nbsp;|&nbsp; Launch Sale: <strong>90% OFF</strong> &nbsp;|&nbsp;
-          <a href="/checkout" onClick={handleBuyClick} className="underline font-black hover:opacity-80 transition-opacity ml-1">Grab Now for ₹249 Only →</a>
+          <a href="/checkout" onClick={handleBuyClick} className="underline font-black hover:opacity-80 transition-opacity ml-1">Grab Now for ₹{adobeProduct ? adobeProduct.price : 249} Only →</a>
         </div>
 
         {/* ── 2. HERO (Premium Dark Blue Theme) ── */}
@@ -604,7 +620,7 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
               <button onClick={handleBuyClick} className="hover:-translate-y-0.5 active:translate-y-0 hover:shadow-[0px_10px_25px_rgba(5,255,0,0.4)] transition-all duration-200" style={{ ...BTN_STYLE, fontSize: "clamp(18px,2.8vw,32px)", padding: "16px 48px", width: "min(90%,580px)" }}>
-                🚀 Get Instant Access At Just ₹249/- 🚀
+                🚀 Get Instant Access At Just ₹{adobeProduct ? adobeProduct.price : 249}/- 🚀
               </button>
             </div>
             <p className="text-white/70 text-xs sm:text-sm mt-5 font-bold flex items-center justify-center flex-wrap gap-x-4 gap-y-1.5">
@@ -622,7 +638,7 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
         {/* ── 3. TRUST STATS (Alternating White background) ── */}
         <section className="bg-white py-10 px-4 border-b border-gray-150">
           <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[["3,929+", "Happy Customers"], ["20+", "Creative Software Tools"], ["24x7", "WhatsApp Support"], ["₹249", "One-Time Price"]].map(([n, l]) => (
+            {[["3,929+", "Happy Customers"], ["20+", "Creative Software Tools"], ["24x7", "WhatsApp Support"], ["₹" + (adobeProduct ? adobeProduct.price : 249), "One-Time Price"]].map(([n, l]) => (
               <div key={l} className="text-center py-5 px-3 bg-gray-50 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                 <div className="text-2xl md:text-3xl font-black text-[#00114E]">{n}</div>
                 <div className="text-gray-700 text-xs sm:text-sm font-extrabold mt-1">{l}</div>
@@ -643,7 +659,7 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
             </div>
             <div className="flex justify-center mt-12">
               <button onClick={handleBuyClick} className="hover:-translate-y-0.5 hover:shadow-[0px_10px_20px_rgba(0,0,0,0.3)] transition-all duration-200" style={{ ...BTN_STYLE, fontSize: "clamp(16px,2.5vw,28px)", padding: "14px 44px", width: "min(85%,520px)" }}>
-                🚀 Get Instant Access At Just ₹249/- 🚀
+                🚀 Get Instant Access At Just ₹{adobeProduct ? adobeProduct.price : 249}/- 🚀
               </button>
             </div>
           </div>
@@ -669,13 +685,13 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
                 Launch Offer : <span className="text-green-600">90% OFF</span>
               </div>
               <div className="text-base sm:text-lg font-bold text-gray-400 line-through">
-                General Price : ₹24,651/-
+                General Price : ₹{adobeProduct?.originalPrice ? adobeProduct.originalPrice.toLocaleString('en-IN') : "24,651"}/-
               </div>
               <div className="text-base sm:text-lg font-bold text-red-500 line-through">
-                Offer Price : ₹3,999/-
+                Offer Price : ₹{adobeProduct?.originalPrice ? Math.round(adobeProduct.originalPrice * 0.16).toLocaleString('en-IN') : "3,999"}/-
               </div>
               <div className="font-black text-[#22c55e] tracking-tight mt-2 animate-pulse" style={{ fontSize: "clamp(38px,7vw,60px)", lineHeight: 1.1 }}>
-                Today Only : ₹249/-
+                Today Only : ₹{adobeProduct ? adobeProduct.price : 249}/-
               </div>
             </div>
 
@@ -968,7 +984,7 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
 
             <div className="flex justify-center mt-12">
               <button onClick={handleBuyClick} className="animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_8px_15px_rgba(255,200,0,0.4)] transition-all duration-200" style={{ ...BTN_STYLE, fontSize: "clamp(16px,2.5vw,28px)", padding: "14px 44px", width: "min(85%,520px)" }}>
-                🚀 Get All Bonuses FREE — Only ₹249/- 🚀
+                🚀 Get All Bonuses FREE — Only ₹{adobeProduct ? adobeProduct.price : 249}/- 🚀
               </button>
             </div>
           </div>
@@ -1006,14 +1022,14 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
                 </thead>
                 <tbody className="bg-white">
                   {[
-                    ["Price", "₹249 Once", "₹5,500/mo"],
+                    ["Price", `₹${adobeProduct ? adobeProduct.price : 249} Once`, "₹5,500/mo"],
                     ["All 20+ Apps & Packs", "✅ Yes", "✅ Yes"],
                     ["Pre-Activated", "✅ Instant", "❌ Sub Required"],
                     ["Lifetime Access", "✅ Lifetime", "❌ Monthly Fee"],
                     ["Windows & Mac", "✅ Both", "✅ Both"],
                     ["M1/M2/M3/M4 Support", "✅ Yes", "✅ Yes"],
                     ["Instant Download", "✅ Instant", "⏳ Slow Install"],
-                    ["Total Cost/Year", "₹249 (Total)", "₹66,000+/yr"],
+                    ["Total Cost/Year", `₹${adobeProduct ? adobeProduct.price : 249} (Total)`, "₹66,000+/yr"],
                   ].map(([feat, g, a], i) => (
                     <tr key={feat} className={`${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"} border-t border-gray-150 hover:bg-green-50/10 transition-colors`}>
                       <td className="py-3 px-4 text-gray-800 font-extrabold text-xs sm:text-sm">{feat}</td>
@@ -1065,7 +1081,7 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
             <h2 className="font-black mb-4" style={{ fontSize: "clamp(22px,4vw,38px)" }}>Don't Miss This Limited Time Offer!</h2>
             <p className="text-[#00FFFF] mb-6 text-lg sm:text-xl font-bold">Join 3,929+ professionals who already own the ultimate Adobe bundle.</p>
             <button onClick={handleBuyClick} className="inline-block animate-[animatedgradient_3s_ease_infinite_alternate] hover:-translate-y-0.5 hover:shadow-[0px_8px_15px_rgba(255,200,0,0.5)] transition-all duration-200" style={{ ...BTN_STYLE, fontSize: "clamp(16px,3vw,30px)", padding: "14px 44px" }}>
-              🚀 GET INSTANT ACCESS — ONLY ₹249/- 🚀
+              🚀 GET INSTANT ACCESS — ONLY ₹{adobeProduct ? adobeProduct.price : 249}/- 🚀
             </button>
             <p className="text-white/60 text-xs sm:text-sm mt-4 font-bold">⚡ Instant Access &nbsp;|&nbsp; ✅ Pre-Activated &nbsp;|&nbsp; 🍎 Mac & 🪟 Windows</p>
           </div>
@@ -1086,8 +1102,41 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
         </footer>
 
         {/* ── 15. CONVERSION WIDGETS & PLUGINS ── */}
-        <StickyCheckoutBar onBuy={handleBuyClick} />
+        <StickyCheckoutBar 
+          onBuy={handleBuyClick} 
+          price={adobeProduct ? adobeProduct.price : 249} 
+          originalPrice={adobeProduct ? (adobeProduct.originalPrice || 2499) : 2499}
+        />
         <WhatsAppWidget />
+
+        {/* Floating Side Claimed Bonus Widget */}
+        {isBonusClaimed && matchedProduct && (
+          <div className="fixed bottom-24 left-6 z-[98] max-w-[280px] sm:max-w-xs bg-slate-950/95 border border-slate-800 rounded-2xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.8)] backdrop-blur-sm text-left flex gap-3 items-start animate-slide-up">
+            {/* Product Thumbnail */}
+            <div className="w-12 h-12 bg-white/5 rounded-xl border border-white/10 shrink-0 flex items-center justify-center overflow-hidden p-1">
+              <img src={matchedProduct.imageUrl || "/placeholder.svg"} alt={matchedProduct.title} className="max-w-full max-h-full object-contain" />
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-[#05FF00] text-xs">🎁</span>
+                <span className="text-[10px] font-black text-green-400 uppercase tracking-wider">Free Bonus Claimed!</span>
+              </div>
+              <h4 className="font-extrabold text-xs text-white truncate mb-1" title={matchedProduct.title}>
+                {matchedProduct.title}
+              </h4>
+              <p className="text-slate-400 text-[10px] leading-normal font-semibold mb-2">
+                To claim this offer, buy our premium bundle.
+              </p>
+              <button 
+                onClick={handleBuyClick}
+                className="w-full bg-[#00c853] hover:bg-[#00b24a] text-white text-[10px] font-black py-1.5 px-3 rounded-lg uppercase tracking-wider text-center transition-colors"
+              >
+                Complete Order →
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Dynamic Free Bonus Popup Modal */}
         {showPopup && matchedProduct && (
@@ -1273,7 +1322,7 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
 }
 
 /* Helper Component: Sticky Bottom Checkout Bar */
-function StickyCheckoutBar({ onBuy }: { onBuy: (e: React.MouseEvent) => void }) {
+function StickyCheckoutBar({ onBuy, price, originalPrice }: { onBuy: (e: React.MouseEvent) => void; price: number; originalPrice: number | null }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -1298,8 +1347,8 @@ function StickyCheckoutBar({ onBuy }: { onBuy: (e: React.MouseEvent) => void }) 
             ⚡ Adobe CC Premium 2026 + Bonuses
           </p>
           <div className="flex items-center gap-2">
-            <span className="text-white/40 line-through text-[11px] sm:text-xs font-bold">₹2,499</span>
-            <span className="text-[#05FF00] font-black text-sm sm:text-lg">₹249</span>
+            <span className="text-white/40 line-through text-[11px] sm:text-xs font-bold">₹{(originalPrice || 2499).toLocaleString('en-IN')}</span>
+            <span className="text-[#05FF00] font-black text-sm sm:text-lg">₹{price}</span>
             <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">90% OFF</span>
           </div>
         </div>

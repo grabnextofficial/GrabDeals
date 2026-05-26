@@ -426,6 +426,34 @@ export function RenderSection({ section, product, isBuilder, onChange }: { secti
     )
 }
 
+function interpolateProductData(value: any, product: Product): any {
+    if (typeof value === 'string') {
+        const fmt = (p: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(p);
+        const priceStr = fmt(product.price);
+        const origPriceVal = (product as any).originalPrice || product.price * 2;
+        const origPriceStr = fmt(origPriceVal);
+        
+        return value
+            .replace(/\{\{price\}\}/g, priceStr)
+            .replace(/\{price\}/g, priceStr)
+            .replace(/\{\{originalPrice\}\}/g, origPriceStr)
+            .replace(/\{originalPrice\}/g, origPriceStr)
+            .replace(/\{\{title\}\}/g, product.title)
+            .replace(/\{title\}/g, product.title);
+    }
+    if (Array.isArray(value)) {
+        return value.map(item => interpolateProductData(item, product));
+    }
+    if (value && typeof value === 'object') {
+        const result: any = {};
+        for (const key in value) {
+            result[key] = interpolateProductData(value[key], product);
+        }
+        return result;
+    }
+    return value;
+}
+
 export function LandingPageView({ product }: { product: Product }) {
     let sections: LandingSection[] = []
     let htmlContent: string | null = null
@@ -480,9 +508,12 @@ export function LandingPageView({ product }: { product: Product }) {
             <StoreHeader />
             <main className="flex-1">
                 {htmlContent ? (
-                    <div className="w-full lp-preview-container" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                    <div className="w-full lp-preview-container" dangerouslySetInnerHTML={{ __html: interpolateProductData(htmlContent, product) }} />
                 ) : (
-                    sections.map(section => <RenderSection key={section.id} section={section} product={product} />)
+                    sections.map(section => {
+                        const processedSection = interpolateProductData(section, product);
+                        return <RenderSection key={section.id} section={processedSection} product={product} />
+                    })
                 )}
             </main>
             <Footer />
