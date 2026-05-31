@@ -1,99 +1,1228 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useCart } from "@/contexts/cart-context"
-import { Button } from "@/components/ui/button"
-import { 
-  Zap, 
-  Check, 
-  X, 
-  Star, 
-  ArrowRight, 
-  Lock, 
-  ShieldCheck, 
-  Sparkles, 
-  Clock, 
-  ChevronRight, 
-  AlertTriangle,
-  FileText,
-  TrendingUp,
-  Briefcase,
-  Video,
-  Code2,
-  Brush,
-  DollarSign,
-  Users,
-  Target
-} from "lucide-react"
 
-// Infinite sliding marquee CSS animation
-const marqueeStyle = `
-  @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-  .animate-marquee {
-    display: flex;
-    width: max-content;
-    animation: marquee 35s linear infinite;
-  }
-  .animate-marquee:hover {
-    animation-play-state: paused;
-  }
-`
-
-// Standard product configuration matching the SQLite insert
-const CLAUDE_PRODUCT = {
-  id: "claude-skills-pro",
-  title: "Claude Skills Pro",
+const DEFAULT_PRODUCT = {
+  id: "all-in-one-claude-skills-bundle-a592f1",
+  title: "All-in-One Claude Skills Bundle",
   price: 499,
   originalPrice: 1999,
   category: "digital",
-  slug: "claude-skills-pro",
+  slug: "all-in-one-claude-skills-bundle-a592f1",
   imageUrl: "https://bizboxpro.in/wp-content/uploads/2026/05/AD12-1024x1024.png",
 }
 
-// 20 Carousel slide image paths
-const carouselImages = [
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Analytics-Data-1.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Social-Media.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/SEO-Search.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Sales-Funnels.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Operations-Systems.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Legal-Compliance.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Launch-Growth.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Industry-Specific-1.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Industry-Specific.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/HR-Team.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Finance-Pricing.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Analytics-Data.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Ads-Paid-Media.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Events-Speaking.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Email-Marketing-Automation.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/E-commerce-Products.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Courses-Education.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Content-Copywriting.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/Branding-Design.png",
-  "https://bizboxpro.in/wp-content/uploads/2026/05/1-.-2.png"
-]
+const HTML_CONTENT = `<div class="elementor elementor-3391" data-elementor-id="3391" data-elementor-post-type="page" data-elementor-type="wp-page">
+<section class="elementor-section elementor-top-section elementor-element elementor-element-4a888a32 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="4a888a32" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-5dadc82d" data-e-type="column" data-element_type="column" data-id="5dadc82d">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-750ef7a2 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="750ef7a2" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">🔥MEGA LAUNCH OFFER <span style="color: White">| Up to</span> 85% OFF<span style="color: White"> — Limited Time!</span></h2> </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-top-section elementor-element elementor-element-5c07d60a elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="5c07d60a" data-settings='{"background_background":"gradient"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-2d25b203" data-e-type="column" data-element_type="column" data-id="2d25b203">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-286ce3f5 elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="286ce3f5" data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm" href="#">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">🔥MEGA LAUNCH OFFER </span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-6a67b2c3 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="6a67b2c3" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">2,000+ Ready-to-Use Claude Skills for <span style="color: #F8D203">Every Business Need.</span></h2> </div>
+</div>
+<div class="elementor-element elementor-element-a74a4d6 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="a74a4d6" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Stop writing prompts from scratch. Upload a skill and watch Claude become an expert in seconds. Includes a <b>free usage guide.</b></h2> </div>
+</div>
+<div class="elementor-element elementor-element-7d5533ba elementor-widget elementor-widget-image" data-e-type="widget" data-element_type="widget" data-id="7d5533ba" data-widget_type="image.default">
+<div class="elementor-widget-container">
+<img alt="" class="attachment-large size-large wp-image-3393" decoding="async" fetchpriority="high" height="1024" sizes="(max-width: 1024px) 100vw, 1024px" src="https://bizboxpro.in/wp-content/uploads/2026/05/AD12-1024x1024.png" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/AD12-1024x1024.png 1024w, https://bizboxpro.in/wp-content/uploads/2026/05/AD12-300x300.png 300w, https://bizboxpro.in/wp-content/uploads/2026/05/AD12-150x150.png 150w, https://bizboxpro.in/wp-content/uploads/2026/05/AD12-768x768.png 768w, https://bizboxpro.in/wp-content/uploads/2026/05/AD12.png 1254w" width="1024"/> </div>
+</div>
+<div class="elementor-element elementor-element-223ee31 elementor-widget elementor-widget-text-editor" data-e-type="widget" data-element_type="widget" data-id="223ee31" data-widget_type="text-editor.default">
+<div class="elementor-widget-container">
+<p>Get Expert-Level Outputs Without Writing Complex Prompts</p> </div>
+</div>
+<section class="elementor-section elementor-inner-section elementor-element elementor-element-77dcc09c elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="77dcc09c">
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-33 elementor-inner-column elementor-element elementor-element-6949ef51" data-e-type="column" data-element_type="column" data-id="6949ef51">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-6893ea71 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="6893ea71" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">2,000+
+</h2> </div>
+</div>
+<div class="elementor-element elementor-element-28f8daf4 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="28f8daf4" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Claude Skills Included</h2> </div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-33 elementor-inner-column elementor-element elementor-element-36794216" data-e-type="column" data-element_type="column" data-id="36794216">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-64179ce4 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="64179ce4" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">20+ Areas</h2> </div>
+</div>
+<div class="elementor-element elementor-element-5149ff24 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="5149ff24" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">All-in-One AI Skills</h2> </div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-33 elementor-inner-column elementor-element elementor-element-6ec79987" data-e-type="column" data-element_type="column" data-id="6ec79987">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-24877cdc elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="24877cdc" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">4.9★</h2> </div>
+</div>
+<div class="elementor-element elementor-element-14bdea87 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="14bdea87" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Satisfaction Rating</h2> </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<div class="elementor-element elementor-element-4fcda412 elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="4fcda412" data-settings='{"_animation_mobile":"none"}' data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm elementor-animation-shrink" href="https://superprofile.bio/vp/claude-skills">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">🔥Buy Now for Just ₹499</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-5c900ef elementor-icon-list--layout-inline elementor-align-center elementor-mobile-align-center elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-e-type="widget" data-element_type="widget" data-id="5c900ef" data-widget_type="icon-list.default">
+<div class="elementor-widget-container">
+<ul class="elementor-icon-list-items elementor-inline-items">
+<li class="elementor-icon-list-item elementor-inline-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text">One-time payment</span>
+</li>
+<li class="elementor-icon-list-item elementor-inline-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text">Instant delivery</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-top-section elementor-element elementor-element-6f94c007 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="6f94c007" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-683ab08d" data-e-type="column" data-element_type="column" data-id="683ab08d">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-52ef9a8a elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="52ef9a8a" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">BUILT FOR THE CLAUDE ECOSYSTEM</h2> </div>
+</div>
+<section class="elementor-section elementor-inner-section elementor-element elementor-element-5a5212f4 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="5a5212f4">
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-25 elementor-inner-column elementor-element elementor-element-7e05b0e6" data-e-type="column" data-element_type="column" data-id="7e05b0e6">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-71d991ac elementor-widget elementor-widget-image" data-e-type="widget" data-element_type="widget" data-id="71d991ac" data-widget_type="image.default">
+<div class="elementor-widget-container">
+<img alt="" class="attachment-large size-large wp-image-3462" decoding="async" height="500" sizes="(max-width: 500px) 100vw, 500px" src="https://bizboxpro.in/wp-content/uploads/2026/05/1-1.jpg" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/1-1.jpg 500w, https://bizboxpro.in/wp-content/uploads/2026/05/1-1-300x300.jpg 300w, https://bizboxpro.in/wp-content/uploads/2026/05/1-1-150x150.jpg 150w" width="500"/> </div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-25 elementor-inner-column elementor-element elementor-element-7114f171" data-e-type="column" data-element_type="column" data-id="7114f171">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-715ad00e elementor-widget elementor-widget-image" data-e-type="widget" data-element_type="widget" data-id="715ad00e" data-widget_type="image.default">
+<div class="elementor-widget-container">
+<img alt="" class="attachment-large size-large wp-image-3461" decoding="async" height="500" sizes="(max-width: 500px) 100vw, 500px" src="https://bizboxpro.in/wp-content/uploads/2026/05/2-2.jpg" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/2-2.jpg 500w, https://bizboxpro.in/wp-content/uploads/2026/05/2-2-300x300.jpg 300w, https://bizboxpro.in/wp-content/uploads/2026/05/2-2-150x150.jpg 150w" width="500"/> </div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-25 elementor-inner-column elementor-element elementor-element-7726363f" data-e-type="column" data-element_type="column" data-id="7726363f">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-13206a63 elementor-widget elementor-widget-image" data-e-type="widget" data-element_type="widget" data-id="13206a63" data-widget_type="image.default">
+<div class="elementor-widget-container">
+<img alt="" class="attachment-large size-large wp-image-3460" decoding="async" height="500" loading="lazy" sizes="(max-width: 500px) 100vw, 500px" src="https://bizboxpro.in/wp-content/uploads/2026/05/4-1.jpg" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/4-1.jpg 500w, https://bizboxpro.in/wp-content/uploads/2026/05/4-1-300x300.jpg 300w, https://bizboxpro.in/wp-content/uploads/2026/05/4-1-150x150.jpg 150w" width="500"/> </div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-25 elementor-inner-column elementor-element elementor-element-56d0ee25" data-e-type="column" data-element_type="column" data-id="56d0ee25">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-44ab4c00 elementor-widget elementor-widget-image" data-e-type="widget" data-element_type="widget" data-id="44ab4c00" data-widget_type="image.default">
+<div class="elementor-widget-container">
+<img alt="" class="attachment-large size-large wp-image-3459" decoding="async" height="500" loading="lazy" sizes="(max-width: 500px) 100vw, 500px" src="https://bizboxpro.in/wp-content/uploads/2026/05/5-2.jpg" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/5-2.jpg 500w, https://bizboxpro.in/wp-content/uploads/2026/05/5-2-300x300.jpg 300w, https://bizboxpro.in/wp-content/uploads/2026/05/5-2-150x150.jpg 150w" width="500"/> </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-top-section elementor-element elementor-element-7fba90fd elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="7fba90fd" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-752d8bd5" data-e-type="column" data-element_type="column" data-id="752d8bd5">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-7b943b84 elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="7b943b84" data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm" href="#">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">What’s Inside the</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-4978189b elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="4978189b" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">All-in-One Claude Skills Bundle.</h2> </div>
+</div>
+<section class="elementor-section elementor-inner-section elementor-element elementor-element-502c723b elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="502c723b" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-inner-column elementor-element elementor-element-2b96d409" data-e-type="column" data-element_type="column" data-id="2b96d409">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-1ffb157 elementor-arrows-position-inside elementor-pagination-position-outside elementor-widget elementor-widget-image-carousel" data-e-type="widget" data-element_type="widget" data-id="1ffb157" data-settings='{"slides_to_show":"2","image_spacing_custom":{"unit":"px","size":10,"sizes":[]},"navigation":"both","autoplay":"yes","pause_on_hover":"yes","pause_on_interaction":"yes","autoplay_speed":5000,"infinite":"yes","speed":500,"image_spacing_custom_tablet":{"unit":"px","size":"","sizes":[]},"image_spacing_custom_mobile":{"unit":"px","size":"","sizes":[]}}' data-widget_type="image-carousel.default">
+<div class="elementor-widget-container">
+<div aria-label="Image Carousel" aria-roledescription="carousel" class="elementor-image-carousel-wrapper swiper" dir="ltr" role="region">
+<div aria-live="off" class="elementor-image-carousel swiper-wrapper">
+<div aria-label="1 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Analytics &amp; Data (1)" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Analytics-Data-1.png"/></figure></div><div aria-label="2 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Social Media" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Social-Media.png"/></figure></div><div aria-label="3 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="SEO &amp; Search" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/SEO-Search.png"/></figure></div><div aria-label="4 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Sales &amp; Funnels" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Sales-Funnels.png"/></figure></div><div aria-label="5 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Operations &amp; Systems" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Operations-Systems.png"/></figure></div><div aria-label="6 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Legal &amp; Compliance" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Legal-Compliance.png"/></figure></div><div aria-label="7 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Launch &amp; Growth" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Launch-Growth.png"/></figure></div><div aria-label="8 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Industry-Specific (1)" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Industry-Specific-1.png"/></figure></div><div aria-label="9 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Industry-Specific" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Industry-Specific.png"/></figure></div><div aria-label="10 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="HR &amp; Team" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/HR-Team.png"/></figure></div><div aria-label="11 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Finance &amp; Pricing" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Finance-Pricing.png"/></figure></div><div aria-label="12 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Analytics &amp; Data" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Analytics-Data.png"/></figure></div><div aria-label="13 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Ads &amp; Paid Media" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Ads-Paid-Media.png"/></figure></div><div aria-label="14 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Events &amp; Speaking" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Events-Speaking.png"/></figure></div><div aria-label="15 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Email Marketing &amp; Automation" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Email-Marketing-Automation.png"/></figure></div><div aria-label="16 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="E-commerce &amp; Products" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/E-commerce-Products.png"/></figure></div><div aria-label="17 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Courses &amp; Education" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Courses-Education.png"/></figure></div><div aria-label="18 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Content &amp; Copywriting" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Content-Copywriting.png"/></figure></div><div aria-label="19 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="Branding &amp; Design" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/Branding-Design.png"/></figure></div><div aria-label="20 of 20" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="1 . 2" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/1-.-2.png"/></figure></div> </div>
+<div class="elementor-swiper-button elementor-swiper-button-prev" role="button" tabindex="0">
+<svg aria-hidden="true" class="e-font-icon-svg e-eicon-chevron-left" viewbox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"><path d="M646 125C629 125 613 133 604 142L308 442C296 454 292 471 292 487 292 504 296 521 308 533L604 854C617 867 629 875 646 875 663 875 679 871 692 858 704 846 713 829 713 812 713 796 708 779 692 767L438 487 692 225C700 217 708 204 708 187 708 171 704 154 692 142 675 129 663 125 646 125Z"></path></svg> </div>
+<div class="elementor-swiper-button elementor-swiper-button-next" role="button" tabindex="0">
+<svg aria-hidden="true" class="e-font-icon-svg e-eicon-chevron-right" viewbox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"><path d="M696 533C708 521 713 504 713 487 713 471 708 454 696 446L400 146C388 133 375 125 354 125 338 125 325 129 313 142 300 154 292 171 292 187 292 204 296 221 308 233L563 492 304 771C292 783 288 800 288 817 288 833 296 850 308 863 321 871 338 875 354 875 371 875 388 867 400 854L696 533Z"></path></svg> </div>
+<div class="swiper-pagination"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<div class="elementor-element elementor-element-4e0752a elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="4e0752a" data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm" href="#">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">🔥MEGA LAUNCH OFFER </span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-1c8394ff elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="1c8394ff" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Everything You Need to Turn Claude Into a Business Powerhouse — Faster &amp; Smarter</h2> </div>
+</div>
+<div class="elementor-element elementor-element-3d5f4de8 elementor-widget elementor-widget-text-editor" data-e-type="widget" data-element_type="widget" data-id="3d5f4de8" data-widget_type="text-editor.default">
+<div class="elementor-widget-container">
+<p style="font-size: 16px; font-weight: bold; margin: 0;">🎁Get<span style="color: #ff6c35;"> 85% OFF </span>Today Only —<span style="text-decoration: line-through; color: #888;">₹1999</span> Value for Just <span style="color: #ffcf03; font-size: 22px;">₹499! </span></p> </div>
+</div>
+<section class="elementor-section elementor-inner-section elementor-element elementor-element-25af2d68 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="25af2d68">
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-33 elementor-inner-column elementor-element elementor-element-6ab52447" data-e-type="column" data-element_type="column" data-id="6ab52447" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-1a04bb9e elementor-widget elementor-widget-image" data-e-type="widget" data-element_type="widget" data-id="1a04bb9e" data-widget_type="image.default">
+<div class="elementor-widget-container">
+<img alt="" class="attachment-large size-large wp-image-3488" decoding="async" height="1024" loading="lazy" sizes="(max-width: 1024px) 100vw, 1024px" src="https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_41_57-PM-1024x1024.png" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_41_57-PM-1024x1024.png 1024w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_41_57-PM-300x300.png 300w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_41_57-PM-150x150.png 150w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_41_57-PM-768x768.png 768w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_41_57-PM.png 1254w" width="1024"/> </div>
+</div>
+<div class="elementor-element elementor-element-87bd968 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="87bd968" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">1. Complete Claude Skills Library</h2> </div>
+</div>
+<div class="elementor-element elementor-element-1d9995ba elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-e-type="widget" data-element_type="widget" data-id="1d9995ba" data-widget_type="icon-list.default">
+<div class="elementor-widget-container">
+<ul class="elementor-icon-list-items">
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text"><b>Content Writing &amp; Copywriting Skills: </b>Create blogs, ads, scripts, emails, product descriptions &amp; viral content instantly. </span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text"><b>Marketing &amp; Growth Automation:</b> Generate funnels, SEO plans, social media strategies &amp; campaign ideas in seconds.</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text"><b>Sales &amp; Outreach Systems:</b> Cold emails, sales scripts, objection handling &amp; lead generation workflows included.</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text"><b>Business &amp; Productivity Workflows:</b> Automate repetitive tasks, build SOPs &amp; streamline your daily operations with Claude.</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-33 elementor-inner-column elementor-element elementor-element-86a3f9e" data-e-type="column" data-element_type="column" data-id="86a3f9e" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-ae35f3f elementor-widget elementor-widget-image" data-e-type="widget" data-element_type="widget" data-id="ae35f3f" data-widget_type="image.default">
+<div class="elementor-widget-container">
+<img alt="" class="attachment-large size-large wp-image-3487" decoding="async" height="1024" loading="lazy" sizes="(max-width: 1024px) 100vw, 1024px" src="https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_42_02-PM-1024x1024.png" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_42_02-PM-1024x1024.png 1024w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_42_02-PM-300x300.png 300w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_42_02-PM-150x150.png 150w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_42_02-PM-768x768.png 768w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_42_02-PM.png 1254w" width="1024"/> </div>
+</div>
+<div class="elementor-element elementor-element-16ed4a23 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="16ed4a23" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">2. Advanced Prompt Systems &amp; Expert Workflows</h2> </div>
+</div>
+<div class="elementor-element elementor-element-3c846a9a elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-e-type="widget" data-element_type="widget" data-id="3c846a9a" data-widget_type="icon-list.default">
+<div class="elementor-widget-container">
+<ul class="elementor-icon-list-items">
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text"><b>Expert-Level Prompt Frameworks Included:</b> Use battle-tested workflows designed for high-quality, consistent Claude outputs.</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text"><b>Ready-Made Department Skills:</b> Marketing, sales, HR, legal, customer support, finance &amp; strategy systems included.</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text"><b>Organized Skill Categories:</b> Quickly find the exact skill you need without wasting time searching.</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text"><b>Plug-and-Play Setup:</b> Simply upload a skill file into Claude and start using it instantly.</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-33 elementor-inner-column elementor-element elementor-element-42dcea89" data-e-type="column" data-element_type="column" data-id="42dcea89" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-24bdd135 elementor-widget elementor-widget-image" data-e-type="widget" data-element_type="widget" data-id="24bdd135" data-widget_type="image.default">
+<div class="elementor-widget-container">
+<img alt="" class="attachment-large size-large wp-image-3489" decoding="async" height="1024" loading="lazy" sizes="(max-width: 1024px) 100vw, 1024px" src="https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_43_24-PM-1024x1024.png" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_43_24-PM-1024x1024.png 1024w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_43_24-PM-300x300.png 300w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_43_24-PM-150x150.png 150w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_43_24-PM-768x768.png 768w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_43_24-PM.png 1254w" width="1024"/> </div>
+</div>
+<div class="elementor-element elementor-element-7ab2ce1b elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="7ab2ce1b" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">3. Automation, Scaling &amp; Bonus Resources</h2> </div>
+</div>
+<div class="elementor-element elementor-element-11d80d57 elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-e-type="widget" data-element_type="widget" data-id="11d80d57" data-widget_type="icon-list.default">
+<div class="elementor-widget-container">
+<ul class="elementor-icon-list-items">
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text"><b>Claude.ai &amp; Claude Code Compatible:</b> Works seamlessly across all major Claude platforms &amp; workflows.</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text"><b>Stack Multiple Skills Together:</b> Combine skills to automate complex multi-step business tasks effortlessly.</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text"><b>Free Usage Guide Included:</b>Step-by-step tutorials showing how to maximize every skill effectively.</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg> </span>
+<span class="elementor-icon-list-text"><b>Lifetime Updates Included:</b> Get future skill improvements &amp; newly added resources at no extra cost.</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-top-section elementor-element elementor-element-2f2c0d37 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="2f2c0d37" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-59cbc930" data-e-type="column" data-element_type="column" data-id="59cbc930">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-1694753b elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="1694753b" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Everything You Need to Turn Claude Into a  <span style="color: red">Complete AI Business System.</span></h2> </div>
+</div>
+<div class="elementor-element elementor-element-694f328f elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="694f328f" data-settings='{"_animation_mobile":"none"}' data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm elementor-animation-shrink" href="https://superprofile.bio/vp/claude-skills">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">GET INSTANT ACCESS!</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-46603358 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="46603358" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">⚡ One click, fully organized, permanently yours.</h2> </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-top-section elementor-element elementor-element-346ece2f elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="346ece2f" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-32214cda" data-e-type="column" data-element_type="column" data-id="32214cda">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-2ad02314 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="2ad02314" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Same Claude. Turned Into a Business Machine.</h2> </div>
+</div>
+<div class="elementor-element elementor-element-95101b8 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="95101b8" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default"><span style="color: red">You’re Not Slow</span> —Your Claude Workflow Is.</h2> </div>
+</div>
+<div class="elementor-element elementor-element-2cdfd7ce elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="2cdfd7ce" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Most Claude users only get 10% of its potential. A single skill file transforms it from useful to extraordinary.</h2> </div>
+</div>
+<section class="elementor-section elementor-inner-section elementor-element elementor-element-c4411b6 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="c4411b6">
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-50 elementor-inner-column elementor-element elementor-element-c4e3303" data-e-type="column" data-element_type="column" data-id="c4e3303" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-f11c3ca elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="f11c3ca" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">❌ Without Skills</h2> </div>
+</div>
+<div class="elementor-element elementor-element-05921b2 elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-e-type="widget" data-element_type="widget" data-id="05921b2" data-widget_type="icon-list.default">
+<div class="elementor-widget-container">
+<ul class="elementor-icon-list-items">
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-text">Rewriting the same prompts again and again</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-text">Unpredictable output quality.</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-text">Wasting hours testing different inputs.</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-text">Paying for multiple expensive tools.</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-text">No workflow consistency across projects</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-50 elementor-inner-column elementor-element elementor-element-e801963" data-e-type="column" data-element_type="column" data-id="e801963" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-0798d82 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="0798d82" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">✓  With Claude Skills Pro</h2> </div>
+</div>
+<div class="elementor-element elementor-element-199e0c2 elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-e-type="widget" data-element_type="widget" data-id="199e0c2" data-widget_type="icon-list.default">
+<div class="elementor-widget-container">
+<ul class="elementor-icon-list-items">
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-text">Upload once and use repeatedly</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-text">Reliable high-quality results every time</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-text">Ready to use in under a minute</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-text">Replace multiple business tools with one system</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-text">Build faster with organized workflows</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-inner-section elementor-element elementor-element-29f26a5f elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="29f26a5f">
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-inner-column elementor-element elementor-element-13451df7" data-e-type="column" data-element_type="column" data-id="13451df7">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-65e29037 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="65e29037" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">One-Time Price.  <span style="color: red">Lifetime Claude <b> Upgrades..</b></span></h2> </div>
+</div>
+<div class="elementor-element elementor-element-728627a5 elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="728627a5" data-settings='{"_animation_mobile":"none"}' data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm elementor-animation-shrink" href="https://superprofile.bio/vp/claude-skills">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">GET INSTANT ACCESS!</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-cc52432 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="cc52432" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">⚡ One click, fully organized, permanently yours.</h2> </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-top-section elementor-element elementor-element-568e4d5 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="568e4d5" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-59da7f3" data-e-type="column" data-element_type="column" data-id="59da7f3">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-721dd213 elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="721dd213" data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm" href="#">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">What's Inside</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-7290376 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="7290376" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Every Department. Every Use Case.</h2> </div>
+</div>
+<div class="elementor-element elementor-element-3a8424c elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="3a8424c" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">2,000+ skills covering all core business functions — from marketing to legal to finance.</h2> </div>
+</div>
+<section class="elementor-section elementor-inner-section elementor-element elementor-element-1013ba6 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="1013ba6">
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-10 elementor-inner-column elementor-element elementor-element-349487d" data-e-type="column" data-element_type="column" data-id="349487d" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-104f5fa elementor-view-default elementor-position-block-start elementor-mobile-position-block-start elementor-widget elementor-widget-icon-box" data-e-type="widget" data-element_type="widget" data-id="104f5fa" data-widget_type="icon-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-icon-box-wrapper">
+<div class="elementor-icon-box-icon">
+<span class="elementor-icon">
+<svg viewbox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path d="M6.203 21.641c-.078.922.321 1.198.946 1.636.618.433 4.383-2.867 5.614-3.369 1.231-.502 12.787-2.949 12.286-5.183-.501-2.234-3.993-2.564-6.683-2.108-2.69.456-7.838 2.822-9.342 4.099-1.504 1.276-2.821 4.925-2.821 4.925zm8.622 1.497s-3.557 1.155-3.557 4.155.866 4.692 1.276 5.513c.411.82 1.688 1.616 3.455.851 2.052-.889-.491-6.004 6-3.656 2.974 1.075 6.059 2.528 9.059 1.528C33.904 30.58 35 27 35 25c0-4.094-3-3-4-2s-9 3-10 3-6.175-2.862-6.175-2.862z" fill="#EF9645"></path><path d="M19.312 28.188s-.12-1.316-1.375-1.469c-1.031-.125-2.656.219-3.5 1.906-.844 1.688-2.344 1.406-2.281 2.812.062 1.406.5 2.5 1.406 2.781.907.282 2.188-.218 2.344-1.718.156-1.5.344-2.875 1.312-3.469.97-.593 2.094-.843 2.094-.843z" fill="#F9CA55"></path><path d="M18 26s-1-1-3-1-6.664 2.133-5.25 6.375c1 3 3.844 1.594 4.25-1.375.407-2.973 4-4 4-4z" fill="#EF9645"></path><path d="M17 26s-1-1-3-1-4.885 1.53-5 6c-.094 3.656 4.031 2 4-1-.031-3 4-4 4-4z" fill="#F9CA55"></path><path d="M5 27c0 3.297.457 5.286 2.428 4.947 3.269-.562 2.028-4.614 4.889-5.754 2.077-.827 5.101-.63 8.02 1.103C22.26 28.438 21 24 19 23s-8 0-9 0-5 4-5 4z" fill="#EF9645"></path><path d="M4.842 27.174C3.251 29.839 4.219 32.594 7 32c2.691-.574 1.343-4.07 4-6 1.489-1.082 4.698-1.445 6.698-.445S20 24 18 23s-8.54-.025-9.538.037c-1.909.119-3.62 4.137-3.62 4.137z" fill="#F9CA55"></path><path d="M9.418 29.114c-.679.778-1.86.859-2.639.18l-.196-.171c-.779-.679-.859-1.859-.18-2.638L28.926.668c.679-.778 1.86-.859 2.639-.18l.195.171c.779.679.859 1.86.181 2.638L9.418 29.114z" fill="#3B88C3"></path><path d="M10.49 27.886c-2.36 2.705-8.313 8.009-9.067 7.352-.753-.657 3.693-7.275 6.053-9.981 2.36-2.706 1.661-.542 2.493.185.832.726 2.881-.26.521 2.444z" fill="#3B88C3"></path><path d="M6.672 25.026c0 1 2.421 1.915 3.421.915s3.341-2.228 6.419-.941C23.716 28.01 21 24 18 23s-8 0-9 0-2.328 2.026-2.328 2.026z" fill="#EF9645"></path><path d="M6.195 22.043c-.358-1.113 2.188-7.279 3.341-8.234 1.452-1.202 7.069-3.063 9.069-3.063S35 18 35 23s-2 5.625-4.875 6.406c-2.299.625-7.115.242-9.219-1.719C19.062 25.969 17.781 24.781 16 24c-3.302-1.448-5.503.424-6.503 1.424-2 2-5.768-.159-2.625-3.58C9.121 19.395 11.102 18.632 13 18c6-2 10-2 8-4-.707-.707-1.092.346-2.076.525-1.98.36-3.556.602-6.165 1.472-.902.3-5.172 3.023-6.564 6.046z" fill="#FFDC5D"></path><path d="M13.196 16.275c1.064-.388 5.702-1.232 8.115-2.068 1.949-.676 3.659.636-.04 2.028-3.57 1.343-7.279 1.233-9.984 2.307-1.023.406-1.91-.875 1.909-2.267z" fill="#EF9645"></path><path d="M22.487 8.023s-5.928 6.795-8.446 9.661c2.254-.926 4.271-.75 6.198-1.884 1.927-1.133 2.806-2.342 5.73-5.695 1.086-1.244-3.482-2.082-3.482-2.082z" fill="#3B88C3"></path></svg> </span>
+</div>
+<div class="elementor-icon-box-content">
+<h3 class="elementor-icon-box-title">
+<span>
+							Content Creation						</span>
+</h3>
+<p class="elementor-icon-box-description">
+						200+					</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-10 elementor-inner-column elementor-element elementor-element-1130dbc" data-e-type="column" data-element_type="column" data-id="1130dbc" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-815a11e elementor-view-default elementor-position-block-start elementor-mobile-position-block-start elementor-widget elementor-widget-icon-box" data-e-type="widget" data-element_type="widget" data-id="815a11e" data-widget_type="icon-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-icon-box-wrapper">
+<div class="elementor-icon-box-icon">
+<span class="elementor-icon">
+<svg viewbox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path d="M31 2H5C3.343 2 2 3.343 2 5v26c0 1.657 1.343 3 3 3h26c1.657 0 3-1.343 3-3V5c0-1.657-1.343-3-3-3z" fill="#CCD6DD"></path><path d="M31 1H5C2.791 1 1 2.791 1 5v26c0 2.209 1.791 4 4 4h26c2.209 0 4-1.791 4-4V5c0-2.209-1.791-4-4-4zm0 2c1.103 0 2 .897 2 2v4h-6V3h4zm-4 16h6v6h-6v-6zm0-2v-6h6v6h-6zM25 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM17 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM3 5c0-1.103.897-2 2-2h4v6H3V5zm0 6h6v6H3v-6zm0 8h6v6H3v-6zm2 14c-1.103 0-2-.897-2-2v-4h6v6H5zm6 0v-6h6v6h-6zm8 0v-6h6v6h-6zm12 0h-4v-6h6v4c0 1.103-.897 2-2 2z" fill="#E1E8ED"></path><path d="M4.998 33c-.32 0-.645-.076-.946-.239-.973-.523-1.336-1.736-.813-2.709l7-13c.299-.557.845-.939 1.47-1.031.626-.092 1.258.118 1.705.565l6.076 6.076 9.738-18.59c.512-.978 1.721-1.357 2.699-.843.979.512 1.356 1.721.844 2.7l-11 21c-.295.564-.841.953-1.47 1.05-.627.091-1.266-.113-1.716-.563l-6.1-6.099-5.724 10.631C6.4 32.619 5.71 33 4.998 33z" fill="#DD2E44"></path></svg> </span>
+</div>
+<div class="elementor-icon-box-content">
+<h3 class="elementor-icon-box-title">
+<span>
+							Growth Marketing						</span>
+</h3>
+<p class="elementor-icon-box-description">
+						250+					</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-10 elementor-inner-column elementor-element elementor-element-205139f" data-e-type="column" data-element_type="column" data-id="205139f" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-6e587ba elementor-view-default elementor-position-block-start elementor-mobile-position-block-start elementor-widget elementor-widget-icon-box" data-e-type="widget" data-element_type="widget" data-id="6e587ba" data-widget_type="icon-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-icon-box-wrapper">
+<div class="elementor-icon-box-icon">
+<span class="elementor-icon">
+<svg viewbox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path d="M3.923 22.923c-.212.511-.798.751-1.308.539-.51-.213-.751-.798-.539-1.308L6.693 9.616c.212-.51.798-.751 1.307-.539.51.213.751.798.539 1.308L3.923 22.923z" fill="#66757F"></path><path d="M13.923 22.154c.212.51-.029 1.095-.539 1.308-.51.212-1.095-.028-1.308-.539L7.461 10.385c-.212-.51.029-1.095.539-1.308.51-.212 1.095.029 1.308.539l4.615 12.538zm10.001.769c-.213.511-.799.751-1.309.539-.51-.213-.75-.798-.538-1.308l4.616-12.539c.212-.509.797-.75 1.307-.538.51.213.752.798.539 1.308l-4.615 12.538z" fill="#66757F"></path><path d="M33.923 22.154c.212.51-.028 1.095-.538 1.308-.51.212-1.096-.028-1.309-.539l-4.615-12.538c-.213-.51.029-1.095.539-1.308.51-.212 1.095.029 1.307.539l4.616 12.538z" fill="#66757F"></path><path d="M14.857 22H1.143C.512 22 0 22.511 0 23.143c0 2.524 3.582 4.571 8 4.571s8-2.047 8-4.571c0-.632-.512-1.143-1.143-1.143zM24 34H12c-.552 0-1-.447-1-1 0-2.209 3.134-4 7-4s7 1.791 7 4c0 .553-.447 1-1 1zm10.857-12H21.143c-.632 0-1.143.511-1.143 1.143 0 2.524 3.581 4.571 8 4.571s8-2.047 8-4.571c0-.632-.511-1.143-1.143-1.143z" fill="#FFAC33"></path><path d="M19 3c0-.552-.447-1-1-1-.552 0-1 .448-1 1v27c0 .553.448 1 1 1 .553 0 1-.447 1-1V3z" fill="#FFAC33"></path><circle cx="18" cy="4" fill="#FFAC33" r="2"></circle><circle cx="8" cy="10" fill="#FFAC33" r="2"></circle><circle cx="28" cy="10" fill="#FFAC33" r="2"></circle><path d="M28 10c0 1.104 0 0-10 0S8 11.104 8 10s3-4 10-4 10 2.896 10 4z" fill="#FFAC33"></path></svg> </span>
+</div>
+<div class="elementor-icon-box-content">
+<h3 class="elementor-icon-box-title">
+<span>
+							Legal Documents						</span>
+</h3>
+<p class="elementor-icon-box-description">
+						150+					</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-10 elementor-inner-column elementor-element elementor-element-5738da1" data-e-type="column" data-element_type="column" data-id="5738da1" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-5f56814 elementor-view-default elementor-position-block-start elementor-mobile-position-block-start elementor-widget elementor-widget-icon-box" data-e-type="widget" data-element_type="widget" data-id="5f56814" data-widget_type="icon-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-icon-box-wrapper">
+<div class="elementor-icon-box-icon">
+<span class="elementor-icon">
+<svg viewbox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path d="M31.898 23.938C31.3 17.32 28 14 28 14l-6-8h-8l-6 8s-1.419 1.433-2.567 4.275C3.444 18.935 2 20.789 2 23c0 1.448.625 2.742 1.609 3.655C3.233 27.357 3 28.147 3 29c0 1.958 1.136 3.636 2.775 4.456C7.058 35.378 8.772 36 10 36h16c1.379 0 3.373-.779 4.678-3.31C32.609 31.999 34 30.17 34 28c0-1.678-.834-3.154-2.102-4.062zM18 6c.55 0 1.058-.158 1.5-.416.443.258.951.416 1.5.416 1.657 0 4-2.344 4-4 0 0 0-2-2-2-.788 0-1 1-2 1s-1-1-3-1-2 1-3 1-1.211-1-2-1c-2 0-2 2-2 2 0 1.656 2.344 4 4 4 .549 0 1.057-.158 1.5-.416.443.258.951.416 1.5.416z" fill="#FDD888"></path><path d="M24 6c0 .552-.447 1-1 1H13c-.552 0-1-.448-1-1s.448-1 1-1h10c.553 0 1 .448 1 1z" fill="#BF6952"></path><path d="M23.901 24.542c0-4.477-8.581-4.185-8.581-6.886 0-1.308 1.301-1.947 2.811-1.947 2.538 0 2.99 1.569 4.139 1.569.813 0 1.205-.493 1.205-1.046 0-1.284-2.024-2.256-3.965-2.592V12.4c0-.773-.65-1.4-1.454-1.4-.805 0-1.456.627-1.456 1.4v1.283c-2.116.463-3.937 1.875-3.937 4.176 0 4.299 8.579 4.125 8.579 7.145 0 1.047-1.178 2.093-3.111 2.093-2.901 0-3.867-1.889-5.045-1.889-.574 0-1.087.464-1.087 1.164 0 1.113 1.938 2.451 4.603 2.824l-.001.01v1.398c0 .772.652 1.4 1.456 1.4.804 0 1.455-.628 1.455-1.4v-1.398c0-.017-.008-.03-.009-.045 2.398-.43 4.398-1.932 4.398-4.619z" fill="#67757F"></path></svg> </span>
+</div>
+<div class="elementor-icon-box-content">
+<h3 class="elementor-icon-box-title">
+<span>
+							Finance &amp; Reports						</span>
+</h3>
+<p class="elementor-icon-box-description">
+						150+					</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-10 elementor-inner-column elementor-element elementor-element-d0bc135" data-e-type="column" data-element_type="column" data-id="d0bc135" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-dbd8323 elementor-view-default elementor-position-block-start elementor-mobile-position-block-start elementor-widget elementor-widget-icon-box" data-e-type="widget" data-element_type="widget" data-id="dbd8323" data-widget_type="icon-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-icon-box-wrapper">
+<div class="elementor-icon-box-icon">
+<span class="elementor-icon">
+<svg viewbox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path d="M29 20.729v-1.963c1-1.03 2.914-2.89 3.391-5.273.142.079.055.13.213.13.758 0 1.256-.983 1.256-2.197 0-1.194-.656-2.161-1.399-2.191.143-.516.212-1.206.212-2.092 0-2.956-2.549-6.505-8.253-6.505-5.068 0-8.244 3.549-8.244 6.505 0 .858.051 1.562.142 2.107-.697.105-1.247 1.033-1.247 2.175 0 1.214.614 2.197 1.373 2.197.157 0-.069-.051.072-.13.477 2.384 2.484 4.243 3.484 5.274v1.847c-4 .492-7 2.628-7 4.765v.81c0 .812.823.812 1.634.812h18.73c.813 0 1.636 0 1.636-.812v-.81c0-2.001-3-3.997-6-4.649z" fill="#55ACEE"></path><path d="M17 28.729v-1.963c1-1.03 2.914-2.89 3.391-5.273.142.079.055.13.213.13.758 0 1.256-.983 1.256-2.197 0-1.194-.656-2.161-1.399-2.191.143-.516.212-1.206.212-2.092 0-2.956-2.549-6.505-8.253-6.505-5.069 0-8.244 3.549-8.244 6.505 0 .858.051 1.562.142 2.107-.697.105-1.247 1.033-1.247 2.175 0 1.214.614 2.197 1.373 2.197.157 0-.069-.051.072-.13C4.993 23.876 7 25.735 8 26.766v1.847c-4 .492-7 2.628-7 4.765v.811C1 35 1.823 35 2.634 35h18.73c.813 0 1.636 0 1.636-.812v-.811c0-2-3-3.996-6-4.648z" fill="#269"></path></svg> </span>
+</div>
+<div class="elementor-icon-box-content">
+<h3 class="elementor-icon-box-title">
+<span>
+							Human Resources						</span>
+</h3>
+<p class="elementor-icon-box-description">
+						200+					</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-10 elementor-inner-column elementor-element elementor-element-1f7169a" data-e-type="column" data-element_type="column" data-id="1f7169a" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-2893484 elementor-view-default elementor-position-block-start elementor-mobile-position-block-start elementor-widget elementor-widget-icon-box" data-e-type="widget" data-element_type="widget" data-id="2893484" data-widget_type="icon-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-icon-box-wrapper">
+<div class="elementor-icon-box-icon">
+<span class="elementor-icon">
+<svg viewbox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path d="M1 17l8-7 16 1 1 16-7 8s.001-5.999-6-12-12-6-12-6z" fill="#A0041E"></path><path d="M.973 35s-.036-7.979 2.985-11S15 21.187 15 21.187 14.999 29 11.999 32c-3 3-11.026 3-11.026 3z" fill="#FFAC33"></path><circle cx="8.999" cy="27" fill="#FFCC4D" r="4"></circle><path d="M35.999 0s-10 0-22 10c-6 5-6 14-4 16s11 2 16-4c10-12 10-22 10-22z" fill="#55ACEE"></path><path d="M26.999 5c-1.623 0-3.013.971-3.641 2.36.502-.227 1.055-.36 1.641-.36 2.209 0 4 1.791 4 4 0 .586-.133 1.139-.359 1.64 1.389-.627 2.359-2.017 2.359-3.64 0-2.209-1.791-4-4-4z"></path><path d="M8 28s0-4 1-5 13.001-10.999 14-10-9.001 13-10.001 14S8 28 8 28z" fill="#A0041E"></path></svg> </span>
+</div>
+<div class="elementor-icon-box-content">
+<h3 class="elementor-icon-box-title">
+<span>
+							Sales Systems						</span>
+</h3>
+<p class="elementor-icon-box-description">
+						200+					</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-10 elementor-inner-column elementor-element elementor-element-4a99d1a" data-e-type="column" data-element_type="column" data-id="4a99d1a" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-8931960 elementor-view-default elementor-position-block-start elementor-mobile-position-block-start elementor-widget elementor-widget-icon-box" data-e-type="widget" data-element_type="widget" data-id="8931960" data-widget_type="icon-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-icon-box-wrapper">
+<div class="elementor-icon-box-icon">
+<span class="elementor-icon">
+<svg viewbox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path d="M31 2H5C3.343 2 2 3.343 2 5v26c0 1.657 1.343 3 3 3h26c1.657 0 3-1.343 3-3V5c0-1.657-1.343-3-3-3z" fill="#CCD6DD"></path><path d="M31 1H5C2.791 1 1 2.791 1 5v26c0 2.209 1.791 4 4 4h26c2.209 0 4-1.791 4-4V5c0-2.209-1.791-4-4-4zm0 2c1.103 0 2 .897 2 2v4h-6V3h4zm-4 16h6v6h-6v-6zm0-2v-6h6v6h-6zM25 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM17 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM3 5c0-1.103.897-2 2-2h4v6H3V5zm0 6h6v6H3v-6zm0 8h6v6H3v-6zm2 14c-1.103 0-2-.897-2-2v-4h6v6H5zm6 0v-6h6v6h-6zm8 0v-6h6v6h-6zm12 0h-4v-6h6v4c0 1.103-.897 2-2 2z" fill="#E1E8ED"></path><path d="M13 33H7V16c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v17z" fill="#5C913B"></path><path d="M29 33h-6V9c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v24z" fill="#3B94D9"></path><path d="M21 33h-6V23c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v10z" fill="#DD2E44"></path></svg> </span>
+</div>
+<div class="elementor-icon-box-content">
+<h3 class="elementor-icon-box-title">
+<span>
+							Business Strategy						</span>
+</h3>
+<p class="elementor-icon-box-description">
+						150+					</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-10 elementor-inner-column elementor-element elementor-element-01cb554" data-e-type="column" data-element_type="column" data-id="01cb554" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-a8dd376 elementor-view-default elementor-position-block-start elementor-mobile-position-block-start elementor-widget elementor-widget-icon-box" data-e-type="widget" data-element_type="widget" data-id="a8dd376" data-widget_type="icon-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-icon-box-wrapper">
+<div class="elementor-icon-box-icon">
+<span class="elementor-icon">
+<svg viewbox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path d="M35.845 32c0 2.2-1.8 4-4 4h-26c-2.2 0-4-1.8-4-4V19c0-2.2 1.8-4 4-4h26c2.2 0 4 1.8 4 4v13z" fill="#3F7123"></path><path d="M1.845 15h34v6h-34z" fill="#3F7123"></path><path d="M1.845 15h34v7h-34z" fill="#CCD6DD"></path><path d="M1.845 15h4l-4 7v-7zm11 0l-4 7h7l4-7h-7zm14 0l-4 7h7l4-7h-7z" fill="#292F33"></path><path d="M.155 8.207L33.148 0l1.69 6.792L1.845 15z" fill="#CCD6DD"></path><path d="M.155 8.207l5.572 5.827L1.845 15 .155 8.207zm19.158 2.448l-5.572-5.828-6.793 1.69 5.572 5.828 6.793-1.69zm13.586-3.38l-5.572-5.828-6.793 1.69 5.572 5.827 6.793-1.689z" fill="#292F33"></path></svg> </span>
+</div>
+<div class="elementor-icon-box-content">
+<h3 class="elementor-icon-box-title">
+<span>
+							Video Production						</span>
+</h3>
+<p class="elementor-icon-box-description">
+						200+					</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-10 elementor-inner-column elementor-element elementor-element-db47807" data-e-type="column" data-element_type="column" data-id="db47807" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-3627394 elementor-view-default elementor-position-block-start elementor-mobile-position-block-start elementor-widget elementor-widget-icon-box" data-e-type="widget" data-element_type="widget" data-id="3627394" data-widget_type="icon-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-icon-box-wrapper">
+<div class="elementor-icon-box-icon">
+<span class="elementor-icon">
+<svg viewbox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path d="M34 29.096c-.417-.963-.896-2.008-2-2.008h-1c1.104 0 2-.899 2-2.008V8.008C33 6.899 32.104 6 31 6H5c-1.104 0-2 .899-2 2.008V25.08c0 1.109.896 2.008 2 2.008H4c-1.104 0-1.667 1.004-2 2.008l-2 4.895C0 35.101.896 36 2 36h32c1.104 0 2-.899 2-2.008l-2-4.896z" fill="#CCD6DD"></path><path d="M.008 34.075l.006.057.17.692C.5 35.516 1.192 36 2 36h32c1.076 0 1.947-.855 1.992-1.925H.008z" fill="#9AAAB4"></path><path d="M31 24.075c0 .555-.447 1.004-1 1.004H6c-.552 0-1-.449-1-1.004V9.013c0-.555.448-1.004 1-1.004h24c.553 0 1 .45 1 1.004v15.062z" fill="#5DADEC"></path><path d="M32.906 31.042l-.76-2.175c-.239-.46-.635-.837-1.188-.837H5.11c-.552 0-.906.408-1.156 1.036l-.688 1.977c-.219.596.448 1.004 1 1.004h7.578s.937-.047 1.103-.608c.192-.648.415-1.624.463-1.796.074-.264.388-.531.856-.531h8.578c.5 0 .746.253.811.566.042.204.312 1.141.438 1.782.111.571 1.221.586 1.221.586h6.594c.551 0 1.217-.471.998-1.004z" fill="#AEBBC1"></path><path d="M22.375 33.113h-7.781c-.375 0-.538-.343-.484-.675.054-.331.359-1.793.383-1.963.023-.171.274-.375.524-.375h7.015c.297 0 .49.163.55.489.059.327.302 1.641.321 1.941.019.301-.169.583-.528.583z" fill="#9AAAB4"></path></svg> </span>
+</div>
+<div class="elementor-icon-box-content">
+<h3 class="elementor-icon-box-title">
+<span>
+							Coding Tools						</span>
+</h3>
+<p class="elementor-icon-box-description">
+						150+					</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-10 elementor-inner-column elementor-element elementor-element-8d01683" data-e-type="column" data-element_type="column" data-id="8d01683" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-1f59fee elementor-view-default elementor-position-block-start elementor-mobile-position-block-start elementor-widget elementor-widget-icon-box" data-e-type="widget" data-element_type="widget" data-id="1f59fee" data-widget_type="icon-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-icon-box-wrapper">
+<div class="elementor-icon-box-icon">
+<span class="elementor-icon">
+<svg viewbox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><path d="M18 3.143c-9.941 0-18 6.908-18 15.428 0 1.066.126 2.107.367 3.112C2.146 24.744 3.377 22.812 9 20c5.727-2.864 0 4-2 8-.615 1.23-.282 2.271.56 3.124C10.506 32.928 14.104 34 18 34c9.941 0 18-6.907 18-15.429 0-8.52-8.059-15.428-18-15.428zm2.849 24.447c-.395 1.346-2.46 1.924-4.613 1.291-2.153-.632-3.578-2.234-3.183-3.581.395-1.346 2.46-1.924 4.613-1.29 2.153.631 3.578 2.233 3.183 3.58z" fill="#D99E82"></path><circle cx="10" cy="11" fill="#5C913B" r="3"></circle><circle cx="20" cy="9" fill="#269" r="3"></circle><circle cx="29" cy="15" fill="#DD2E44" r="3"></circle><circle cx="28" cy="24" fill="#FFCC4D" r="3"></circle></svg> </span>
+</div>
+<div class="elementor-icon-box-content">
+<h3 class="elementor-icon-box-title">
+<span>
+							Creative Design						</span>
+</h3>
+<p class="elementor-icon-box-description">
+						150+					</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-top-section elementor-element elementor-element-18d84cad elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="18d84cad" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-73b22d62" data-e-type="column" data-element_type="column" data-id="73b22d62">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-1e49a4c elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="1e49a4c" data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm" href="#">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">⚡ Perfect For Everyone ⚡</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-55c27821 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="55c27821" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Who Is This Claude Skills Bundle For?</h2> </div>
+</div>
+<div class="elementor-element elementor-element-4f5df7d0 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="4f5df7d0" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Designed for anyone who wants - <span style="color: #F8D203">faster, smarter &amp; more powerful Claude workflows.</span></h2> </div>
+</div>
+<section class="elementor-section elementor-inner-section elementor-element elementor-element-3438debd elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="3438debd">
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-33 elementor-inner-column elementor-element elementor-element-6a2306b5" data-e-type="column" data-element_type="column" data-id="6a2306b5" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-abfc947 elementor-position-top elementor-widget elementor-widget-image-box" data-e-type="widget" data-element_type="widget" data-id="abfc947" data-widget_type="image-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-image-box-wrapper"><figure class="elementor-image-box-img"><img alt="" class="attachment-full size-full wp-image-3557" decoding="async" height="350" loading="lazy" sizes="(max-width: 350px) 100vw, 350px" src="https://bizboxpro.in/wp-content/uploads/2026/05/a-man-in-glasses-holding-a-laptop-free-png.webp" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/a-man-in-glasses-holding-a-laptop-free-png.webp 350w, https://bizboxpro.in/wp-content/uploads/2026/05/a-man-in-glasses-holding-a-laptop-free-png-300x300.webp 300w, https://bizboxpro.in/wp-content/uploads/2026/05/a-man-in-glasses-holding-a-laptop-free-png-150x150.webp 150w" width="350"/></figure><div class="elementor-image-box-content"><h3 class="elementor-image-box-title">The Creator &amp; Freelancer</h3><p class="elementor-image-box-description">Create content, automate tasks, impress clients &amp; save hours every week with ready-made Claude skills.</p></div></div> </div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-33 elementor-inner-column elementor-element elementor-element-c81e21d" data-e-type="column" data-element_type="column" data-id="c81e21d" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-d945b8d elementor-position-top elementor-widget elementor-widget-image-box" data-e-type="widget" data-element_type="widget" data-id="d945b8d" data-widget_type="image-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-image-box-wrapper"><figure class="elementor-image-box-img"><img alt="" class="attachment-full size-full wp-image-3558" decoding="async" height="350" loading="lazy" sizes="(max-width: 350px) 100vw, 350px" src="https://bizboxpro.in/wp-content/uploads/2026/05/businessman-portrait-businessman-wearing-black-suit-png.webp" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/businessman-portrait-businessman-wearing-black-suit-png.webp 350w, https://bizboxpro.in/wp-content/uploads/2026/05/businessman-portrait-businessman-wearing-black-suit-png-300x300.webp 300w, https://bizboxpro.in/wp-content/uploads/2026/05/businessman-portrait-businessman-wearing-black-suit-png-150x150.webp 150w" width="350"/></figure><div class="elementor-image-box-content"><h3 class="elementor-image-box-title">Agency Owner or Business Team</h3><p class="elementor-image-box-description">Standardize workflows, scale operations faster &amp; give your team proven AI systems that actually work.</p></div></div> </div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-33 elementor-inner-column elementor-element elementor-element-2f37663" data-e-type="column" data-element_type="column" data-id="2f37663" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-a7757db elementor-position-top elementor-widget elementor-widget-image-box" data-e-type="widget" data-element_type="widget" data-id="a7757db" data-widget_type="image-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-image-box-wrapper"><figure class="elementor-image-box-img"><img alt="" class="attachment-full size-full wp-image-3559" decoding="async" height="350" loading="lazy" sizes="(max-width: 467px) 100vw, 467px" src="https://bizboxpro.in/wp-content/uploads/2026/05/professionals-man-with-laptop-png.webp" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/professionals-man-with-laptop-png.webp 467w, https://bizboxpro.in/wp-content/uploads/2026/05/professionals-man-with-laptop-png-300x225.webp 300w" width="467"/></figure><div class="elementor-image-box-content"><h3 class="elementor-image-box-title">Marketers, Founders &amp; Solopreneurs</h3><p class="elementor-image-box-description">Generate campaigns, sales copy, emails, strategies &amp; business workflows in minutes instead of hours.</p></div></div> </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-top-section elementor-element elementor-element-7e84b104 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="7e84b104" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-1d96165f" data-e-type="column" data-element_type="column" data-id="1d96165f">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-41106992 elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="41106992" data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm" href="#">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">⚡ Mega Launch Offer Bonuses⚡</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-43aba6ec elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="43aba6ec" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Unlock 4 Premium Bonuses <br/><span style="color: #F8D203">Worth ₹9,500</span> — Absolutely <span style="color: #FF6B35">FREE!</span></h2> </div>
+</div>
+<div class="elementor-element elementor-element-50fe4ad0 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="50fe4ad0" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Get these exclusive add-ons at no extra cost when you grab the complete bundle today.</h2> </div>
+</div>
+<section class="elementor-section elementor-inner-section elementor-element elementor-element-7c47a001 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="7c47a001">
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-25 elementor-inner-column elementor-element elementor-element-1d002649" data-e-type="column" data-element_type="column" data-id="1d002649" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-3997e657 elementor-position-top elementor-widget elementor-widget-image-box" data-e-type="widget" data-element_type="widget" data-id="3997e657" data-widget_type="image-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-image-box-wrapper"><figure class="elementor-image-box-img"><img alt="" class="attachment-full size-full wp-image-3566" decoding="async" height="1080" loading="lazy" sizes="(max-width: 1080px) 100vw, 1080px" src="https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173539.956.jpg" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173539.956.jpg 1080w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173539.956-300x300.jpg 300w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173539.956-1024x1024.jpg 1024w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173539.956-150x150.jpg 150w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173539.956-768x768.jpg 768w" width="1080"/></figure><div class="elementor-image-box-content"><h3 class="elementor-image-box-title">100 Claude AI Power Prompts</h3><p class="elementor-image-box-description">Battle-tested prompts designed for content, marketing, sales, automation &amp; business workflows.</p></div></div> </div>
+</div>
+<div class="elementor-element elementor-element-6d49bc11 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="6d49bc11" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default"> <span style="text-decoration:line-through;color:#888"> ₹2,375</span></h2> </div>
+</div>
+<div class="elementor-element elementor-element-1bfb15a7 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="1bfb15a7" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">FREE Today!</h2> </div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-25 elementor-inner-column elementor-element elementor-element-2869b41" data-e-type="column" data-element_type="column" data-id="2869b41" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-6e4ddba elementor-position-top elementor-widget elementor-widget-image-box" data-e-type="widget" data-element_type="widget" data-id="6e4ddba" data-widget_type="image-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-image-box-wrapper"><figure class="elementor-image-box-img"><img alt="" class="attachment-full size-full wp-image-3565" decoding="async" height="1080" loading="lazy" sizes="(max-width: 1080px) 100vw, 1080px" src="https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173628.474.jpg" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173628.474.jpg 1080w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173628.474-300x300.jpg 300w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173628.474-1024x1024.jpg 1024w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173628.474-150x150.jpg 150w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173628.474-768x768.jpg 768w" width="1080"/></figure><div class="elementor-image-box-content"><h3 class="elementor-image-box-title">Claude Skills Pro — Masterclass Usage Guide</h3><p class="elementor-image-box-description">Step-by-step tutorials showing how to maximize every Claude skill like a pro.</p></div></div> </div>
+</div>
+<div class="elementor-element elementor-element-02f4a34 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="02f4a34" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default"> <span style="text-decoration:line-through;color:#888"> ₹2,375</span></h2> </div>
+</div>
+<div class="elementor-element elementor-element-66a2664 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="66a2664" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">FREE Today!</h2> </div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-25 elementor-inner-column elementor-element elementor-element-c4c03b4" data-e-type="column" data-element_type="column" data-id="c4c03b4" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-df03245 elementor-position-top elementor-widget elementor-widget-image-box" data-e-type="widget" data-element_type="widget" data-id="df03245" data-widget_type="image-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-image-box-wrapper"><figure class="elementor-image-box-img"><img alt="" class="attachment-full size-full wp-image-3564" decoding="async" height="1080" loading="lazy" sizes="(max-width: 1080px) 100vw, 1080px" src="https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173704.638.jpg" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173704.638.jpg 1080w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173704.638-300x300.jpg 300w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173704.638-1024x1024.jpg 1024w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173704.638-150x150.jpg 150w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173704.638-768x768.jpg 768w" width="1080"/></figure><div class="elementor-image-box-content"><h3 class="elementor-image-box-title">Complete Skills Directory</h3><p class="elementor-image-box-description">Quickly browse and access all 2,000+ skills organized by category &amp; use case.</p></div></div> </div>
+</div>
+<div class="elementor-element elementor-element-46aabe2 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="46aabe2" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default"> <span style="text-decoration:line-through;color:#888"> ₹2,375</span></h2> </div>
+</div>
+<div class="elementor-element elementor-element-d18d352 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="d18d352" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">FREE Today!</h2> </div>
+</div>
+</div>
+</div>
+<div class="elementor-column elementor-col-25 elementor-inner-column elementor-element elementor-element-c96a73d" data-e-type="column" data-element_type="column" data-id="c96a73d" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-309cc4c elementor-position-top elementor-widget elementor-widget-image-box" data-e-type="widget" data-element_type="widget" data-id="309cc4c" data-widget_type="image-box.default">
+<div class="elementor-widget-container">
+<div class="elementor-image-box-wrapper"><figure class="elementor-image-box-img"><img alt="" class="attachment-full size-full wp-image-3563" decoding="async" height="1080" loading="lazy" sizes="(max-width: 1080px) 100vw, 1080px" src="https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173920.914.jpg" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173920.914.jpg 1080w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173920.914-300x300.jpg 300w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173920.914-1024x1024.jpg 1024w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173920.914-150x150.jpg 150w, https://bizboxpro.in/wp-content/uploads/2026/05/Untitled-design-2026-05-28T173920.914-768x768.jpg 768w" width="1080"/></figure><div class="elementor-image-box-content"><h3 class="elementor-image-box-title">Claude Business System Bonus Roadmap</h3><p class="elementor-image-box-description">A complete 30-day action plan to help you automate, scale &amp; build faster with Claude AI.</p></div></div> </div>
+</div>
+<div class="elementor-element elementor-element-c888f73 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="c888f73" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default"> <span style="text-decoration:line-through;color:#888"> ₹2,375</span></h2> </div>
+</div>
+<div class="elementor-element elementor-element-6034b89 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="6034b89" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">FREE Today!</h2> </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-inner-section elementor-element elementor-element-59eaa5f3 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="59eaa5f3">
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-inner-column elementor-element elementor-element-282e91f0" data-e-type="column" data-element_type="column" data-id="282e91f0">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-9bb4b8b elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="9bb4b8b" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default"> <span style="color: red">Save <b>hours </b></span>on Prompts, Workflows &amp; Repetitive Claude Tasks</h2> </div>
+</div>
+<div class="elementor-element elementor-element-67193ace elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="67193ace" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">All 2,000+ skills are organized, ready-to-use &amp; instantly accessible —  <span style="color: #F8D203">FREE</span> with purchase today!</h2> </div>
+</div>
+<div class="elementor-element elementor-element-35dc3e9 elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="35dc3e9" data-settings='{"_animation_mobile":"none"}' data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm elementor-animation-shrink" href="https://superprofile.bio/vp/claude-skills">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">GET INSTANT ACCESS!</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-47a955d1 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="47a955d1" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">⚡ One click, fully organized, permanently yours.</h2> </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-top-section elementor-element elementor-element-5e862481 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="5e862481" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-5dfad2c8" data-e-type="column" data-element_type="column" data-id="5dfad2c8">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-af04507 elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="af04507" data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm" href="#">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">✨Reviews</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-6dce15e0 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="6dce15e0" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Don't just take our word for it.
+</h2> </div>
+</div>
+<div class="elementor-element elementor-element-43c78c36 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="43c78c36" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Here's what students, freelancers, and studio owners think after using this Claude Skills Pro</h2> </div>
+</div>
+<div class="elementor-element elementor-element-43a47775 elementor-arrows-position-inside elementor-pagination-position-outside elementor-widget elementor-widget-image-carousel" data-e-type="widget" data-element_type="widget" data-id="43a47775" data-settings='{"slides_to_show":"2","navigation":"both","autoplay":"yes","pause_on_hover":"yes","pause_on_interaction":"yes","autoplay_speed":5000,"infinite":"yes","speed":500}' data-widget_type="image-carousel.default">
+<div class="elementor-widget-container">
+<div aria-label="Image Carousel" aria-roledescription="carousel" class="elementor-image-carousel-wrapper swiper" dir="ltr" role="region">
+<div aria-live="off" class="elementor-image-carousel swiper-wrapper">
+<div aria-label="1 of 6" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="testimonial 6 (1)" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/testimonial-6-1.png"/></figure></div><div aria-label="2 of 6" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="testimonial 5 (1)" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/testimonial-5-1.png"/></figure></div><div aria-label="3 of 6" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="testimonial 3 (1)" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/testimonial-3-1.png"/></figure></div><div aria-label="4 of 6" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="testimonial 2 (1)" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/testimonial-2-1.png"/></figure></div><div aria-label="5 of 6" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="testimonial 1 (1)" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/testimonial-1-1.png"/></figure></div><div aria-label="6 of 6" aria-roledescription="slide" class="swiper-slide" role="group"><figure class="swiper-slide-inner"><img alt="testimonial 6 (2)" class="swiper-slide-image" decoding="async" src="https://bizboxpro.in/wp-content/uploads/2026/05/testimonial-6-2.png"/></figure></div> </div>
+<div class="elementor-swiper-button elementor-swiper-button-prev" role="button" tabindex="0">
+<svg aria-hidden="true" class="e-font-icon-svg e-eicon-chevron-left" viewbox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"><path d="M646 125C629 125 613 133 604 142L308 442C296 454 292 471 292 487 292 504 296 521 308 533L604 854C617 867 629 875 646 875 663 875 679 871 692 858 704 846 713 829 713 812 713 796 708 779 692 767L438 487 692 225C700 217 708 204 708 187 708 171 704 154 692 142 675 129 663 125 646 125Z"></path></svg> </div>
+<div class="elementor-swiper-button elementor-swiper-button-next" role="button" tabindex="0">
+<svg aria-hidden="true" class="e-font-icon-svg e-eicon-chevron-right" viewbox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"><path d="M696 533C708 521 713 504 713 487 713 471 708 454 696 446L400 146C388 133 375 125 354 125 338 125 325 129 313 142 300 154 292 171 292 187 292 204 296 221 308 233L563 492 304 771C292 783 288 800 288 817 288 833 296 850 308 863 321 871 338 875 354 875 371 875 388 867 400 854L696 533Z"></path></svg> </div>
+<div class="swiper-pagination"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-top-section elementor-element elementor-element-26556908 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="26556908" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-437ad66c" data-e-type="column" data-element_type="column" data-id="437ad66c">
+<div class="elementor-widget-wrap elementor-element-populated">
+<section class="elementor-section elementor-inner-section elementor-element elementor-element-370213c6 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="370213c6">
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-inner-column elementor-element elementor-element-6869c3e5" data-e-type="column" data-element_type="column" data-id="6869c3e5" data-settings='{"background_background":"classic"}'>
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-6d5ddc77 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="6d5ddc77" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Get Instant Lifetime Access to the Ultimate Claude Skills Bundle</h2> </div>
+</div>
+<div class="elementor-element elementor-element-1c125edd elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="1c125edd" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Download 2,000+ Claude skills, AI workflows, prompt systems &amp; bonus resources — all in one powerful business toolkit.</h2> </div>
+</div>
+<div class="elementor-element elementor-element-fc46c29 elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-e-type="widget" data-element_type="widget" data-id="fc46c29" data-widget_type="icon-list.default">
+<div class="elementor-widget-container">
+<ul class="elementor-icon-list-items">
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-file-alt" viewbox="0 0 384 512" xmlns="http://www.w3.org/2000/svg"><path d="M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm64 236c0 6.6-5.4 12-12 12H108c-6.6 0-12-5.4-12-12v-8c0-6.6 5.4-12 12-12h168c6.6 0 12 5.4 12 12v8zm0-64c0 6.6-5.4 12-12 12H108c-6.6 0-12-5.4-12-12v-8c0-6.6 5.4-12 12-12h168c6.6 0 12 5.4 12 12v8zm0-72v8c0 6.6-5.4 12-12 12H108c-6.6 0-12-5.4-12-12v-8c0-6.6 5.4-12 12-12h168c6.6 0 12 5.4 12 12zm96-114.1v6.1H256V0h6.1c6.4 0 12.5 2.5 17 7l97.9 98c4.5 4.5 7 10.6 7 16.9z"></path></svg> </span>
+<span class="elementor-icon-list-text">Instant Download</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-check-circle" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"></path></svg> </span>
+<span class="elementor-icon-list-text">Lifetime Updates</span>
+</li>
+<li class="elementor-icon-list-item">
+<span class="elementor-icon-list-icon">
+<svg aria-hidden="true" class="e-font-icon-svg e-fas-envelope-open-text" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M176 216h160c8.84 0 16-7.16 16-16v-16c0-8.84-7.16-16-16-16H176c-8.84 0-16 7.16-16 16v16c0 8.84 7.16 16 16 16zm-16 80c0 8.84 7.16 16 16 16h160c8.84 0 16-7.16 16-16v-16c0-8.84-7.16-16-16-16H176c-8.84 0-16 7.16-16 16v16zm96 121.13c-16.42 0-32.84-5.06-46.86-15.19L0 250.86V464c0 26.51 21.49 48 48 48h416c26.51 0 48-21.49 48-48V250.86L302.86 401.94c-14.02 10.12-30.44 15.19-46.86 15.19zm237.61-254.18c-8.85-6.94-17.24-13.47-29.61-22.81V96c0-26.51-21.49-48-48-48h-77.55c-3.04-2.2-5.87-4.26-9.04-6.56C312.6 29.17 279.2-.35 256 0c-23.2-.35-56.59 29.17-73.41 41.44-3.17 2.3-6 4.36-9.04 6.56H96c-26.51 0-48 21.49-48 48v44.14c-12.37 9.33-20.76 15.87-29.61 22.81A47.995 47.995 0 0 0 0 200.72v10.65l96 69.35V96h320v184.72l96-69.35v-10.65c0-14.74-6.78-28.67-18.39-37.77z"></path></svg> </span>
+<span class="elementor-icon-list-text">Commercial License</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="elementor-element elementor-element-476cd7e0 elementor-widget elementor-widget-image" data-e-type="widget" data-element_type="widget" data-id="476cd7e0" data-widget_type="image.default">
+<div class="elementor-widget-container">
+<img alt="" class="attachment-large size-large wp-image-3589" decoding="async" height="1024" loading="lazy" sizes="(max-width: 1024px) 100vw, 1024px" src="https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-06_29_36-PM-1024x1024.png" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-06_29_36-PM-1024x1024.png 1024w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-06_29_36-PM-300x300.png 300w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-06_29_36-PM-150x150.png 150w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-06_29_36-PM-768x768.png 768w, https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-06_29_36-PM.png 1254w" width="1024"/> </div>
+</div>
+<div class="elementor-element elementor-element-2120a514 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="2120a514" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default"><span style="text-decoration: line-through;color: #888">₹1999</span></h2> </div>
+</div>
+<div class="elementor-element elementor-element-7a41cb41 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="7a41cb41" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Regular Price</h2> </div>
+</div>
+<div class="elementor-element elementor-element-25d7f1bc elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="25d7f1bc" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">₹499/-</h2> </div>
+</div>
+<div class="elementor-element elementor-element-1ac83046 elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="1ac83046" data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm" href="#">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">85% OFF</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-615cf881 elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="615cf881" data-settings='{"_animation_mobile":"none"}' data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm elementor-animation-shrink" href="https://superprofile.bio/vp/claude-skills">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">GET INSTANT ACCESS!</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-3875e389 elementor-widget elementor-widget-eael-countdown" data-e-type="widget" data-element_type="widget" data-id="3875e389" data-widget_type="eael-countdown.default">
+<div class="elementor-widget-container">
+<div class="eael-countdown-wrapper" data-countdown-id="3875e389" data-countdown-type="evergreen" data-evergreen-time="28740" data-expire-type="none">
+<div class="eael-countdown-container eael-countdown-label-block eael-countdown-label-block-mobile">
+<ul class="eael-countdown-items" data-date="Jan 01 1970 0:00:00 +0" id="eael-countdown-3875e389">
+<li class="eael-countdown-item"><div class="eael-countdown-hours"><span class="eael-countdown-digits" data-hours="">00</span><span class="eael-countdown-label">Hour</span></div></li> <li class="eael-countdown-item"><div class="eael-countdown-minutes"><span class="eael-countdown-digits" data-minutes="">00</span><span class="eael-countdown-label">Min</span></div></li> <li class="eael-countdown-item"><div class="eael-countdown-seconds"><span class="eael-countdown-digits" data-seconds="">00</span><span class="eael-countdown-label">Sec</span></div></li> </ul>
+<div class="eael-countdown-expiry-template" style="display: none;">
+</div>
+<div class="clearfix"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-61efb022 elementor-widget elementor-widget-image" data-e-type="widget" data-element_type="widget" data-id="61efb022" data-widget_type="image.default">
+<div class="elementor-widget-container">
+<img alt="" class="attachment-large size-large wp-image-3447" decoding="async" height="139" loading="lazy" sizes="(max-width: 654px) 100vw, 654px" src="https://bizboxpro.in/wp-content/uploads/2026/05/payment-moguj-1-1.webp" srcset="https://bizboxpro.in/wp-content/uploads/2026/05/payment-moguj-1-1.webp 654w, https://bizboxpro.in/wp-content/uploads/2026/05/payment-moguj-1-1-300x64.webp 300w" width="654"/> </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-top-section elementor-element elementor-element-6afb4c96 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="6afb4c96" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-4586fcc6" data-e-type="column" data-element_type="column" data-id="4586fcc6">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-6979df80 elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="6979df80" data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm" href="#">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">❓ GOT QUESTIONS ❓</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-7da736fc elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="7da736fc" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Still Have Questions? We've Got Answers.</h2> </div>
+</div>
+<div class="elementor-element elementor-element-5476409 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="5476409" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Everything you need to know about Claude Skills Pro— answered in seconds</h2> </div>
+</div>
+<section class="elementor-section elementor-inner-section elementor-element elementor-element-3e6523ee elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="3e6523ee">
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-inner-column elementor-element elementor-element-52eed36" data-e-type="column" data-element_type="column" data-id="52eed36">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-60363088 elementor-widget elementor-widget-eael-adv-accordion" data-e-type="widget" data-element_type="widget" data-id="60363088" data-widget_type="eael-adv-accordion.default">
+<div class="elementor-widget-container">
+<div class="eael-adv-accordion" data-accordion-id="60363088" data-accordion-type="accordion" data-scroll-on-click="no" data-scroll-speed="300" data-toogle-speed="300" id="eael-adv-accordion-60363088">
+<div class="eael-accordion-list">
+<div aria-controls="elementor-tab-content-1611" class="elementor-tab-title eael-accordion-header" data-tab="1" id="do-i-need-a-paid-claude-plan-to-use-these-skills" tabindex="0"><span class="eael-advanced-accordion-icon-closed"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-plus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-advanced-accordion-icon-opened"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-minus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-accordion-tab-title">Do I need a paid Claude plan to use these skills?</span></div><div aria-labelledby="do-i-need-a-paid-claude-plan-to-use-these-skills" class="eael-accordion-content clearfix" data-tab="1" id="elementor-tab-content-1611"><p>No. The skills work with both free and paid Claude plans. Some advanced workflows may perform better on higher-tier plans.</p></div>
+</div><div class="eael-accordion-list">
+<div aria-controls="elementor-tab-content-1612" class="elementor-tab-title eael-accordion-header" data-tab="2" id="how-do-i-use-the-claude-skills" tabindex="0"><span class="eael-advanced-accordion-icon-closed"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-plus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-advanced-accordion-icon-opened"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-minus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-accordion-tab-title">How do I use the Claude skills?</span></div><div aria-labelledby="how-do-i-use-the-claude-skills" class="eael-accordion-content clearfix" data-tab="2" id="elementor-tab-content-1612"><p>Simply upload the skill file into Claude, type your request, and Claude instantly follows the workflow or system included in that skill.</p></div>
+</div><div class="eael-accordion-list">
+<div aria-controls="elementor-tab-content-1613" class="elementor-tab-title eael-accordion-header" data-tab="3" id="is-this-a-one-time-payment-or-subscription" tabindex="0"><span class="eael-advanced-accordion-icon-closed"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-plus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-advanced-accordion-icon-opened"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-minus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-accordion-tab-title">Is this a one-time payment or subscription?</span></div><div aria-labelledby="is-this-a-one-time-payment-or-subscription" class="eael-accordion-content clearfix" data-tab="3" id="elementor-tab-content-1613"><p>This is a one-time payment of ₹499. No monthly fees or recurring charges.</p></div>
+</div><div class="eael-accordion-list">
+<div aria-controls="elementor-tab-content-1614" class="elementor-tab-title eael-accordion-header" data-tab="4" id="what-exactly-is-included-in-the-bundle" tabindex="0"><span class="eael-advanced-accordion-icon-closed"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-plus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-advanced-accordion-icon-opened"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-minus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-accordion-tab-title">What exactly is included in the bundle?</span></div><div aria-labelledby="what-exactly-is-included-in-the-bundle" class="eael-accordion-content clearfix" data-tab="4" id="elementor-tab-content-1614"><p>You’ll get 2,000+ Claude skills across 20 categories, bonus prompts, usage guides, workflow systems, and future updates.</p></div>
+</div><div class="eael-accordion-list">
+<div aria-controls="elementor-tab-content-1615" class="elementor-tab-title eael-accordion-header" data-tab="5" id="will-beginners-be-able-to-use-this" tabindex="0"><span class="eael-advanced-accordion-icon-closed"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-plus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-advanced-accordion-icon-opened"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-minus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-accordion-tab-title">Will beginners be able to use this?</span></div><div aria-labelledby="will-beginners-be-able-to-use-this" class="eael-accordion-content clearfix" data-tab="5" id="elementor-tab-content-1615"><p>Yes. Everything is organized and beginner-friendly. You don’t need coding or technical knowledge to use the skills.</p></div>
+</div><div class="eael-accordion-list">
+<div aria-controls="elementor-tab-content-1616" class="elementor-tab-title eael-accordion-header" data-tab="6" id="does-this-work-with-claude-code-too" tabindex="0"><span class="eael-advanced-accordion-icon-closed"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-plus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-advanced-accordion-icon-opened"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-minus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-accordion-tab-title">Does this work with Claude Code too?</span></div><div aria-labelledby="does-this-work-with-claude-code-too" class="eael-accordion-content clearfix" data-tab="6" id="elementor-tab-content-1616"><p>Yes. The bundle is compatible with both Claude.ai and Claude Code workflows.</p></div>
+</div><div class="eael-accordion-list">
+<div aria-controls="elementor-tab-content-1617" class="elementor-tab-title eael-accordion-header" data-tab="7" id="how-will-i-receive-the-files-after-purchase" tabindex="0"><span class="eael-advanced-accordion-icon-closed"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-plus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-advanced-accordion-icon-opened"><svg aria-hidden="true" class="fa-accordion-icon e-font-icon-svg e-fas-minus" viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg></span><span class="eael-accordion-tab-title">How will I receive the files after purchase?</span></div><div aria-labelledby="how-will-i-receive-the-files-after-purchase" class="eael-accordion-content clearfix" data-tab="7" id="elementor-tab-content-1617"><div class="qMYqUG_convSearchResultHighlightRoot"><div class=""><section class="text-token-text-primary w-full focus:outline-none has-data-writing-block:pointer-events-none [&amp;:has([data-writing-block])&gt;*]:pointer-events-auto R6Vx5W_threadScrollVars scroll-mb-[calc(var(--scroll-root-safe-area-inset-bottom,0px)+var(--thread-response-height))] scroll-mt-[calc(var(--header-height)+min(200px,max(70px,20svh)))]"><div class="text-base my-auto mx-auto pb-10 [--thread-content-margin:var(--thread-content-margin-xs,calc(var(--spacing)*4))] @w-sm/main:[--thread-content-margin:var(--thread-content-margin-sm,calc(var(--spacing)*6))] @w-lg/main:[--thread-content-margin:var(--thread-content-margin-lg,calc(var(--spacing)*16))] px-(--thread-content-margin)"><div class="[--thread-content-max-width:40rem] @w-lg/main:[--thread-content-max-width:48rem] mx-auto max-w-(--thread-content-max-width) flex-1 group/turn-messages focus-visible:outline-hidden relative flex w-full min-w-0 flex-col agent-turn"><div class="flex max-w-full flex-col gap-4 grow"><div class="min-h-8 text-message relative flex w-full flex-col items-end gap-2 text-start break-words whitespace-normal outline-none keyboard-focused:focus-ring [.text-message+&amp;]:mt-1"><div class="flex w-full flex-col gap-1 empty:hidden"><div class="markdown prose dark:prose-invert wrap-break-word w-full light markdown-new-styling"><p>You’ll get instant access/download immediately after completing your payment.</p></div></div></div></div></div></div></section></div></div></div>
+</div></div> </div>
+</div>
+<div class="elementor-element elementor-element-532005f6 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="532005f6" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Still deciding?</h2> </div>
+</div>
+<div class="elementor-element elementor-element-27f40f12 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="27f40f12" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">Join creators and professionals who upgraded their workflow with  Claude Skills Pro — download and start using it today.</h2> </div>
+</div>
+<div class="elementor-element elementor-element-76f83b7e elementor-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="76f83b7e" data-settings='{"_animation_mobile":"none"}' data-widget_type="button.default">
+<div class="elementor-widget-container">
+<div class="elementor-button-wrapper">
+<a class="elementor-button elementor-button-link elementor-size-sm elementor-animation-shrink" href="https://superprofile.bio/vp/claude-skills">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">GET INSTANT ACCESS!</span>
+</span>
+</a>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-6daabf8 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="6daabf8" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">⚡ One click, fully organized, permanently yours.</h2> </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section class="elementor-section elementor-top-section elementor-element elementor-element-479a8f32 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-e-type="section" data-element_type="section" data-id="479a8f32" data-settings='{"background_background":"classic"}'>
+<div class="elementor-container elementor-column-gap-default">
+<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-11323a83" data-e-type="column" data-element_type="column" data-id="11323a83">
+<div class="elementor-widget-wrap elementor-element-populated">
+<div class="elementor-element elementor-element-62550f1c elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="62550f1c" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">IMPORTANT
+</h2> </div>
+</div>
+<div class="elementor-element elementor-element-26159ff elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="26159ff" data-widget_type="heading.default">
+<div class="elementor-widget-container">
+<h2 class="elementor-heading-title elementor-size-default">This site is not a part of the Facebook™ website or Facebook™ Inc. Additionally, This site is NOT endorsed by Facebook™ in any way. FACEBOOK™ is a trademark of FACEBOOK™, Inc. As stipulated by law, we can not and do not make any guarantees about your ability to get results or earn any money with my ideas, information, tools, or strategies. I just want to help you by giving great content, direction, and strategies that worked well for me and my students and that I believe can help you move forward. All of my terms, privacy policies and disclaimers for this program and website can be accessed via the links. I feel transparency is important and I hold ourselves (you &amp; me) to a high standard of integrity. Thanks for stopping by. I hope this training and content brings you a lot of value &amp; result</h2> </div>
+</div>
+<div class="elementor-element elementor-element-5b4406ed elementor-icon-list--layout-inline elementor-align-center elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-e-type="widget" data-element_type="widget" data-id="5b4406ed" data-widget_type="icon-list.default">
+<div class="elementor-widget-container">
+<ul class="elementor-icon-list-items elementor-inline-items">
+<li class="elementor-icon-list-item elementor-inline-item">
+<a href="/privacy">
+<span class="elementor-icon-list-text">Privacy Policy</span>
+</a>
+</li>
+<li class="elementor-icon-list-item elementor-inline-item">
+<a href="/contact">
+<span class="elementor-icon-list-text">Contact us</span>
+</a>
+</li>
+<li class="elementor-icon-list-item elementor-inline-item">
+<a href="/about">
+<span class="elementor-icon-list-text">About Us</span>
+</a>
+</li>
+<li class="elementor-icon-list-item elementor-inline-item">
+<a href="/terms">
+<span class="elementor-icon-list-text">Terms &amp; Conditions</span>
+</a>
+</li>
+<li class="elementor-icon-list-item elementor-inline-item">
+<a href="/refund">
+<span class="elementor-icon-list-text">Refund and Returns Policy</span>
+</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>`
 
 export default function ClaudeSkillsLandingPage() {
   const { addToCart, setDrawerOpen } = useCart()
-  const router = useRouter()
-  
-  // Accordion active index state
-  const [activeFaq, setActiveFaq] = useState<number | null>(null)
-  
-  // Evergreen countdown state
-  const [timeLeft, setTimeLeft] = useState({ hours: 7, minutes: 59, seconds: 0 })
+  const [product, setProduct] = useState(DEFAULT_PRODUCT)
 
-  // Initialize evergreen countdown timer (persists in localStorage per user session)
+  // Fetch dynamic product details
   useEffect(() => {
-    const evergreenDuration = 28740 * 1000 // 7 hrs 59 mins in ms
-    const storedTarget = localStorage.getItem("claude-skills-target")
+    fetch('/api/products/all-in-one-claude-skills-bundle-a592f1')
+      .then(res => res.json())
+      .then(data => {
+        if (data && !data.error) {
+          setProduct({
+            id: data.id || DEFAULT_PRODUCT.id,
+            title: data.title || DEFAULT_PRODUCT.title,
+            price: Number(data.price) || DEFAULT_PRODUCT.price,
+            originalPrice: data.originalPrice ? Number(data.originalPrice) : DEFAULT_PRODUCT.originalPrice,
+            category: data.category || DEFAULT_PRODUCT.category,
+            slug: data.slug || DEFAULT_PRODUCT.slug,
+            imageUrl: data.imageUrl || DEFAULT_PRODUCT.imageUrl,
+          })
+        }
+      })
+      .catch(err => console.error("[v0] Error fetching product details:", err))
+  }, [])
+
+  // 1. Evergreen Timer Logic
+  useEffect(() => {
+    const evergreenDuration = 28740 * 1000 // 7 hrs 59 mins
     let targetTime = 0
+    const storedTarget = localStorage.getItem("claude-skills-target")
 
     if (storedTarget) {
       targetTime = parseInt(storedTarget, 10)
@@ -106,597 +1235,168 @@ export default function ClaudeSkillsLandingPage() {
       localStorage.setItem("claude-skills-target", targetTime.toString())
     }
 
-    const interval = setInterval(() => {
+    const updateTimer = () => {
       const difference = targetTime - Date.now()
       if (difference <= 0) {
-        const newTarget = Date.now() + evergreenDuration
-        localStorage.setItem("claude-skills-target", newTarget.toString())
+        targetTime = Date.now() + evergreenDuration
+        localStorage.setItem("claude-skills-target", targetTime.toString())
       } else {
         const hours = Math.floor((difference / (1000 * 60 * 60)) % 24)
         const minutes = Math.floor((difference / 1000 / 60) % 60)
         const seconds = Math.floor((difference / 1000) % 60)
-        setTimeLeft({ hours, minutes, seconds })
-      }
-    }, 1000)
 
-    return () => clearInterval(interval)
+        // Find elements in rendered HTML and update them
+        const hoursDigits = document.querySelectorAll(".eael-countdown-digits[data-hours], [data-hours]")
+        const minutesDigits = document.querySelectorAll(".eael-countdown-digits[data-minutes], [data-minutes]")
+        const secondsDigits = document.querySelectorAll(".eael-countdown-digits[data-seconds], [data-seconds]")
+
+        const hStr = String(hours).padStart(2, "0")
+        const mStr = String(minutes).padStart(2, "0")
+        const sStr = String(seconds).padStart(2, "0")
+
+        hoursDigits.forEach(el => el.textContent = hStr)
+        minutesDigits.forEach(el => el.textContent = mStr)
+        secondsDigits.forEach(el => el.textContent = sStr)
+      }
+    }
+
+    // Run immediately and then on interval
+    updateTimer()
+    const timerInterval = setInterval(updateTimer, 1000)
+    return () => clearInterval(timerInterval)
   }, [])
 
-  // Cart handling action helper
-  const handlePurchase = () => {
-    addToCart(CLAUDE_PRODUCT as any)
-    setDrawerOpen(true)
+  // 2. Click Interceptor for Purchases & Accordion FAQs
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+
+      // A. Purchase Link Intercept
+      const link = target.closest("a")
+      if (link) {
+        const href = link.getAttribute("href")
+        if (href && (href.includes("superprofile.bio/vp/claude-skills") || href === "#buy" || href === "#checkout")) {
+          e.preventDefault()
+          addToCart(product as any)
+          setDrawerOpen(true)
+          return
+        }
+      }
+
+      // B. Accordion FAQ Toggle Intercept
+      const header = target.closest(".eael-accordion-header")
+      if (header) {
+        e.preventDefault()
+        const accordionList = header.closest(".eael-accordion-list")
+        if (accordionList) {
+          const content = accordionList.querySelector(".eael-accordion-content") as HTMLElement
+          const iconClosed = header.querySelector(".eael-advanced-accordion-icon-closed") as HTMLElement
+          const iconOpened = header.querySelector(".eael-advanced-accordion-icon-opened") as HTMLElement
+
+          const isActive = header.classList.contains("active")
+
+          // Close all first to match standard Accordion behavior
+          const allHeaders = document.querySelectorAll(".eael-accordion-header")
+          const allContents = document.querySelectorAll(".eael-accordion-content")
+          allHeaders.forEach(h => h.classList.remove("active"))
+          allContents.forEach(c => ((c as HTMLElement).style.display = "none"))
+          
+          document.querySelectorAll(".eael-advanced-accordion-icon-closed").forEach(i => ((i as HTMLElement).style.display = "inline-block"))
+          document.querySelectorAll(".eael-advanced-accordion-icon-opened").forEach(i => ((i as HTMLElement).style.display = "none"))
+
+          if (!isActive) {
+            header.classList.add("active")
+            if (content) content.style.display = "block"
+            if (iconClosed) iconClosed.style.display = "none"
+            if (iconOpened) iconOpened.style.display = "inline-block"
+          }
+        }
+      }
+    }
+
+    document.addEventListener("click", handleGlobalClick)
+    return () => document.removeEventListener("click", handleGlobalClick)
+  }, [addToCart, setDrawerOpen, product])
+
+  // Helper to substitute dynamic prices
+  const getDynamicHtml = () => {
+    let html = HTML_CONTENT;
+    
+    // Replace references of ₹499 and ₹499/-
+    html = html.replaceAll("₹499/-", `₹${product.price}/-`);
+    html = html.replaceAll("₹499", `₹${product.price}`);
+    
+    // Replace references of ₹1999
+    if (product.originalPrice) {
+      html = html.replaceAll("₹1999", `₹${product.originalPrice}`);
+      html = html.replaceAll("₹1,999", `₹${product.originalPrice.toLocaleString('en-IN')}`);
+    }
+    
+    return html;
   }
 
-  // FAQ contents
-  const faqs = [
-    {
-      question: "Do I need a paid Claude plan to use these skills?",
-      answer: "No. The skills work perfectly with both free and paid Claude plans (Claude Pro). Some advanced workflows may perform better on higher-tier plans or with Projects features, but they are fully compatible with the free version as well."
-    },
-    {
-      question: "How do I use the Claude skills?",
-      answer: "Simply upload the skill system file into Claude (or paste the context script), type your task, and watch Claude instantly assume the persona, guidelines, formatting requirements, and advanced workflows embedded in that specific skill."
-    },
-    {
-      question: "Is this a one-time payment or subscription?",
-      answer: "This is a one-time payment of only ₹499. There are absolutely no monthly fees, hidden charges, or recurring subscriptions. You get lifetime access."
-    },
-    {
-      question: "What exactly is included in the bundle?",
-      answer: "You will get instant access to 2,000+ Claude skills categorized across 20+ core business domains, advanced prompt frameworks, developer/coder systems, step-by-step PDF usage guides, and future updates sent directly to you."
-    },
-    {
-      question: "Will beginners be able to use this?",
-      answer: "Yes, 100%. The bundle is organized logically and is extremely beginner-friendly. You do not need any coding, prompt engineering, or technical background. It is a true plug-and-play solution."
-    },
-    {
-      question: "Does this work with Claude Code too?",
-      answer: "Yes. The prompt framework files and advanced persona parameters are fully optimized to work across the Claude.ai Web Interface, Projects, and CLI tools like Claude Code."
-    },
-    {
-      question: "How will I receive the files after purchase?",
-      answer: "Immediately after checkout and payment confirmation, you will receive a secure download link on your screen and via email to access your entire library instantly."
-    }
-  ]
-
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-yellow-400 selection:text-slate-900">
-      <style dangerouslySetInnerHTML={{ __html: marqueeStyle }} />
+    <>
+      <link rel="stylesheet" href="/css/woostify-style.css" />
+      <link rel="stylesheet" href="/css/photoswipe-video.css" />
+      <link rel="stylesheet" href="/css/slick.css" />
+      <link rel="stylesheet" href="/css/slick-theme.css" />
+      <link rel="stylesheet" href="/css/joinchat.min.css" />
+      <link rel="stylesheet" href="/css/elementor-frontend.css" />
+      <link rel="stylesheet" href="/css/eael-general.css" />
+      <link rel="stylesheet" href="/css/eael-3391.css" />
+      <link rel="stylesheet" href="/css/elementor-post-2052.css" />
+      <link rel="stylesheet" href="/css/font-awesome.css" />
+      <link rel="stylesheet" href="/css/widget-heading.min.css" />
+      <link rel="stylesheet" href="/css/widget-image.min.css" />
+      <link rel="stylesheet" href="/css/e-animation-shrink.min.css" />
+      <link rel="stylesheet" href="/css/widget-icon-list.min.css" />
+      <link rel="stylesheet" href="/css/swiper.min.css" />
+      <link rel="stylesheet" href="/css/e-swiper.min.css" />
+      <link rel="stylesheet" href="/css/widget-image-carousel.min.css" />
+      <link rel="stylesheet" href="/css/widget-icon-box.min.css" />
+      <link rel="stylesheet" href="/css/widget-image-box.min.css" />
+      <link rel="stylesheet" href="/css/elementor-post-3391.css" />
+      <link rel="stylesheet" href="/css/poppins.css" />
+      <link rel="stylesheet" href="/css/intertight.css" />
+      <link rel="stylesheet" href="/css/montserrat.css" />
       
-      {/* 1. TOP ALERT BANNER */}
-      <div className="bg-gradient-to-r from-red-600 via-orange-600 to-red-600 text-white py-2.5 px-4 text-center text-xs sm:text-sm font-extrabold tracking-wide uppercase shadow-lg sticky top-0 z-50 animate-pulse">
-        🔥 MEGA LAUNCH OFFER <span className="opacity-70 mx-1">|</span> Up to 85% OFF <span className="opacity-70 mx-1">—</span> Limited Time Only!
-      </div>
+      {/* Dynamic override for swiper slider elements to make a smooth CSS marquee loop */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .elementor-image-carousel.swiper-wrapper {
+          display: flex !important;
+          width: max-content !important;
+          animation: marquee 35s linear infinite !important;
+          flex-flow: row nowrap !important;
+        }
+        .elementor-image-carousel-wrapper.swiper:hover .elementor-image-carousel.swiper-wrapper {
+          animation-play-state: paused !important;
+        }
+        .swiper-slide {
+          width: 220px !important;
+          margin-right: 15px !important;
+          flex-shrink: 0 !important;
+        }
+        /* Custom global elementor-related resets to make it render nicely */
+        body {
+          background-color: #0c0f17 !important;
+        }
+        .elementor-3391 {
+          overflow-x: hidden !important;
+        }
+        .elementor-section {
+          position: relative;
+        }
+      ` }} />
 
-      {/* 2. HERO SECTION */}
-      <header className="relative py-20 px-4 md:px-8 max-w-6xl mx-auto text-center flex flex-col items-center overflow-hidden">
-        {/* Background glow effects */}
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-72 h-72 bg-purple-600/10 rounded-full blur-[80px] pointer-events-none" />
-        <div className="absolute top-20 left-1/3 w-60 h-60 bg-amber-500/5 rounded-full blur-[100px] pointer-events-none" />
-
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-yellow-400 font-bold text-xs sm:text-sm shadow-md mb-8 animate-bounce">
-          <Sparkles className="h-4 w-4 fill-yellow-400" />
-          <span>MEGA LAUNCH OFFER</span>
-        </div>
-
-        {/* Title */}
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-white max-w-4xl leading-[1.1] mb-6">
-          2,000+ Ready-to-Use Claude Skills for <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-500">Every Business Need.</span>
-        </h1>
-
-        {/* Subhead */}
-        <p className="text-slate-400 text-lg sm:text-xl max-w-3xl leading-relaxed mb-10">
-          Stop writing prompts from scratch. Upload a skill file and watch Claude transform into an expert consultant in seconds. Includes a <span className="text-white font-bold underline decoration-yellow-400">free usage guide</span>.
-        </p>
-
-        {/* Big Preview Product Image */}
-        <div className="relative max-w-lg w-full mb-12 group">
-          <div className="absolute -inset-1.5 bg-gradient-to-r from-yellow-500 to-purple-600 rounded-2xl blur-xl opacity-30 group-hover:opacity-45 transition duration-700" />
-          <img 
-            src="https://bizboxpro.in/wp-content/uploads/2026/05/AD12-1024x1024.png" 
-            alt="Claude Skills Pro Bundle Preview" 
-            className="relative rounded-2xl border border-slate-800 shadow-2xl object-cover w-full aspect-square"
-          />
-        </div>
-
-        {/* Subtitle statement */}
-        <p className="text-slate-300 font-semibold text-sm sm:text-md mb-8 tracking-wide uppercase">
-          ⚡ Get Expert-Level Outputs Without Writing Complex Prompts
-        </p>
-
-        {/* Stats Row */}
-        <div className="grid grid-cols-3 gap-3 max-w-2xl w-full mb-10 text-center">
-          <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-center items-center shadow-sm">
-            <span className="text-2xl sm:text-3xl font-black text-white">2,000+</span>
-            <span className="text-[10px] sm:text-xs text-slate-500 mt-1 uppercase font-bold tracking-wider">Skills Included</span>
-          </div>
-          <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-center items-center shadow-sm">
-            <span className="text-2xl sm:text-3xl font-black text-white">20+ Areas</span>
-            <span className="text-[10px] sm:text-xs text-slate-500 mt-1 uppercase font-bold tracking-wider">All-in-One Bundle</span>
-          </div>
-          <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-center items-center shadow-sm">
-            <span className="text-2xl sm:text-3xl font-black text-yellow-400">4.9★</span>
-            <span className="text-[10px] sm:text-xs text-slate-500 mt-1 uppercase font-bold tracking-wider">Satisfaction</span>
-          </div>
-        </div>
-
-        {/* Action Button */}
-        <Button 
-          size="lg" 
-          onClick={handlePurchase}
-          className="bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-500 hover:from-yellow-500 hover:to-orange-500 text-slate-950 font-extrabold text-md sm:text-lg px-10 py-7 rounded-xl shadow-glow hover:shadow-glow-lg transition-all duration-300 transform hover:scale-[1.02]"
-        >
-          🔥 Buy Now for Just ₹499
-        </Button>
-
-        {/* Checklist horizontal list */}
-        <div className="flex gap-6 items-center justify-center mt-6 text-xs text-slate-400 font-semibold uppercase tracking-wider">
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500 stroke-[3]" /> One-time payment</span>
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500 stroke-[3]" /> Instant delivery</span>
-        </div>
-      </header>
-
-      {/* 3. BUILT FOR CLAUDE ECOSYSTEM */}
-      <section className="bg-slate-900/40 border-y border-slate-900 py-20 px-4 md:px-8">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-xs tracking-widest text-slate-500 font-black uppercase mb-3">Engineered for Perfection</h2>
-          <h3 className="text-3xl sm:text-4xl font-extrabold text-white mb-12">BUILT FOR THE CLAUDE ECOSYSTEM</h3>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            {[
-              { src: "https://bizboxpro.in/wp-content/uploads/2026/05/1-1.jpg", title: "Custom Personas" },
-              { src: "https://bizboxpro.in/wp-content/uploads/2026/05/2-2.jpg", title: "Format Instructions" },
-              { src: "https://bizboxpro.in/wp-content/uploads/2026/05/4-1.jpg", title: "Workflow Checklists" },
-              { src: "https://bizboxpro.in/wp-content/uploads/2026/05/5-2.jpg", title: "Plug-and-Play Output" },
-            ].map((img, i) => (
-              <div key={i} className="bg-slate-950 border border-slate-900 rounded-2xl overflow-hidden p-2 group hover:border-slate-800 transition duration-300">
-                <img 
-                  src={img.src} 
-                  alt={img.title} 
-                  className="rounded-xl w-full object-cover aspect-square mb-3 grayscale group-hover:grayscale-0 transition duration-500" 
-                />
-                <span className="block text-slate-400 group-hover:text-white font-bold text-xs sm:text-sm pb-1.5">{img.title}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. WHAT'S INSIDE CAROUSEL SECTION */}
-      <section className="py-24 px-4 md:px-8 overflow-hidden bg-slate-950">
-        <div className="max-w-6xl mx-auto text-center mb-12">
-          <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest bg-yellow-400/10 border border-yellow-400/20 px-3 py-1 rounded-full">
-            What&apos;s Inside the
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-4">All-in-One Claude Skills Bundle.</h2>
-        </div>
-
-        {/* Carousel Marquee container */}
-        <div className="relative w-full overflow-hidden py-4 select-none">
-          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-slate-950 to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-slate-950 to-transparent z-10 pointer-events-none" />
-          
-          <div className="animate-marquee gap-5">
-            {/* First Set */}
-            {carouselImages.map((src, i) => (
-              <div key={`marquee-1-${i}`} className="w-[180px] sm:w-[220px] shrink-0 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-md transform hover:scale-[1.03] transition duration-300">
-                <img src={src} alt="Category Mockup" className="w-full aspect-[4/3] object-cover" />
-              </div>
-            ))}
-            {/* Duplicate for Infinite Scroll */}
-            {carouselImages.map((src, i) => (
-              <div key={`marquee-2-${i}`} className="w-[180px] sm:w-[220px] shrink-0 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-md transform hover:scale-[1.03] transition duration-300">
-                <img src={src} alt="Category Mockup" className="w-full aspect-[4/3] object-cover" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="text-center mt-12">
-          <Button 
-            onClick={handlePurchase}
-            className="bg-slate-900 border border-slate-800 text-yellow-400 hover:text-yellow-500 font-extrabold px-8 py-5 text-sm uppercase rounded-xl tracking-wider hover:border-yellow-400/30 transition-all shadow-sm"
-          >
-            Get Instant Access!
-          </Button>
-        </div>
-      </section>
-
-      {/* 5. EVERY DEPARTMENT VALUE PROP SECTION */}
-      <section className="bg-slate-900/20 border-t border-slate-900 py-24 px-4 md:px-8 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-600/5 to-transparent pointer-events-none" />
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-flex items-center gap-1.5 text-xs text-red-500 font-extrabold uppercase tracking-widest bg-red-500/10 border border-red-500/20 px-3.5 py-1 rounded-full mb-4">
-              <Zap className="h-3 w-3 fill-red-500" /> MEGA LAUNCH OFFER
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-4">
-              Everything You Need to Turn Claude Into a Business Powerhouse — Faster &amp; Smarter
-            </h2>
-            <p className="text-slate-400 text-md sm:text-lg">
-              🎁 Get <span className="text-red-500 font-bold">85% OFF</span> Today Only — <span className="line-through text-slate-650">₹1,999</span> value for just <span className="text-yellow-400 font-black">₹499!</span>
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-16">
-            {/* Card 1 */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col hover:border-slate-700 transition duration-300">
-              <div className="rounded-2xl overflow-hidden mb-6 bg-slate-950 border border-slate-800">
-                <img 
-                  src="https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_41_57-PM-1024x1024.png" 
-                  alt="Complete Claude Skills Library" 
-                  className="w-full h-auto aspect-square object-cover"
-                />
-              </div>
-              <h3 className="text-lg sm:text-xl font-extrabold text-white mb-4">1. Complete Claude Skills Library</h3>
-              <ul className="space-y-4 text-sm text-slate-400 flex-1">
-                <li className="flex gap-2">
-                  <Check className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <span><strong>Content Copywriting:</strong> Create blogs, ads, email sequences, video scripts &amp; viral posts instantly.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <span><strong>Growth Marketing:</strong> Generate funnel architectures, SEO strategies &amp; paid ads templates.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <span><strong>Sales &amp; Outreach:</strong> Pitch decks, cold email templates, objection guides &amp; lead gen workflows.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <span><strong>Business SOPs:</strong> Document standard operations, automate workflow templates &amp; assign tasks.</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Card 2 */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col hover:border-slate-700 transition duration-300">
-              <div className="rounded-2xl overflow-hidden mb-6 bg-slate-950 border border-slate-800">
-                <img 
-                  src="https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_42_02-PM-1024x1024.png" 
-                  alt="Advanced Prompt Systems" 
-                  className="w-full h-auto aspect-square object-cover"
-                />
-              </div>
-              <h3 className="text-lg sm:text-xl font-extrabold text-white mb-4">2. Advanced Prompt Workflows</h3>
-              <ul className="space-y-4 text-sm text-slate-400 flex-1">
-                <li className="flex gap-2">
-                  <Check className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <span><strong>Expert-Level Frameworks:</strong> Pre-built meta prompts that program Claude to output premium quality results.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <span><strong>Department Hubs:</strong> Target custom workflows in legal, HR, administration, customer support &amp; finance.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <span><strong>Organized Structure:</strong> Zero clutter. Find the exact department script you need in under 10 seconds.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <span><strong>Plug-and-Play Setup:</strong> Drag-and-drop system. Import into Claude.ai Project or CLI workspace and start.</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col hover:border-slate-700 transition duration-300">
-              <div className="rounded-2xl overflow-hidden mb-6 bg-slate-950 border border-slate-800">
-                <img 
-                  src="https://bizboxpro.in/wp-content/uploads/2026/05/ChatGPT-Image-May-28-2026-01_43_24-PM-1024x1024.png" 
-                  alt="Automation & Bonus Resources" 
-                  className="w-full h-auto aspect-square object-cover"
-                />
-              </div>
-              <h3 className="text-lg sm:text-xl font-extrabold text-white mb-4">3. Scaling &amp; Bonus Resources</h3>
-              <ul className="space-y-4 text-sm text-slate-400 flex-1">
-                <li className="flex gap-2">
-                  <Check className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <span><strong>Claude Code Ready:</strong> Compatible with CLI interfaces, developer extensions, and Claude API architectures.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <span><strong>Chained Automations:</strong> Combine multiple prompts to automate complex, multi-step business objectives.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <span><strong>Free Usage Guide:</strong> Complete ebook tutorial demonstrating how to program, load, and adapt skills.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <span><strong>Lifetime Updates:</strong> Lifetime Claude upgrading service. Get new prompt packages emailed at zero extra cost.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="text-center flex flex-col items-center">
-            <Button 
-              size="lg"
-              onClick={handlePurchase}
-              className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-slate-950 font-black text-md px-10 py-6 rounded-xl shadow-glow transition duration-300"
-            >
-              GET INSTANT ACCESS!
-            </Button>
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-4">
-              ⚡ One click, fully organized, permanently yours.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. EVERYTHING YOU NEED TO TURN CLAUDE INTO A COMPLETE AI BUSINESS SYSTEM */}
-      <section className="bg-slate-950 py-24 px-4 md:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-6">
-            Everything You Need to Turn Claude Into a <span className="text-red-500">Complete AI Business System.</span>
-          </h2>
-          <Button 
-            size="lg"
-            onClick={handlePurchase}
-            className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-extrabold px-10 py-6 rounded-xl shadow-lg mt-4 uppercase tracking-wider"
-          >
-            GET INSTANT ACCESS!
-          </Button>
-          <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-4">
-            ⚡ One click, fully organized, permanently yours.
-          </p>
-        </div>
-      </section>
-
-      {/* 7. COMPARISON SECTION: WITH VS WITHOUT SKILLS */}
-      <section className="py-24 px-4 md:px-8 bg-slate-900/30 border-y border-slate-900">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-xs tracking-widest text-slate-500 font-black uppercase mb-3">Work Smarter</h2>
-            <h3 className="text-3xl sm:text-4xl font-extrabold text-white">Same Claude. Turned Into a Business Machine.</h3>
-            <p className="text-slate-400 text-md sm:text-lg mt-3">
-              You&apos;re <span className="text-red-500 font-bold underline decoration-red-500">Not Slow</span> — Your Claude Workflow Is.
-            </p>
-            <p className="text-slate-400 text-sm max-w-xl mx-auto mt-4 leading-relaxed">
-              Most Claude users only extract 10% of its real potential. A structured, contextual skill file programs Claude from a simple utility into an extraordinary teammate.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            {/* Without Skills Column */}
-            <div className="bg-slate-950 border border-slate-900 rounded-3xl p-6 sm:p-8 flex flex-col">
-              <h4 className="text-lg sm:text-xl font-bold text-red-500 flex items-center gap-2 mb-6">
-                <X className="h-5 w-5 text-red-500 stroke-[3]" /> Without Skills
-              </h4>
-              <ul className="space-y-4 text-sm text-slate-400 flex-1">
-                <li className="flex gap-2">
-                  <X className="h-4 w-4 text-red-500/80 shrink-0 mt-0.5" />
-                  <span>Rewriting similar instructions and rules every time you open a chat.</span>
-                </li>
-                <li className="flex gap-2">
-                  <X className="h-4 w-4 text-red-500/80 shrink-0 mt-0.5" />
-                  <span>Inconsistent quality, robotic replies, and off-brand styling.</span>
-                </li>
-                <li className="flex gap-2">
-                  <X className="h-4 w-4 text-red-500/80 shrink-0 mt-0.5" />
-                  <span>Wasting time debugging inputs to get the output formatting right.</span>
-                </li>
-                <li className="flex gap-2">
-                  <X className="h-4 w-4 text-red-500/80 shrink-0 mt-0.5" />
-                  <span>Paying hundreds of dollars monthly for multiple specialized SaaS utilities.</span>
-                </li>
-                <li className="flex gap-2">
-                  <X className="h-4 w-4 text-red-500/80 shrink-0 mt-0.5" />
-                  <span>No standardized business operations or consistent output across projects.</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* With Skills Column */}
-            <div className="bg-slate-950 border border-yellow-500/30 rounded-3xl p-6 sm:p-8 flex flex-col relative">
-              <div className="absolute top-4 right-4 bg-yellow-400/10 border border-yellow-400/20 text-yellow-400 text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-0.5 rounded-full">
-                Highly Recommended
-              </div>
-              <h4 className="text-lg sm:text-xl font-bold text-yellow-400 flex items-center gap-2 mb-6">
-                <Check className="h-5 w-5 text-yellow-400 stroke-[3]" /> With Claude Skills Pro
-              </h4>
-              <ul className="space-y-4 text-sm text-slate-300 flex-1">
-                <li className="flex gap-2">
-                  <Check className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
-                  <span>Upload your prebuilt skill script file once and repeat usage seamlessly.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
-                  <span>Reliable, tailored, human-like outputs matching expert formatting templates.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
-                  <span>Load, verify, and start executing files in under 60 seconds.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
-                  <span>Consolidate multiple specialized digital tools under one unified interface.</span>
-                </li>
-                <li className="flex gap-2">
-                  <Check className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
-                  <span>Speed up content production, templates, code structure &amp; reports.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <h5 className="text-xl font-extrabold text-white mb-6">
-              One-Time Price. <span className="text-red-500">Lifetime Claude Upgrades..</span>
-            </h5>
-            <Button 
-              size="lg"
-              onClick={handlePurchase}
-              className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-slate-950 font-black px-10 py-6 rounded-xl shadow-glow transition duration-300"
-            >
-              GET INSTANT ACCESS!
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* 8. COUNTDOWN & PRICING CARD SECTION */}
-      <section className="py-24 px-4 md:px-8 bg-slate-950 flex flex-col items-center">
-        <div className="bg-slate-900 border border-slate-800 rounded-[32px] p-8 md:p-12 max-w-2xl w-full text-center relative overflow-hidden">
-          {/* Subtle gradient light */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-yellow-400/5 rounded-full blur-[60px] pointer-events-none" />
-          
-          <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-2">
-            One-Time Price. Lifetime Upgrades.
-          </h3>
-          <p className="text-slate-500 text-sm font-semibold uppercase tracking-wider mb-6">
-            Get instant access to the entire bundle
-          </p>
-
-          <div className="text-5xl sm:text-6xl font-black text-white mb-2">
-            ₹499<span className="text-slate-500 text-xl font-semibold">/-</span>
-          </div>
-
-          <div className="inline-flex bg-red-600/15 border border-red-500/20 text-red-500 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-6">
-            85% OFF
-          </div>
-
-          <div className="flex flex-col items-center">
-            {/* Interactive countdown component */}
-            <div className="text-xs uppercase tracking-wider font-semibold text-slate-400 mb-2">Offer expires in:</div>
-            
-            <div className="flex gap-3 justify-center items-center mb-8">
-              <div className="flex flex-col items-center bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 min-w-[60px] shadow-sm">
-                <span className="text-xl font-extrabold text-yellow-400">{String(timeLeft.hours).padStart(2, '0')}</span>
-                <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Hour</span>
-              </div>
-              <span className="text-lg font-bold text-slate-700">:</span>
-              <div className="flex flex-col items-center bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 min-w-[60px] shadow-sm">
-                <span className="text-xl font-extrabold text-yellow-400">{String(timeLeft.minutes).padStart(2, '0')}</span>
-                <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Min</span>
-              </div>
-              <span className="text-lg font-bold text-slate-700">:</span>
-              <div className="flex flex-col items-center bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 min-w-[60px] shadow-sm">
-                <span className="text-xl font-extrabold text-yellow-400">{String(timeLeft.seconds).padStart(2, '0')}</span>
-                <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold mt-0.5">Sec</span>
-              </div>
-            </div>
-
-            <Button 
-              size="lg"
-              onClick={handlePurchase}
-              className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-slate-950 font-black text-md sm:text-lg py-7 rounded-xl shadow-glow hover:shadow-glow-lg transition duration-300"
-            >
-              GET INSTANT ACCESS!
-            </Button>
-
-            {/* Payment security options image */}
-            <div className="mt-8 flex justify-center w-full max-w-[280px]">
-              <img 
-                src="https://bizboxpro.in/wp-content/uploads/2026/05/payment-moguj-1-1.webp" 
-                alt="Safe & Secure Payments via UPI & Cards" 
-                className="w-full object-contain filter brightness-95 opacity-80"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. FAQ ACCORDION SECTION */}
-      <section className="py-24 px-4 md:px-8 bg-slate-900/10 border-t border-slate-900">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest bg-yellow-400/10 border border-yellow-400/20 px-3.5 py-1 rounded-full">
-              ❓ GOT QUESTIONS ❓
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-3">Still Have Questions? We&apos;ve Got Answers.</h2>
-            <p className="text-slate-500 text-sm max-w-lg mx-auto">
-              Everything you need to know about Claude Skills Pro — answered in seconds
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {faqs.map((faq, index) => {
-              const isOpen = activeFaq === index
-              return (
-                <div 
-                  key={index} 
-                  className="bg-slate-900/40 border border-slate-800/80 rounded-2xl overflow-hidden transition duration-300"
-                >
-                  <button
-                    onClick={() => setActiveFaq(isOpen ? null : index)}
-                    className="w-full flex items-center justify-between px-6 py-5 text-left text-white hover:text-yellow-400 focus:outline-none transition duration-200"
-                  >
-                    <span className="font-bold text-md sm:text-lg">{faq.question}</span>
-                    <ChevronRight 
-                      className={`h-5 w-5 text-slate-500 transition-transform duration-300 shrink-0 ${isOpen ? "rotate-90 text-yellow-400" : ""}`} 
-                    />
-                  </button>
-                  
-                  {/* Expanding body with smooth height transition */}
-                  <div 
-                    className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                      isOpen ? "max-h-[250px] border-t border-slate-800/50" : "max-h-0"
-                    }`}
-                  >
-                    <div className="p-6 text-sm sm:text-md text-slate-400 leading-relaxed bg-slate-950/40">
-                      {faq.answer}
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* 10. FINAL PUSH / CALL TO ACTION */}
-      <section className="py-24 px-4 md:px-8 bg-slate-950 text-center relative overflow-hidden">
-        {/* Glow light bottom */}
-        <div className="absolute bottom-[-100px] left-1/2 -translate-x-1/2 w-80 h-80 bg-purple-600/10 rounded-full blur-[100px] pointer-events-none" />
-
-        <div className="max-w-3xl mx-auto relative z-10">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">Still deciding?</h2>
-          <p className="text-slate-400 text-md max-w-xl mx-auto mb-8 leading-relaxed">
-            Join thousands of professionals, developers, and creators who upgraded their workflow with Claude Skills Pro — download and start boosting your productivity today.
-          </p>
-
-          <Button 
-            size="lg"
-            onClick={handlePurchase}
-            className="bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-500 hover:from-yellow-500 hover:to-orange-500 text-slate-950 font-black text-md px-12 py-7 rounded-xl shadow-glow transition duration-300"
-          >
-            GET INSTANT ACCESS!
-          </Button>
-
-          <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-4">
-            ⚡ One click, fully organized, permanently yours.
-          </p>
-        </div>
-      </section>
-
-      {/* 11. DISCLAIMER FOOTER */}
-      <footer className="bg-slate-950 border-t border-slate-900 py-16 px-4 md:px-8 text-slate-500 text-[10px] sm:text-xs">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="font-extrabold uppercase tracking-widest text-slate-400 mb-3 flex items-center justify-center gap-1">
-            <AlertTriangle className="h-4 w-4 text-slate-400 stroke-[2]" /> IMPORTANT
-          </div>
-          <p className="leading-relaxed mb-8 max-w-3xl mx-auto">
-            This site is not a part of the Facebook™ website or Facebook™ Inc. Additionally, This site is NOT endorsed by Facebook™ in any way. FACEBOOK™ is a trademark of FACEBOOK™, Inc. As stipulated by law, we cannot and do not make any guarantees about your ability to get results or earn any money with our ideas, information, tools, or strategies. We want to help you by providing excellent templates, guidance, and workflows that we believe can assist you in moving forward. All terms, privacy policies, and disclaimers for this program can be accessed via the links below.
-          </p>
-
-          {/* Links grid */}
-          <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center font-bold tracking-wide uppercase text-slate-400 mb-4">
-            <Link href="/privacy" className="hover:text-yellow-400 transition">Privacy Policy</Link>
-            <Link href="/contact" className="hover:text-yellow-400 transition">Contact Us</Link>
-            <Link href="/about" className="hover:text-yellow-400 transition">About Us</Link>
-            <Link href="/terms" className="hover:text-yellow-400 transition">Terms &amp; Conditions</Link>
-            <Link href="/refund" className="hover:text-yellow-400 transition">Refund &amp; Return Policy</Link>
-          </div>
-
-          <div className="text-[10px] text-slate-600 mt-6">
-            &copy; {new Date().getFullYear()} Grabnext. All rights reserved. Registered digital seller.
-          </div>
-        </div>
-      </footer>
-    </div>
+      <div 
+        className="elementor-page-wrapper"
+        dangerouslySetInnerHTML={{ __html: getDynamicHtml() }} 
+      />
+    </>
   )
 }
