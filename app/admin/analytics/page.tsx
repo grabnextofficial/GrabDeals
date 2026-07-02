@@ -3,7 +3,6 @@
 export const runtime = 'edge'
 
 import { useState, useEffect } from "react"
-import { AdminSidebar } from "@/components/admin-sidebar"
 import { BarChart2, Eye, MousePointerClick, FileInput, Loader2, RefreshCw, User, Phone, Mail, Calendar, Filter } from "lucide-react"
 
 interface ProductStat {
@@ -57,10 +56,8 @@ export default function AnalyticsPage() {
     const totalForms = stats.reduce((s, p) => s + (p.formSubmissions || 0), 0)
 
     return (
-        <div className="flex h-screen bg-gray-50">
-            <AdminSidebar />
-            <main className="flex-1 overflow-auto p-8">
-                <div className="max-w-6xl mx-auto">
+        <div className="p-8">
+            <div className="max-w-6xl mx-auto">
                     {/* Header */}
                     <div className="mb-8 flex items-center justify-between">
                         <div>
@@ -209,7 +206,6 @@ export default function AnalyticsPage() {
                         </div>
                     )}
                 </div>
-            </main>
         </div>
     )
 }

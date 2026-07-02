@@ -3,7 +3,6 @@
 export const runtime = 'edge'
 
 import { useState, useEffect } from "react"
-import { AdminSidebar } from "@/components/admin-sidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -183,10 +182,8 @@ export default function AISettingsPage() {
     }
 
     return (
-        <div className="flex h-screen bg-gray-50">
-            <AdminSidebar />
-            <main className="flex-1 overflow-auto p-8">
-                <div className="max-w-3xl mx-auto">
+        <div className="p-8">
+            <div className="max-w-3xl mx-auto">
                     <div className="mb-8">
                         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                             <Bot className="h-8 w-8 text-indigo-600" />
@@ -428,7 +425,6 @@ export default function AISettingsPage() {
                         </div>
                     )}
                 </div>
-            </main>
         </div>
     )
 }

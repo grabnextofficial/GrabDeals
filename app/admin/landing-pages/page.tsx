@@ -3,7 +3,6 @@
 export const runtime = 'edge'
 
 import { useState, useEffect } from "react"
-import { AdminSidebar } from "@/components/admin-sidebar"
 import { Button } from "@/components/ui/button"
 import { toast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
@@ -112,10 +111,8 @@ export default function LandingPagesPage() {
     }
 
     return (
-        <div className="flex h-screen bg-gray-50">
-            <AdminSidebar />
-            <main className="flex-1 overflow-auto p-8">
-                <div className="max-w-5xl mx-auto">
+        <div className="p-8">
+            <div className="max-w-5xl mx-auto">
 
                     {/* Header */}
                     <div className="flex items-center justify-between mb-8">
@@ -222,7 +219,6 @@ export default function LandingPagesPage() {
                         </div>
                     )}
                 </div>
-            </main>
         </div>
     )
 }

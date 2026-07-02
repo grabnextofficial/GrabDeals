@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { AdminSidebar } from "@/components/admin-sidebar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -66,10 +65,8 @@ export default function PaymentSettingsPage() {
     }
 
     return (
-        <div className="flex h-screen bg-gray-50">
-            <AdminSidebar />
-            <main className="flex-1 overflow-auto p-8">
-                <div className="max-w-4xl mx-auto">
+        <div className="p-8">
+            <div className="max-w-4xl mx-auto">
                     <div className="mb-8">
                         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                             <Settings className="h-8 w-8 text-primary" />
@@ -185,7 +182,6 @@ export default function PaymentSettingsPage() {
                         </CardContent>
                     </Card>
                 </div>
-            </main>
         </div>
     )
 }

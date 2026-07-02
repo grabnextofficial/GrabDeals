@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { AdminSidebar } from "@/components/admin-sidebar"
 import {
     Bot, Zap, CheckCircle2, XCircle, Loader2, Send,
     Activity, Clock, Cpu, MessageSquare, RefreshCw, Sparkles
@@ -51,10 +50,8 @@ export default function AITestPage() {
     const nvidia = results?.nvidia
 
     return (
-        <div className="flex h-screen bg-gray-50">
-            <AdminSidebar />
-            <main className="flex-1 overflow-auto p-6 lg:p-8">
-                <div className="max-w-3xl mx-auto space-y-6">
+        <div className="p-6 lg:p-8">
+            <div className="max-w-3xl mx-auto space-y-6">
 
                     {/* Header */}
                     <div className="flex items-center justify-between">
@@ -277,7 +274,6 @@ export default function AITestPage() {
                     </div>
 
                 </div>
-            </main>
         </div>
     )
 }
