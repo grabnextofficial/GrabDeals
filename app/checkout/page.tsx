@@ -325,8 +325,8 @@ export default function CheckoutPage() {
       <div className="max-w-[1200px] mx-auto px-4 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
           
-          {/* LEFT COLUMN: ORDER SUMMARY & BONUSES */}
-          <div className="text-white pt-4 space-y-8">
+          {/* LEFT COLUMN: ORDER SUMMARY */}
+          <div className="text-white pt-4">
             {/* ORDER SUMMARY */}
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 space-y-6">
               <h3 className="text-xl md:text-2xl font-black tracking-wide border-b border-white/10 pb-4 flex items-center justify-between" style={{ fontFamily: "Montserrat, sans-serif" }}>
@@ -377,47 +377,6 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
-
-            {/* BONUSES */}
-            <div className="bg-gradient-to-br from-[#1c223c]/50 to-[#151221]/50 border border-[#FFE600]/20 rounded-2xl p-6 md:p-8 space-y-6">
-              <h3 className="text-xl md:text-2xl font-black leading-tight" style={{ fontFamily: "Montserrat, sans-serif" }}>
-                Also, Buy before the deadline to <br className="hidden md:block" />
-                unlock <span className="text-[#FFE600]">Bonuses worth ₹75,000 for FREE!</span>
-              </h3>
-
-              <div className="space-y-4 text-sm font-medium tracking-wide">
-                <div className="flex items-start gap-3">
-                  <span className="text-[#FFE600] font-black mt-0.5">✓</span>
-                  <p className="text-gray-200">
-                    <strong>BONUS 1:</strong> Mega Video Editing Assets | <span className="text-[#FFE600]">Value : ₹35,000</span>
-                  </p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-[#FFE600] font-black mt-0.5">✓</span>
-                  <p className="text-gray-200">
-                    <strong>BONUS 2:</strong> 11 Mega Creative Collections | <span className="text-[#FFE600]">Value : ₹15,000</span>
-                  </p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-[#FFE600] font-black mt-0.5">✓</span>
-                  <p className="text-gray-200">
-                    <strong>BONUS 3:</strong> 800+ GB Graphics Bundle | <span className="text-[#FFE600]">Value : ₹25,000</span>
-                  </p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-[#FFE600] font-black mt-0.5">✓</span>
-                  <p className="text-gray-200">
-                    <strong>BONUS 4:</strong> Premium WhatsApp Pro Community Access | <span className="text-[#FFE600]">Value : ₹2,000</span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-white/5 text-center">
-                <h4 className="text-[#FFE600] text-base md:text-lg font-bold">
-                  Register Before today midnight <span className="text-white ml-1 text-sm md:text-base font-bold">to grab all the bonuses</span>
-                </h4>
-              </div>
-            </div>
           </div>
 
           {/* RIGHT COLUMN: FORM BOX */}
@@ -426,7 +385,7 @@ export default function CheckoutPage() {
               
               {/* YELLOW BANNER */}
               <div className="bg-[#FFF000] text-black text-center py-4 font-bold text-lg relative z-10">
-                Unlock the exclusive bonuses, Now!
+                Complete your order for instant access!
                 {/* CSS Triangle */}
                 <div className="absolute -bottom-[10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[12px] border-t-[#FFF000]"></div>
               </div>
