@@ -27,6 +27,46 @@ export default function CheckoutPage() {
   const [checkoutStep, setCheckoutStep] = useState<1 | 2>(1)
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null)
 
+  // Coupon Code States
+  const [couponCode, setCouponCode] = useState("")
+  const [appliedCoupon, setAppliedCoupon] = useState<any | null>(null) // { code, discountAmount }
+  const [couponError, setCouponError] = useState("")
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return
+    setIsApplyingCoupon(true)
+    setCouponError("")
+    try {
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode, cartTotal: totalAmount })
+      })
+      const data = await res.json()
+      if (data.valid) {
+        setAppliedCoupon(data)
+        toast({ title: "Coupon Applied!", description: `Discount of ${formatPrice(data.discountAmount)} has been deducted.` })
+      } else {
+        setCouponError(data.message || "Invalid coupon code")
+        setAppliedCoupon(null)
+      }
+    } catch (e) {
+      setCouponError("Failed to apply coupon. Try again.")
+      setAppliedCoupon(null)
+    } finally {
+      setIsApplyingCoupon(false)
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponCode("")
+    setCouponError("")
+  }
+
+  const finalAmount = appliedCoupon ? Math.max(0, totalAmount - appliedCoupon.discountAmount) : totalAmount
+
   const [formData, setFormData] = useState({
     email: "",
     firstName: "",
@@ -151,7 +191,7 @@ export default function CheckoutPage() {
     const orderTitle = items.length === 1 ? items[0].product.title : `${items[0].product.title} + ${items.length - 1} more`
     const xpay = new window.XPay({
       api_key: "xp_live_wtm5vj64kseuylg9cfmsl9",
-      amount: Math.round(totalAmount),
+      amount: Math.round(finalAmount),
       title: orderTitle,
       onSuccess: async (data: { utr: string }) => {
         setLoading(false)
@@ -171,7 +211,7 @@ export default function CheckoutPage() {
     const orderRes = await fetch("/api/razorpay/create-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: totalAmount, currency: "INR" }),
+      body: JSON.stringify({ amount: finalAmount, currency: "INR" }),
     })
     const orderData = await orderRes.json()
     if (!orderData.orderId) {
@@ -188,7 +228,7 @@ export default function CheckoutPage() {
 
     const options = {
       key: orderData.keyId,
-      amount: Math.round(totalAmount * 100),
+      amount: Math.round(finalAmount * 100),
       currency: "INR",
       name: "Grabnext",
       description: items.length === 1 ? items[0].product.title : `${items.length} items`,
@@ -242,7 +282,9 @@ export default function CheckoutPage() {
             imageUrl: i.product.imageUrl,
             downloadUrl: i.product.downloadUrl
           })),
-          totalAmount,
+          totalAmount: finalAmount,
+          couponCode: appliedCoupon?.code || null,
+          discountAmount: appliedCoupon?.discountAmount || 0,
           status: "pending",
         }),
       })
@@ -253,7 +295,7 @@ export default function CheckoutPage() {
       // Track AddPaymentInfo with filled checkout data for advanced matching
       trackAddPaymentInfo(
         {
-          value: totalAmount,
+          value: finalAmount,
           num_items: items.length,
           content_ids: items.map((i) => i.productId),
           contents: items.map((i) => ({
@@ -362,18 +404,59 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
+              {/* Coupon Code Input */}
+              <div className="border-t border-white/10 pt-4 pb-2">
+                <label className="text-xs text-gray-400 font-bold block mb-1.5 uppercase tracking-wider">Discount Code</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter Promo Code"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
+                    disabled={!!appliedCoupon || isApplyingCoupon}
+                    className="flex-1 bg-white/5 border border-white/15 rounded px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#FFE600] disabled:bg-white/10 disabled:text-gray-400 uppercase font-mono font-bold"
+                  />
+                  {appliedCoupon ? (
+                    <button 
+                      type="button" 
+                      onClick={handleRemoveCoupon} 
+                      className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-bold transition-colors"
+                    >
+                      Remove
+                    </button>
+                  ) : (
+                    <button 
+                      type="button" 
+                      onClick={handleApplyCoupon} 
+                      disabled={isApplyingCoupon || !couponCode.trim()} 
+                      className="px-4 py-2 bg-yellow-450 hover:bg-yellow-500 text-gray-900 rounded text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isApplyingCoupon ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Apply"}
+                    </button>
+                  )}
+                </div>
+                {couponError && <p className="text-red-400 text-xs mt-1.5 font-semibold">{couponError}</p>}
+                {appliedCoupon && <p className="text-green-400 text-xs mt-1.5 font-semibold">✓ Promo applied successfully!</p>}
+              </div>
+
               <div className="border-t border-white/10 pt-4 space-y-3">
                 <div className="flex justify-between items-center text-sm text-gray-300">
                   <span>Subtotal</span>
                   <span>{formatPrice(totalAmount)}</span>
                 </div>
+                {appliedCoupon && (
+                  <div className="flex justify-between items-center text-sm text-green-400 font-semibold">
+                    <span>Discount ({appliedCoupon.code})</span>
+                    <span>-{formatPrice(appliedCoupon.discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center text-sm text-gray-300">
                   <span>Delivery</span>
                   <span className="text-green-400 font-bold uppercase tracking-wider text-xs bg-green-500/10 px-2 py-0.5 rounded">FREE</span>
                 </div>
                 <div className="flex justify-between items-center text-xl font-black pt-3 border-t border-white/10">
                   <span className="text-white">Total Amount</span>
-                  <span className="text-[#FFE600]">{formatPrice(totalAmount)}</span>
+                  <span className="text-[#FFE600]">{formatPrice(finalAmount)}</span>
                 </div>
               </div>
             </div>
@@ -502,19 +585,25 @@ export default function CheckoutPage() {
                          ))}
                        </div>
                        <div className="border-t border-gray-200 pt-3 space-y-2 text-xs text-gray-600">
-                         <div className="flex justify-between">
-                           <span>Subtotal</span>
-                           <span>{formatPrice(totalAmount)}</span>
-                         </div>
-                         <div className="flex justify-between items-center">
-                           <span>Delivery</span>
-                           <span className="text-green-600 font-bold uppercase text-[10px]">FREE</span>
-                         </div>
-                       </div>
-                       <div className="flex justify-between items-center text-lg font-black mt-3 pt-3 border-t border-gray-200">
-                         <span className="text-gray-900">Total Price</span>
-                         <span className="text-[#1A8242]">{formatPrice(totalAmount)}</span>
-                       </div>
+                          <div className="flex justify-between">
+                            <span>Subtotal</span>
+                            <span>{formatPrice(totalAmount)}</span>
+                          </div>
+                          {appliedCoupon && (
+                            <div className="flex justify-between text-green-600 font-semibold">
+                              <span>Discount ({appliedCoupon.code})</span>
+                              <span>-{formatPrice(appliedCoupon.discountAmount)}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between items-center">
+                            <span>Delivery</span>
+                            <span className="text-green-600 font-bold uppercase text-[10px]">FREE</span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center text-lg font-black mt-3 pt-3 border-t border-gray-200">
+                          <span className="text-gray-900">Total Price</span>
+                          <span className="text-[#1A8242]">{formatPrice(finalAmount)}</span>
+                        </div>
                     </div>
 
                     <div className="pt-2">
@@ -525,7 +614,7 @@ export default function CheckoutPage() {
                       >
                         <div className="flex items-center gap-2 font-bold text-lg">
                           {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5" />}
-                          {loading ? "Processing..." : `Complete Payment of ${formatPrice(totalAmount)}`}
+                          {loading ? "Processing..." : `Complete Payment of ${formatPrice(finalAmount)}`}
                         </div>
                         <span className="text-xs font-semibold mt-1">100% Secure Checkout</span>
                       </button>

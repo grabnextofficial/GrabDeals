@@ -116,6 +116,20 @@ export async function runMigrations() {
     await safeAddColumn('orders', 'userEmail', 'TEXT')
     await safeAddColumn('orders', 'userName', 'TEXT')
     await safeAddColumn('orders', 'userPhone', 'TEXT')
+    await safeAddColumn('orders', 'couponCode', 'TEXT')
+    await safeAddColumn('orders', 'discountAmount', 'REAL DEFAULT 0')
+
+    // 5. Coupons Table
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS coupons (
+        code TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        value REAL NOT NULL,
+        isActive INTEGER DEFAULT 1,
+        createdAt INTEGER,
+        updatedAt INTEGER
+      );
+    `)
 }
 
 export async function GET(request: NextRequest) {
