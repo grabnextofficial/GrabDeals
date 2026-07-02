@@ -45,11 +45,25 @@ function parseReply(rawReply: string, products: any[]) {
     let reply = rawReply.trim()
 
     let suggestedProducts: any[] = []
-    const productIdsMatch = reply.match(/PRODUCT_IDS:\[([^\]]*)\]/)
-    if (productIdsMatch) {
-        const ids = productIdsMatch[1].split(',').map((id: string) => id.trim()).filter(Boolean)
+    
+    // Check if the reply contains PRODUCT_IDS:
+    const marker = "PRODUCT_IDS:["
+    const markerIndex = reply.indexOf(marker)
+    if (markerIndex !== -1) {
+        // Extract everything after the "PRODUCT_IDS:["
+        let idsString = reply.substring(markerIndex + marker.length)
+        // If there's a closing bracket, take only what's before it
+        const closeBracketIndex = idsString.indexOf("]")
+        if (closeBracketIndex !== -1) {
+            idsString = idsString.substring(0, closeBracketIndex)
+        }
+        
+        // Split by comma and clean up IDs
+        const ids = idsString.split(',').map((id: string) => id.trim()).filter(Boolean)
+        
+        // Filter products: match by exact ID, or if the ID was truncated, see if any product ID starts with it
         suggestedProducts = products
-            .filter((p: any) => ids.includes(String(p.id)))
+            .filter((p: any) => ids.includes(String(p.id)) || ids.some(id => String(p.id).startsWith(id)))
             .slice(0, 3)
             .map((p: any) => ({
                 id: p.id,
@@ -68,17 +82,27 @@ function parseReply(rawReply: string, products: any[]) {
                 updatedAt: p.updatedAt,
                 createdBy: p.createdBy || 'admin',
             }))
-        reply = reply.replace(/PRODUCT_IDS:\[[^\]]*\]/g, '').trim()
+            
+        // Completely strip the PRODUCT_IDS:... block from the reply text
+        reply = reply.substring(0, markerIndex).trim()
     }
 
     let action: string | null = null
-    if (reply.includes('ACTION:ADD_TO_CART')) {
+    
+    // Check for actions (even if truncated or in the text)
+    if (reply.includes('ACTION:ADD_TO_CART') || reply.includes('ACTION:ADD_TO')) {
         action = 'add_to_cart'
-        reply = reply.replace(/ACTION:ADD_TO_CART/g, '').trim()
-    } else if (reply.includes('ACTION:CHECKOUT')) {
+        reply = reply.replace(/ACTION:ADD_TO_CART/g, '').replace(/ACTION:ADD_TO/g, '').trim()
+    } else if (reply.includes('ACTION:CHECKOUT') || reply.includes('ACTION:CHECK')) {
         action = 'checkout'
-        reply = reply.replace(/ACTION:CHECKOUT/g, '').trim()
+        reply = reply.replace(/ACTION:CHECKOUT/g, '').replace(/ACTION:CHECK/g, '').trim()
     }
+
+    // Double check that any remaining unclosed ACTION or PRODUCT_IDS text is removed
+    reply = reply
+        .replace(/PRODUCT_IDS:\[.*/gi, '')
+        .replace(/ACTION:.*/gi, '')
+        .trim()
 
     return { reply, suggestedProducts, action }
 }
@@ -164,7 +188,7 @@ Be the BEST shopping assistant! 🚀`
                         messages: nvidiaMessages,
                         temperature: 0.7,
                         top_p: 0.9,
-                        max_tokens: 300,   // short = fast = no timeout
+                        max_tokens: 500,   // short = fast = no timeout
                         stream: false,
                     }),
                 })

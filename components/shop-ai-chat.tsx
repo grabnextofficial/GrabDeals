@@ -245,7 +245,9 @@ export function ShopAIChat() {
   const formatText = (text: string) => {
     const clean = text
       .replace(/PRODUCT_IDS:\[[^\]]*\]/g, '')
+      .replace(/PRODUCT_IDS:\[.*/gi, '')
       .replace(/ACTION:(ADD_TO_CART|CHECKOUT)/g, '')
+      .replace(/ACTION:.*/gi, '')
       .trim()
     return clean
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')

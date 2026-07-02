@@ -108,7 +108,13 @@ export default function HomePage() {
                   style={isHex ? { background: b.bgColor } : {}}
                 >
                   {b.imageUrl && (
-                    <img src={b.imageUrl} alt={b.title || "Banner"} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-[1.01]" />
+                    <img 
+                      src={b.imageUrl} 
+                      alt={b.title || "Banner"} 
+                      fetchPriority={i === 0 ? "high" : "low"}
+                      loading={i === 0 ? "eager" : "lazy"}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-[1.01]" 
+                    />
                   )}
                 </Link>
               )

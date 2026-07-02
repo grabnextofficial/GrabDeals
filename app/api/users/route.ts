@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
         }
 
         const users = await executeQuery(
-            'SELECT uid, email, displayName, role, phone, city, country, createdAt, updatedAt FROM users ORDER BY createdAt DESC'
+            'SELECT uid, email, displayName, role, phone, address, city, state, country, isGuest, createdAt, updatedAt FROM users ORDER BY createdAt DESC'
         ) as any[]
 
         return NextResponse.json(Array.isArray(users) ? users : [])
@@ -85,4 +85,3 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }
-

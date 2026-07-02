@@ -616,7 +616,13 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
             </p>
             {/* Adobe Bundle Image */}
             <div className="mx-auto mb-10 rounded-2xl overflow-hidden shadow-2xl" style={{ maxWidth: 1000 }}>
-               <img src="/hero-bundle.png" alt="All Adobe Software Bundle" className="w-full h-auto" />
+               <img 
+                 src="/hero-bundle.png" 
+                 alt="All Adobe Software Bundle" 
+                 fetchPriority="high" 
+                 loading="eager" 
+                 className="w-full h-auto" 
+               />
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
               <button onClick={handleBuyClick} className="hover:-translate-y-0.5 active:translate-y-0 hover:shadow-[0px_10px_25px_rgba(5,255,0,0.4)] transition-all duration-200" style={{ ...BTN_STYLE, fontSize: "clamp(18px,2.8vw,32px)", padding: "16px 48px", width: "min(90%,580px)" }}>

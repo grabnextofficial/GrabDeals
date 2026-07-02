@@ -189,7 +189,13 @@ function HeroSection({ section, product, isBuilder, onChange }: { section: Landi
                     </div>
                     {section.imageUrl && (
                         <div className="flex-1 max-w-sm">
-                            <img src={section.imageUrl} alt={product.title} className="w-full rounded-2xl shadow-2xl object-contain" />
+                            <img 
+                              src={section.imageUrl} 
+                              alt={product.title} 
+                              fetchPriority="high" 
+                              loading="eager" 
+                              className="w-full rounded-2xl shadow-2xl object-contain" 
+                            />
                         </div>
                     )}
                 </div>
