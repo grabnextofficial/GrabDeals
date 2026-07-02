@@ -2,6 +2,7 @@ export const runtime = 'edge'
 import { NextRequest, NextResponse } from 'next/server'
 import { executeQuery } from '@/lib/db'
 import { getSession } from '@/lib/session'
+import { runMigrations } from '../../init/route'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,9 +24,22 @@ export async function GET(request: NextRequest) {
         const auth = await verifyAdmin()
         if (auth.error) return NextResponse.json({ error: auth.error }, { status: auth.status })
 
-        const coupons = await executeQuery(
-            'SELECT * FROM coupons ORDER BY createdAt DESC'
-        ) as any[]
+        let coupons: any[]
+        try {
+            coupons = await executeQuery(
+                'SELECT * FROM coupons ORDER BY createdAt DESC'
+            ) as any[]
+        } catch (dbError: any) {
+            if (dbError.message?.includes('no such table') || dbError.message?.includes('no such column')) {
+                console.log('[Admin Coupons GET] Missing table or column detected. Running migrations...');
+                await runMigrations()
+                coupons = await executeQuery(
+                    'SELECT * FROM coupons ORDER BY createdAt DESC'
+                ) as any[]
+            } else {
+                throw dbError
+            }
+        }
 
         return NextResponse.json(Array.isArray(coupons) ? coupons : [])
     } catch (error: any) {
@@ -56,7 +70,19 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if coupon code already exists
-        const existing = await executeQuery('SELECT code FROM coupons WHERE code = ?', [cleanCode]) as any[]
+        let existing: any[]
+        try {
+            existing = await executeQuery('SELECT code FROM coupons WHERE code = ?', [cleanCode]) as any[]
+        } catch (dbError: any) {
+            if (dbError.message?.includes('no such table')) {
+                console.log('[Admin Coupons POST] Table not found. Running migrations...');
+                await runMigrations()
+                existing = await executeQuery('SELECT code FROM coupons WHERE code = ?', [cleanCode]) as any[]
+            } else {
+                throw dbError
+            }
+        }
+
         if (existing && existing.length > 0) {
             return NextResponse.json({ error: `Coupon code '${cleanCode}' already exists` }, { status: 400 })
         }

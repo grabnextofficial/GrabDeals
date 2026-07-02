@@ -1,6 +1,7 @@
 export const runtime = 'edge'
 import { NextRequest, NextResponse } from 'next/server'
 import { executeQuery } from '@/lib/db'
+import { runMigrations } from '../../init/route'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,8 +21,20 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ valid: false, message: "Invalid cart total" }, { status: 400 })
         }
 
-        // Fetch coupon from D1
-        const coupons = await executeQuery('SELECT * FROM coupons WHERE code = ? LIMIT 1', [cleanCode]) as any[]
+        // Fetch coupon from D1 with self-healing migration fallback
+        let coupons: any[]
+        try {
+            coupons = await executeQuery('SELECT * FROM coupons WHERE code = ? LIMIT 1', [cleanCode]) as any[]
+        } catch (dbError: any) {
+            if (dbError.message?.includes('no such table') || dbError.message?.includes('no such column')) {
+                console.log('[Validate Coupon API] Missing table/column. Running migrations...');
+                await runMigrations()
+                coupons = await executeQuery('SELECT * FROM coupons WHERE code = ? LIMIT 1', [cleanCode]) as any[]
+            } else {
+                throw dbError
+            }
+        }
+
         if (!coupons || coupons.length === 0) {
             return NextResponse.json({ valid: false, message: "Coupon code does not exist" })
         }
