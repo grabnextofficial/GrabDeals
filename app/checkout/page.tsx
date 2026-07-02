@@ -404,41 +404,6 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              {/* Coupon Code Input */}
-              <div className="border-t border-white/10 pt-4 pb-2">
-                <label className="text-xs text-gray-400 font-bold block mb-1.5 uppercase tracking-wider">Discount Code</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Enter Promo Code"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
-                    disabled={!!appliedCoupon || isApplyingCoupon}
-                    className="flex-1 bg-white/5 border border-white/15 rounded px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#FFE600] disabled:bg-white/10 disabled:text-gray-400 uppercase font-mono font-bold"
-                  />
-                  {appliedCoupon ? (
-                    <button 
-                      type="button" 
-                      onClick={handleRemoveCoupon} 
-                      className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-bold transition-colors"
-                    >
-                      Remove
-                    </button>
-                  ) : (
-                    <button 
-                      type="button" 
-                      onClick={handleApplyCoupon} 
-                      disabled={isApplyingCoupon || !couponCode.trim()} 
-                      className="px-4 py-2 bg-yellow-450 hover:bg-yellow-500 text-gray-900 rounded text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isApplyingCoupon ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Apply"}
-                    </button>
-                  )}
-                </div>
-                {couponError && <p className="text-red-400 text-xs mt-1.5 font-semibold">{couponError}</p>}
-                {appliedCoupon && <p className="text-green-400 text-xs mt-1.5 font-semibold">✓ Promo applied successfully!</p>}
-              </div>
-
               <div className="border-t border-white/10 pt-4 space-y-3">
                 <div className="flex justify-between items-center text-sm text-gray-300">
                   <span>Subtotal</span>
@@ -541,6 +506,41 @@ export default function CheckoutPage() {
                         disabled={!!user?.email}
                         className="w-full px-3 py-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200"
                       />
+                    </div>
+
+                    {/* Coupon / Discount Code Block */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 mt-4">
+                      <label className="text-xs font-bold text-gray-700 block uppercase tracking-wider">Discount Code</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Enter Promo Code"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
+                          disabled={!!appliedCoupon || isApplyingCoupon}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm bg-white text-gray-900 placeholder:text-gray-405 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 uppercase font-mono font-bold"
+                        />
+                        {appliedCoupon ? (
+                          <button 
+                            type="button" 
+                            onClick={handleRemoveCoupon} 
+                            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-bold transition-colors"
+                          >
+                            Remove
+                          </button>
+                        ) : (
+                          <button 
+                            type="button" 
+                            onClick={handleApplyCoupon} 
+                            disabled={isApplyingCoupon || !couponCode.trim()} 
+                            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-bold transition-colors disabled:opacity-50"
+                          >
+                            {isApplyingCoupon ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Apply"}
+                          </button>
+                        )}
+                      </div>
+                      {couponError && <p className="text-red-500 text-xs mt-1 font-semibold">{couponError}</p>}
+                      {appliedCoupon && <p className="text-emerald-600 text-xs mt-1 font-semibold">✓ Coupon Applied! Discount of {formatPrice(appliedCoupon.discountAmount)} has been deducted.</p>}
                     </div>
 
                     <div className="pt-2">
