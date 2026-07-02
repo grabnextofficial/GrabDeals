@@ -2,6 +2,7 @@ export const runtime = 'edge'
 import { NextRequest, NextResponse } from 'next/server'
 import { executeQuery } from '@/lib/db'
 import { getSession } from '@/lib/session'
+import { runMigrations } from '../init/route'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,9 +20,23 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
         }
 
-        const users = await executeQuery(
-            'SELECT uid, email, displayName, role, phone, address, city, state, country, isGuest, createdAt, updatedAt FROM users ORDER BY createdAt DESC'
-        ) as any[]
+        let users: any[]
+        try {
+            users = await executeQuery(
+                'SELECT uid, email, displayName, role, phone, address, city, state, country, isGuest, createdAt, updatedAt FROM users ORDER BY createdAt DESC'
+            ) as any[]
+        } catch (dbError: any) {
+            if (dbError.message?.includes('no such column')) {
+                console.log('[Users API] Missing column detected. Triggering database migration upgrade...');
+                await runMigrations()
+                // Retry query
+                users = await executeQuery(
+                    'SELECT uid, email, displayName, role, phone, address, city, state, country, isGuest, createdAt, updatedAt FROM users ORDER BY createdAt DESC'
+                ) as any[]
+            } else {
+                throw dbError
+            }
+        }
 
         return NextResponse.json(Array.isArray(users) ? users : [])
     } catch (error: any) {
