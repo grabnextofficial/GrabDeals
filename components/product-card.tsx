@@ -120,7 +120,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Content */}
         <CardContent className="p-3 flex-1 flex flex-col gap-1">
-          <h3 className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 text-sm leading-snug">
+          <h3 className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 text-sm leading-snug whitespace-pre-line">
             {product.title}
           </h3>
 

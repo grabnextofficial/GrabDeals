@@ -62,7 +62,7 @@ export default function CartPage() {
                         <div className="flex-1 space-y-4">
                           <div className="flex items-start justify-between">
                             <div className="space-y-1">
-                              <h3 className="font-semibold text-lg">{item.product.title}</h3>
+                              <h3 className="font-semibold text-lg whitespace-pre-line">{item.product.title}</h3>
                               <p className="text-muted-foreground text-sm line-clamp-2">{item.product.description}</p>
                               <p className="text-primary font-semibold text-lg">{formatPrice(item.product.price)}</p>
                             </div>

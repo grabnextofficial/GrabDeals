@@ -191,7 +191,7 @@ function ProductForm({
 
       <div>
         <Label>Title *</Label>
-        <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+        <Textarea value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required rows={2} />
       </div>
 
       <div>
@@ -497,7 +497,7 @@ export default function ProductsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="font-medium max-w-xs">
-                    <span className="line-clamp-2">{product.title}</span>
+                    <span className="line-clamp-2 whitespace-pre-line">{product.title}</span>
                   </TableCell>
                   <TableCell className="capitalize">{product.category}</TableCell>
                   <TableCell>₹{product.price.toLocaleString("en-IN")}</TableCell>

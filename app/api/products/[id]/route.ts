@@ -40,7 +40,14 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   try {
     const data = await request.json()
     const now = Date.now()
-    const slug = makeSlug(data.title || 'product') + '-' + params.id.slice(0, 6)
+    
+    // Fetch the existing product's slug to ensure it doesn't change
+    const existing = await executeQuery('SELECT slug FROM products WHERE id = ? LIMIT 1', [params.id])
+    let slug = existing && existing[0]?.slug
+    if (!slug) {
+      slug = makeSlug(data.title || 'product') + '-' + params.id.slice(0, 6)
+    }
+
     const images = data.images && data.images.length > 0 ? data.images : (data.imageUrl ? [data.imageUrl] : [])
     const imageUrl = images[0] || data.imageUrl || ''
 

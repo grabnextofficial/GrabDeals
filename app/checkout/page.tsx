@@ -389,7 +389,7 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-white text-base md:text-lg truncate hover:text-[#FFE600] transition-colors">
+                      <h4 className="font-bold text-white text-base md:text-lg hover:text-[#FFE600] transition-colors whitespace-pre-line">
                         {item.product.title}
                       </h4>
                       <p className="text-gray-400 text-xs mt-1">
@@ -577,7 +577,7 @@ export default function CheckoutPage() {
                                className="w-10 h-10 object-cover rounded bg-white border border-gray-200 flex-shrink-0"
                              />
                              <div className="flex-1 min-w-0">
-                               <h5 className="font-semibold text-gray-800 truncate text-xs">{item.product.title}</h5>
+                               <h5 className="font-semibold text-gray-800 text-xs whitespace-pre-line">{item.product.title}</h5>
                                <p className="text-gray-500 text-[10px]">Qty: {item.quantity} × {formatPrice(item.product.price)}</p>
                              </div>
                              <span className="font-bold text-gray-900 text-xs">{formatPrice(item.product.price * item.quantity)}</span>

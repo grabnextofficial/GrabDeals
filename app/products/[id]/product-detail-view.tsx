@@ -239,7 +239,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                 <span className="inline-block text-[11px] capitalize text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded-full mb-2">
                                     {product.category}
                                 </span>
-                                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white leading-snug">
+                                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white leading-snug whitespace-pre-line">
                                     {product.title}
                                 </h1>
                             </div>

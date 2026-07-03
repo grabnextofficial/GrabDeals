@@ -208,12 +208,12 @@ function OrderRow({ order, onStatusChange }: { order: any; onStatusChange: (id: 
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         {item.id ? (
-                          <Link href={`/products/${item.id}`} target="_blank" className="font-semibold text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-1 group line-clamp-2">
+                          <Link href={`/products/${item.id}`} target="_blank" className="font-semibold text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-1 group line-clamp-2 whitespace-pre-line">
                             {item.title}
                             <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 shrink-0" />
                           </Link>
                         ) : (
-                          <p className="font-semibold text-gray-800 line-clamp-2">{item.title}</p>
+                          <p className="font-semibold text-gray-800 line-clamp-2 whitespace-pre-line">{item.title}</p>
                         )}
                         <p className="text-xs text-gray-500 mt-0.5">
                           Qty: {item.quantity} × ₹{Number(item.price).toLocaleString("en-IN")}

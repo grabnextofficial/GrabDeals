@@ -74,7 +74,7 @@ export function CartDrawer({ children }: CartDrawerProps) {
                     />
                     <div className="flex-1 space-y-2">
                       <div className="flex items-start justify-between">
-                        <h4 className="font-medium text-sm line-clamp-2 hover:text-primary transition-colors duration-300">
+                        <h4 className="font-medium text-sm line-clamp-2 hover:text-primary transition-colors duration-300 whitespace-pre-line">
                           {item.product.title}
                         </h4>
                         <Button

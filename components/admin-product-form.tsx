@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { RichTextEditor } from "@/components/rich-text-editor"
@@ -223,11 +224,11 @@ export function AdminProductForm({ mode, productId }: ProductFormProps) {
                                 <div className="space-y-4">
                                     <div>
                                         <Label>Product Title *</Label>
-                                        <Input
+                                        <Textarea
                                             value={form.title}
                                             onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                                             placeholder="e.g. Samsung Galaxy S24 Ultra 256GB"
-                                            className="mt-1.5 text-base h-11 border-gray-200 focus:ring-primary/20 transition-all"
+                                            className="mt-1.5 text-base min-h-[80px] border-gray-200 focus:ring-primary/20 transition-all"
                                             required
                                         />
                                         {form.title && (
