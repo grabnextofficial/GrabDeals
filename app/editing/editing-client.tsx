@@ -2,10 +2,23 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useCart } from "@/contexts/cart-context"
 import { ChevronDown, MessageSquare, ShieldCheck, CheckCircle2, Play, Volume2, VolumeX } from "lucide-react"
 
-// Product link
-const PRODUCT_LINK = "/products/mega-video-editing-bundle-the-ultimate-toolkit-for-creators-cf1b23"
+// Fallback product info in case API fetch takes time or isn't loaded yet
+const FALLBACK_PRODUCT = {
+  id: "mega-video-editing-bundle-the-ultimate-toolkit-for-creators-cf1b23",
+  title: "Video Editing Assets Bundle",
+  price: 149,
+  category: "digital",
+  tags: ["digital", "bundle"],
+  imageUrl: "https://wbveb.idigitalcampus.com/wp-content/uploads/2025/02/hero1.webp",
+  downloadUrl: "[]",
+  isActive: true,
+  salesCount: 100,
+  createdBy: "admin"
+}
 
 // WhatsApp link
 const WHATSAPP_LINK = "https://wa.me/917500167987?text=Hi%20GrabNext,%20I%20have%2520a%2520query%2520regarding%2520the%2520Video%2520Editing%2520Bundle"
@@ -21,6 +34,10 @@ interface NotificationState {
 }
 
 export function EditingLandingPageClient() {
+  const router = useRouter()
+  const { addToCart, clearCart } = useCart()
+  const [product, setProduct] = useState<any>(null)
+
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
   const [notification, setNotification] = useState<NotificationState>({
     name: "Rohit",
@@ -30,6 +47,42 @@ export function EditingLandingPageClient() {
   
   // Video player controls
   const [isMuted, setIsMuted] = useState(true)
+
+  // Prefetch product by slug on mount
+  useEffect(() => {
+    fetch("/api/products/mega-video-editing-bundle-the-ultimate-toolkit-for-creators-cf1b23")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.id) {
+          setProduct(data)
+        }
+      })
+      .catch(err => console.error("Prefetch product failed", err))
+  }, [])
+
+  // Handle direct checkout (add to cart & redirect)
+  const handlePurchase = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const targetProduct = product || FALLBACK_PRODUCT
+    clearCart()
+    addToCart(targetProduct)
+    
+    // Track Meta Pixel AddToCart event
+    try {
+      import("@/lib/pixel").then(({ trackAddToCart }) => {
+        trackAddToCart({
+          content_name: targetProduct.title,
+          content_ids: [targetProduct.id],
+          contents: [{ id: targetProduct.id, quantity: 1, item_price: targetProduct.price }],
+          value: targetProduct.price,
+        })
+      })
+    } catch (err) {
+      console.error("Pixel tracking error:", err)
+    }
+
+    router.push("/checkout")
+  }
 
   // Carousel of buyer notifications
   useEffect(() => {
@@ -132,11 +185,12 @@ export function EditingLandingPageClient() {
       {/* TOP ANNOUNCEMENT BANNER */}
       <div className="bg-gradient-to-r from-violet-950 via-indigo-900 to-violet-950 border-b border-violet-850/50 py-3 text-center px-4 relative z-30">
         <a 
-          href={PRODUCT_LINK} 
+          onClick={handlePurchase}
+          href="/checkout"
           className="text-xs sm:text-sm font-semibold tracking-wide hover:underline inline-flex items-center gap-2 group text-violet-200"
         >
           <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span>You asked, we listened. Get Lifetime Access now at just <del className="text-slate-450 mr-1">₹2,999</del> <strong className="text-white text-base">₹199</strong>. Offer extended for 48 Hours only! <span className="group-hover:translate-x-1 inline-block transition-transform">HURRY UP! ⚡</span></span>
+          <span>You asked, we listened. Get Lifetime Access now at just <del className="text-slate-450 mr-1">₹2,999</del> <strong className="text-white text-base">₹149</strong>. Offer extended for 24 Hours only! <span className="group-hover:translate-x-1 inline-block transition-transform">HURRY UP! ⚡</span></span>
         </a>
       </div>
 
@@ -148,17 +202,17 @@ export function EditingLandingPageClient() {
 
         <div className="space-y-6">
           <p className="text-violet-400 font-extrabold uppercase tracking-widest text-xs md:text-sm">
-            🔥 Ultimate Creator Toolkit
+            🔥 Ultimate Creator Cheat-Code
           </p>
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight max-w-4xl mx-auto">
-            Are you a passionate Video Editor? or aspiring to become one? then you&apos;re at the right place.
-            <span className="block mt-4 bg-gradient-to-r from-violet-400 via-fuchsia-300 to-cyan-400 bg-clip-text text-transparent text-neon-glow">
-              Introducing: GrabNext Video Editing Bundle!
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight max-w-5xl mx-auto">
+            Stop Spending Hours Editing From Scratch & <span className="bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent text-cyan-glow">Cut Your Editing Time By 90%!</span>
+            <span className="block mt-4 bg-gradient-to-r from-violet-400 via-fuchsia-300 to-cyan-400 bg-clip-text text-transparent text-neon-glow text-2xl md:text-4xl lg:text-5xl">
+              Introducing: GrabNext World&apos;s Biggest Video Editing Bundle!
             </span>
           </h1>
 
           <p className="text-slate-400 text-sm md:text-lg max-w-3xl mx-auto leading-relaxed font-light">
-            Get over <strong className="text-white font-bold">70 GB</strong> of video editing assets, including transitions, overlays, fonts, LUTs, FX, premade templates, which are compatible with software like Premiere Pro, After Effects, DaVinci, Filmora etc. On top of that, get a full-fledged video editing course to get you started.
+            Get over <strong className="text-white font-bold">70 GB</strong> of video editing assets: transitions, overlays, fonts, LUTs, FX, and premade templates. Compatible with Premiere Pro, After Effects, DaVinci, Filmora etc. Plus a complete masterclass to get you started!
           </p>
 
           {/* Value Tags */}
@@ -177,16 +231,17 @@ export function EditingLandingPageClient() {
           {/* MAIN HERO CTA BUTTON */}
           <div className="pt-6 pb-4">
             <a 
-              href={PRODUCT_LINK} 
+              onClick={handlePurchase}
+              href="/checkout"
               className="neon-pulse-btn inline-flex items-center gap-3 px-8 py-4 sm:px-10 sm:py-5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-black text-base sm:text-lg rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-violet-550/30 group"
             >
               <svg aria-hidden="true" className="h-5 w-5 fill-current text-white animate-bounce" viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg">
                 <path d="M302.189 329.126H196.105l55.831 135.993c3.889 9.428-.555 19.999-9.444 23.999l-49.165 21.427c-9.165 4-19.443-.571-23.332-9.714l-53.053-129.136-86.664 89.138C18.729 472.71 0 463.554 0 447.977V18.299C0 1.899 19.921-6.096 30.277 5.443l284.412 292.542c11.472 11.179 3.007 31.141-12.5 31.141z"></path>
               </svg>
-              <span>⚡ GET EVERYTHING AT JUST ₹199</span>
+              <span>⚡ GET EVERYTHING AT JUST ₹149</span>
             </a>
             <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mt-3">
-              *Price will change back to ₹2,999 once timer expires
+              *Price will change back to ₹2,999 once the 24-hour offer ends
             </p>
           </div>
         </div>
@@ -278,7 +333,8 @@ export function EditingLandingPageClient() {
 
           <div className="pt-10">
             <a 
-              href={PRODUCT_LINK} 
+              onClick={handlePurchase}
+              href="/checkout"
               className="inline-flex items-center gap-2 text-violet-400 hover:text-violet-300 font-extrabold text-sm border-b border-violet-500/30 hover:border-violet-400 pb-1 transition-all"
             >
               ⚡ Speed Up Your Editing Workflow Today →
@@ -329,13 +385,14 @@ export function EditingLandingPageClient() {
         {/* SECTION CTA */}
         <div className="mt-16 text-center">
           <a 
-            href={PRODUCT_LINK} 
+            onClick={handlePurchase}
+            href="/checkout"
             className="neon-pulse-btn inline-flex items-center gap-3 px-8 py-4 sm:px-10 sm:py-5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-black text-base sm:text-lg rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg group"
           >
             <svg aria-hidden="true" className="h-5 w-5 fill-current text-white animate-bounce" viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg">
               <path d="M302.189 329.126H196.105l55.831 135.993c3.889 9.428-.555 19.999-9.444 23.999l-49.165 21.427c-9.165 4-19.443-.571-23.332-9.714l-53.053-129.136-86.664 89.138C18.729 472.71 0 463.554 0 447.977V18.299C0 1.899 19.921-6.096 30.277 5.443l284.412 292.542c11.472 11.179 3.007 31.141-12.5 31.141z"></path>
             </svg>
-            <span>⚡ GET INSTANT DOWNLOAD ACCESS FOR ₹199</span>
+            <span>⚡ GET INSTANT DOWNLOAD ACCESS FOR ₹149</span>
           </a>
         </div>
       </section>
@@ -402,13 +459,14 @@ export function EditingLandingPageClient() {
 
         <div className="mt-16 text-center">
           <a 
-            href={PRODUCT_LINK} 
+            onClick={handlePurchase}
+            href="/checkout"
             className="neon-pulse-btn inline-flex items-center gap-3 px-8 py-4 sm:px-10 sm:py-5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-black text-base sm:text-lg rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg group"
           >
             <svg aria-hidden="true" className="h-5 w-5 fill-current text-white animate-bounce" viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg">
               <path d="M302.189 329.126H196.105l55.831 135.993c3.889 9.428-.555 19.999-9.444 23.999l-49.165 21.427c-9.165 4-19.443-.571-23.332-9.714l-53.053-129.136-86.664 89.138C18.729 472.71 0 463.554 0 447.977V18.299C0 1.899 19.921-6.096 30.277 5.443l284.412 292.542c11.472 11.179 3.007 31.141-12.5 31.141z"></path>
             </svg>
-            <span>⚡ CLAIM YOUR LIFETIME ACCESS AT ₹199</span>
+            <span>⚡ CLAIM YOUR LIFETIME ACCESS AT ₹149</span>
           </a>
         </div>
       </section>
@@ -438,7 +496,7 @@ export function EditingLandingPageClient() {
                 />
               </div>
               <span className="px-3 py-1 bg-violet-900/50 text-violet-300 font-black rounded-lg text-xs tracking-wider">STEP 01</span>
-              <h3 className="font-bold text-slate-200">Click &ldquo;Get Everything at ₹199&rdquo; Button</h3>
+              <h3 className="font-bold text-slate-200">Click &ldquo;Get Everything at ₹149&rdquo; Button</h3>
               <p className="text-xs text-slate-450 leading-relaxed">
                 You will be redirected to the GrabNext secure product details checkout page.
               </p>
@@ -486,13 +544,14 @@ export function EditingLandingPageClient() {
             
             <div>
               <a 
-                href={PRODUCT_LINK} 
+                onClick={handlePurchase}
+                href="/checkout"
                 className="neon-pulse-btn inline-flex items-center gap-3 px-8 py-4 sm:px-10 sm:py-5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-black text-base sm:text-lg rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg group"
               >
                 <svg aria-hidden="true" className="h-5 w-5 fill-current text-white animate-bounce" viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg">
                   <path d="M302.189 329.126H196.105l55.831 135.993c3.889 9.428-.555 19.999-9.444 23.999l-49.165 21.427c-9.165 4-19.443-.571-23.332-9.714l-53.053-129.136-86.664 89.138C18.729 472.71 0 463.554 0 447.977V18.299C0 1.899 19.921-6.096 30.277 5.443l284.412 292.542c11.472 11.179 3.007 31.141-12.5 31.141z"></path>
                 </svg>
-                <span>⚡ DOWNLOAD INSTANTLY FOR JUST ₹199</span>
+                <span>⚡ DOWNLOAD INSTANTLY FOR JUST ₹149</span>
               </a>
             </div>
           </div>
@@ -605,10 +664,11 @@ export function EditingLandingPageClient() {
       <div className="md:hidden fixed bottom-0 inset-x-0 bg-slate-950/80 backdrop-blur-md border-t border-slate-900 p-3 z-45 flex items-center justify-between gap-3">
         <div className="flex flex-col">
           <span className="text-[9px] text-violet-400 font-bold uppercase tracking-widest leading-none">Limited Offer</span>
-          <span className="text-sm font-black text-white leading-tight">₹199 <del className="text-[10px] font-semibold text-slate-500 ml-1">₹2,999</del></span>
+          <span className="text-sm font-black text-white leading-tight">₹149 <del className="text-[10px] font-semibold text-slate-500 ml-1">₹2,999</del></span>
         </div>
         <a 
-          href={PRODUCT_LINK}
+          onClick={handlePurchase}
+          href="/checkout"
           className="flex-1 py-3 px-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs font-black rounded-lg text-center shadow-lg active:scale-95 transition-all flex items-center justify-center gap-1.5"
         >
           <span>⚡ GET INSTANT DOWNLOAD</span>
