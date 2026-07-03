@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { ChevronDown, MessageSquare, ShieldCheck, CheckCircle2, Play, Volume2, VolumeX } from "lucide-react"
 
 // Product link
 const PRODUCT_LINK = "/products/mega-video-editing-bundle-the-ultimate-toolkit-for-creators-cf1b23"
 
 // WhatsApp link
-const WHATSAPP_LINK = "https://wa.me/919392347306?text=Hi%20GrabNext,%20I%20have%2520a%2520query%2520regarding%2520the%2520Video%2520Editing%2520Bundle"
+const WHATSAPP_LINK = "https://wa.me/917500167987?text=Hi%20GrabNext,%20I%20have%2520a%2520query%2520regarding%2520the%2520Video%2520Editing%2520Bundle"
 
 // Mock Indian purchase popups (Herd Effect)
 const BUYER_NAMES = ["Rohit", "Karan", "Anil", "Vishal", "Manish", "Deepak", "Suresh", "Tarun", "Aditya", "Ramesh", "Karthik", "Arjun", "Chetan", "Shibin", "Altaf", "Naman", "Priya", "Pooja", "Soumya", "Kirti"]
@@ -104,8 +105,8 @@ export function EditingLandingPageClient() {
     { q: "Can I use these assets for commercial projects?", a: "Yes, the assets are royalty-free and can be used for personal and commercial projects." },
     { q: "Do I need any prior experience in video editing?", a: "No, the bundle is designed for both beginners and experienced editors. The included tutorials will help you get started." },
     { q: "Is this bundle compatible with all video editing software?", a: "Most of the assets in the bundle are compatible with all major video editing software. However, some elements are specifically designed for Adobe software like Premiere Pro and After Effects. If your software supports standard formats like MOGRT, LUTs, CUBE, overlays, and sound effects, you should have no issues using them." },
-    { q: "I got access, but I missed the link. Where can I find it?", a: "You would have received the email with the access as soon as your order is complete. Kindly check your Inbox. If you still don't find it, just share your details with our WhatsApp support team and request the link: https://wa.me/919392347306" },
-    { q: "What should I do if I ever need assistance?", a: "If you encounter any issues, you can contact customer support on support@idigitalcampus.com (or) WhatsApp: https://wa.me/919392347306" },
+    { q: "I got access, but I missed the link. Where can I find it?", a: "You would have received the email with the access as soon as your order is complete. Kindly check your Inbox. If you still don't find it, just share your details with our WhatsApp support team and request the link: https://wa.me/917500167987" },
+    { q: "What should I do if I ever need assistance?", a: "If you encounter any issues, you can contact customer support on support@idigitalcampus.com (or) WhatsApp: https://wa.me/917500167987" },
   ]
 
   return (
