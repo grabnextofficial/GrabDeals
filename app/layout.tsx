@@ -91,6 +91,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${GeistSans.variable}`}>
       <head>
+        <meta name="google-adsense-account" content="ca-pub-4010815088153941" />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-C3HYF0VYC0"></script>
         <script
           dangerouslySetInnerHTML={{
