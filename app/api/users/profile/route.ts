@@ -1,20 +1,14 @@
 export const runtime = 'edge'
 import { NextRequest, NextResponse } from 'next/server'
 import { executeQuery } from '@/lib/db'
-import { cookies } from 'next/headers'
-import { jwtVerify } from 'jose'
+import { getSession } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
 async function getUserIdFromCookie(): Promise<string | null> {
     try {
-        const cookieStore = await cookies()
-        const token = cookieStore.get('auth-token')?.value
-        if (!token) return null
-
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'grabdeals-local-dev-secret-key-change-in-production')
-        const { payload } = await jwtVerify(token, secret)
-        return (payload as any).uid || null
+        const session = await getSession()
+        return session?.uid || null
     } catch {
         return null
     }
