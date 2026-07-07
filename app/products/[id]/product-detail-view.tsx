@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
     Star, Zap, Shield,
-    Heart, Share2, Loader2, X, ChevronLeft, ChevronRight, Clock, CheckCircle2
+    Heart, Share2, Loader2, X, ChevronLeft, ChevronRight, Clock, CheckCircle2, ShoppingCart
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -93,8 +93,9 @@ function RatingBar({ label, count, total }: { label: string; count: number; tota
 
 export function ProductDetailView({ product: initialProduct, id }: { product: Product; id: string }) {
     const router = useRouter()
-    const { addToCart } = useCart()
+    const { items, addToCart } = useCart()
     const { user } = useAuth()
+    const added = items.some((item) => item.productId === (initialProduct.id || id))
 
     const [product] = useState<Product>(initialProduct)
     const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
@@ -264,15 +265,31 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                         {discount}% off
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">Inclusive of all taxes. Instant Delivery.</p>
+                                <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">Inclusive of all taxes. Fast Shipping • In Stock.</p>
                             </div>
 
-                            {/* ── BUY NOW BUTTON ── */}
-                            <div className="mt-1">
+                            {/* ── ACTION BUTTONS ── */}
+                            <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                                <button
+                                    onClick={() => {
+                                        addToCart(product)
+                                        trackAddToCart({
+                                            content_name: product.title,
+                                            content_ids: [product.id || id],
+                                            contents: [{ id: product.id || id, quantity: 1, item_price: product.price }],
+                                            value: product.price,
+                                        })
+                                        toast({ title: "Added to Cart!", description: `${product.title} is now in your cart.` })
+                                    }}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-base transition-all active:scale-[0.98] ${added ? "bg-green-600 hover:bg-green-700 text-white border border-green-600" : "bg-white dark:bg-slate-900 border border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10"}`}
+                                >
+                                    <ShoppingCart className="h-5 w-5 shrink-0" />
+                                    {added ? "Added ✓" : "Add to Cart"}
+                                </button>
                                 <button
                                     id="buy-now-btn"
                                     disabled={buyingNow}
-                                    className="w-full flex items-center justify-center gap-2 h-13 py-3.5 rounded-xl font-bold text-base text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-red-600 shadow-md shadow-orange-200 dark:shadow-none transition-all duration-200 active:scale-[0.98] disabled:opacity-70"
+                                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-base text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-red-600 shadow-md shadow-orange-200 dark:shadow-none transition-all duration-200 active:scale-[0.98] disabled:opacity-70"
                                     onClick={() => {
                                         setBuyingNow(true)
                                         addToCart(product)
@@ -286,7 +303,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                     }}
                                 >
                                     <Zap className="h-5 w-5 shrink-0" />
-                                    {buyingNow ? "Redirecting..." : "Pay and Download"}
+                                    {buyingNow ? "Redirecting..." : "Buy Now"}
                                 </button>
                             </div>
 
@@ -438,8 +455,8 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                         <div className="flex gap-3 p-4 rounded-xl bg-blue-50/40 dark:bg-blue-950/10 border border-blue-100/50 dark:border-blue-900/30 hover:bg-blue-50/60 dark:hover:bg-blue-950/20 transition-colors">
                                             <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                                             <div>
-                                                <p className="font-semibold text-sm text-gray-900 dark:text-white">Instant Access</p>
-                                                <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Your files are ready to download immediately after completing the payment.</p>
+                                                <p className="font-semibold text-sm text-gray-900 dark:text-white">Fast Shipping</p>
+                                                <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">We dispatch your order within 24-48 hours with reliable courier tracking.</p>
                                             </div>
                                         </div>
                                         <div className="flex gap-3 p-4 rounded-xl bg-green-50/40 dark:bg-green-950/10 border border-green-100/50 dark:border-green-900/30 hover:bg-green-50/60 dark:hover:bg-green-950/20 transition-colors">

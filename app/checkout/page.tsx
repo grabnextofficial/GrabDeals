@@ -72,6 +72,11 @@ export default function CheckoutPage() {
     firstName: "",
     lastName: "",
     phone: "",
+    streetAddress: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "India",
   })
 
   useEffect(() => {
@@ -124,6 +129,11 @@ export default function CheckoutPage() {
         firstName: user.displayName?.split(" ")[0] || "",
         lastName: user.displayName?.split(" ").slice(1).join(" ") || "",
         phone: (user as any).phone || "",
+        streetAddress: (user as any).address || "",
+        city: (user as any).city || "",
+        state: (user as any).state || "",
+        zipCode: (user as any).zipCode || "",
+        country: (user as any).country || "India",
       }))
     }
   }, [user])
@@ -262,6 +272,9 @@ export default function CheckoutPage() {
     e.preventDefault()
     if (items.length === 0) return toast({ title: "Cart is empty", variant: "destructive" })
     if (!formData.email) return toast({ title: "Email required", variant: "destructive" })
+    if (!formData.streetAddress || !formData.city || !formData.state || !formData.zipCode) {
+      return toast({ title: "Shipping details required", description: "Please fill in all shipping address fields.", variant: "destructive" })
+    }
     
     setLoading(true)
     try {
@@ -285,6 +298,13 @@ export default function CheckoutPage() {
           totalAmount: finalAmount,
           couponCode: appliedCoupon?.code || null,
           discountAmount: appliedCoupon?.discountAmount || 0,
+          shippingAddress: JSON.stringify({
+            streetAddress: formData.streetAddress,
+            city: formData.city,
+            state: formData.state,
+            zipCode: formData.zipCode,
+            country: formData.country,
+          }),
           status: "pending",
         }),
       })
@@ -433,7 +453,7 @@ export default function CheckoutPage() {
               
               {/* YELLOW BANNER */}
               <div className="bg-[#FFF000] text-black text-center py-4 font-bold text-lg relative z-10">
-                Complete your order for instant access!
+                Complete your shipping and contact details!
                 {/* CSS Triangle */}
                 <div className="absolute -bottom-[10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[12px] border-t-[#FFF000]"></div>
               </div>
@@ -443,8 +463,8 @@ export default function CheckoutPage() {
                 <div className={`flex-1 flex items-center justify-center py-4 px-2 gap-3 transition-colors ${checkoutStep === 1 ? 'bg-white' : 'bg-gray-50'}`}>
                   <span className={`text-2xl font-black ${checkoutStep === 1 ? 'text-gray-900' : 'text-gray-400'}`}>1</span>
                   <div className="flex flex-col">
-                    <span className={`text-sm font-bold ${checkoutStep === 1 ? 'text-gray-900' : 'text-gray-400'}`}>Contact</span>
-                    <span className="text-[11px] text-gray-500">Your Contact Info</span>
+                    <span className={`text-sm font-bold ${checkoutStep === 1 ? 'text-gray-900' : 'text-gray-400'}`}>Details</span>
+                    <span className="text-[11px] text-gray-500">Contact & Shipping</span>
                   </div>
                 </div>
                 <div className={`flex-1 flex items-center justify-center py-4 px-2 gap-3 border-l border-gray-200 transition-colors ${checkoutStep === 2 ? 'bg-white' : 'bg-gray-50'}`}>
@@ -506,6 +526,69 @@ export default function CheckoutPage() {
                         disabled={!!user?.email}
                         className="w-full px-3 py-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200"
                       />
+                    </div>
+
+                    {/* Shipping Address Section */}
+                    <div className="space-y-4 pt-4 border-t border-gray-100">
+                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Shipping Address</h4>
+                      
+                      <div className="space-y-1.5">
+                        <label className="text-sm text-gray-700 font-medium">Street Address <span className="text-red-500">*</span></label>
+                        <input
+                          name="streetAddress"
+                          value={formData.streetAddress}
+                          onChange={handleInputChange}
+                          placeholder="House No, Apartment, Street name"
+                          required
+                          className="w-full px-3 py-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                          <label className="text-sm text-gray-700 font-medium">City <span className="text-red-500">*</span></label>
+                          <input
+                            name="city"
+                            value={formData.city}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full px-3 py-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-sm text-gray-700 font-medium">State <span className="text-red-500">*</span></label>
+                          <input
+                            name="state"
+                            value={formData.state}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full px-3 py-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                          <label className="text-sm text-gray-700 font-medium">Pincode / ZIP <span className="text-red-500">*</span></label>
+                          <input
+                            name="zipCode"
+                            value={formData.zipCode}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full px-3 py-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-sm text-gray-700 font-medium">Country <span className="text-red-500">*</span></label>
+                          <input
+                            name="country"
+                            value={formData.country}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full px-3 py-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 transition-colors"
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     {/* Coupon / Discount Code Block */}

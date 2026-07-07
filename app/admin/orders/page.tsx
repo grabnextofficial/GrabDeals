@@ -147,6 +147,24 @@ function OrderRow({ order, onStatusChange }: { order: any; onStatusChange: (id: 
                     <span className="font-mono bg-gray-100 px-2 py-0.5 rounded">User ID: {order.userId}</span>
                   </p>
                 )}
+                {order.shippingAddress && (
+                  <div className="flex items-start gap-2 text-gray-700 border-t border-gray-100 pt-2 mt-2">
+                    <MapPin className="h-3.5 w-3.5 text-gray-400 shrink-0 mt-0.5" />
+                    <div className="text-xs">
+                      <strong>Shipping Address:</strong>
+                      <p className="text-gray-600 mt-1">
+                        {(() => {
+                          try {
+                            const addr = JSON.parse(order.shippingAddress)
+                            return `${addr.streetAddress}, ${addr.city}, ${addr.state} - ${addr.zipCode}, ${addr.country}`
+                          } catch {
+                            return order.shippingAddress
+                          }
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -215,11 +233,8 @@ function OrderRow({ order, onStatusChange }: { order: any; onStatusChange: (id: 
                         ) : (
                           <p className="font-semibold text-gray-800 line-clamp-2 whitespace-pre-line">{item.title}</p>
                         )}
-                        <p className="text-xs text-gray-500 mt-0.5">
+                         <p className="text-xs text-gray-500 mt-0.5">
                           Qty: {item.quantity} × ₹{Number(item.price).toLocaleString("en-IN")}
-                          {item.downloadUrl && (
-                            <span className="ml-2 text-blue-600 font-semibold">• Digital</span>
-                          )}
                         </p>
                         {item.id && (
                           <p className="text-xs text-gray-400 font-mono mt-0.5">ID: {item.id}</p>
@@ -229,37 +244,6 @@ function OrderRow({ order, onStatusChange }: { order: any; onStatusChange: (id: 
                         ₹{(item.price * item.quantity).toLocaleString("en-IN")}
                       </p>
                     </div>
-                    {item.downloadUrl && (
-                      <div className="flex flex-col gap-2 mt-3 border-t border-gray-100 pt-3">
-                        {(() => {
-                          let assets: any[] = []
-                          try { assets = JSON.parse(item.downloadUrl) }
-                          catch { assets = [{ id: 'legacy', name: item.title, type: 'file', provider: 'external', url: item.downloadUrl }] }
-                          const pId = item.productId || item.id
-
-                          return assets.map((asset: any) => {
-                            const isLegacy = asset.id === 'legacy'
-                            const secureUrl = isLegacy ? asset.url : `/api/user/secure-asset?productId=${pId}&assetId=${asset.id}`
-                            return (
-                              <div key={asset.id} className="flex items-center justify-between bg-blue-50/50 p-2 rounded border border-blue-100/50">
-                                <span className="text-xs font-medium text-blue-900 line-clamp-1 flex-1 pr-2">{asset.name}</span>
-                                <div className="flex gap-2 shrink-0">
-                                  {asset.type !== 'link' && <DigitalProductViewer assetUrl={secureUrl} title={asset.name} type={asset.type} />}
-                                  <a
-                                    href={secureUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 px-3 py-1.5 rounded-lg transition-all shadow-sm"
-                                  >
-                                    <Download className="h-3.5 w-3.5" /> Download
-                                  </a>
-                                </div>
-                              </div>
-                            )
-                          })
-                        })()}
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}
