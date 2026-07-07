@@ -6,7 +6,8 @@ import { signInWithEmail, ADMIN_EMAIL } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
-import { Eye, EyeOff, Loader2, LogIn, ShoppingBag } from "lucide-react"
+import Image from "next/image"
+import { Eye, EyeOff, Loader2, LogIn } from "lucide-react"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -41,38 +42,44 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-4">
-      {/* Background pattern */}
+    <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-slate-950 p-4">
+      {/* Background Animated Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
+        <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-blue-600/30 blur-[100px] animate-blob" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-orange-600/20 blur-[120px] animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-20 -right-20 w-96 h-96 rounded-full bg-purple-600/30 blur-[100px] animate-blob animation-delay-4000" />
       </div>
 
-      <div className="relative w-full max-w-md">
-        {/* Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
-          {/* Logo */}
+      <div className="relative w-full max-w-md animate-in fade-in zoom-in-95 duration-500">
+        {/* Glassmorphic Card */}
+        <div className="backdrop-blur-xl bg-white/10 dark:bg-slate-900/60 border border-white/20 dark:border-slate-800/40 shadow-2xl rounded-3xl p-8 md:p-10 transition-all duration-300">
+          
+          {/* Logo / Header */}
           <div className="flex flex-col items-center mb-8">
-            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg mb-4">
-              <ShoppingBag className="h-8 w-8 text-white" />
+            <div className="relative w-44 h-20 mb-3 flex items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="GrabDeals Logo"
+                fill
+                sizes="(max-width: 768px) 100vw, 176px"
+                className="object-contain filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.1)]"
+                priority
+              />
             </div>
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-              Grab<span className="text-blue-600">deals</span>
-            </h1>
-            <p className="text-gray-500 text-sm mt-1">Welcome back! Sign in to your account</p>
+            <p className="text-slate-400 text-sm mt-1 text-center font-medium">Welcome back! Sign in to your account</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-6">
             {/* Email */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-gray-700" htmlFor="email">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block" htmlFor="email">
                 Email Address
               </label>
               <input
                 id="email"
                 type="email"
                 placeholder="you@example.com"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 placeholder:text-gray-400"
+                className="w-full px-4 py-3.5 rounded-xl border border-white/10 bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white placeholder:text-slate-500"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -80,23 +87,25 @@ export default function LoginPage() {
             </div>
 
             {/* Password */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-gray-700" htmlFor="password">
-                Password
-              </label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block" htmlFor="password">
+                  Password
+                </label>
+              </div>
               <div className="relative">
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
-                  className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 placeholder:text-gray-400"
+                  className="w-full px-4 py-3.5 pr-12 rounded-xl border border-white/10 bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white placeholder:text-slate-500"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
                 <button
                   type="button"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -106,7 +115,7 @@ export default function LoginPage() {
 
             {/* Error */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
+              <div className="bg-red-500/20 border border-red-500/30 text-red-200 text-sm px-4 py-3 rounded-xl transition-all duration-200">
                 {error}
               </div>
             )}
@@ -115,7 +124,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-60 text-white py-3.5 rounded-xl font-bold shadow-lg hover:shadow-blue-500/40 transition-all duration-200 flex items-center justify-center gap-2 text-base"
+              className="w-full relative group overflow-hidden bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 disabled:opacity-60 text-white py-3.5 rounded-xl font-extrabold shadow-lg hover:shadow-orange-500/20 transition-all duration-300 flex items-center justify-center gap-2 text-base hover:scale-[1.02] active:scale-[0.98]"
             >
               {loading ? (
                 <><Loader2 className="h-5 w-5 animate-spin" /> Signing in…</>
@@ -128,25 +137,25 @@ export default function LoginPage() {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
+              <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-4 text-gray-400 text-sm">New to GrabDeals?</span>
+              <span className="bg-slate-900/90 px-4 text-slate-400 text-sm font-medium">New to GrabDeals?</span>
             </div>
           </div>
 
           <Link
             href="/auth/register"
-            className="block w-full text-center py-3 rounded-xl border-2 border-blue-600 text-blue-700 font-bold hover:bg-blue-50 transition-all duration-200"
+            className="block w-full text-center py-3.5 rounded-xl border border-white/20 text-white font-extrabold hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
           >
             Create a free account
           </Link>
         </div>
 
-        <p className="text-center text-white/70 text-sm mt-6">
+        <p className="text-center text-slate-500 text-sm mt-6">
           By signing in, you agree to our{" "}
-          <Link href="/terms" className="text-white underline hover:text-blue-200">Terms</Link>{" "}and{" "}
-          <Link href="/privacy" className="text-white underline hover:text-blue-200">Privacy Policy</Link>
+          <Link href="/terms" className="text-slate-400 underline hover:text-white">Terms</Link>{" "}and{" "}
+          <Link href="/privacy" className="text-slate-400 underline hover:text-white">Privacy Policy</Link>
         </p>
       </div>
     </div>

@@ -86,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={href} className="block h-full">
       <Card
-        className="group relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-500 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden h-full flex flex-col cursor-pointer"
+        className="group relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-primary/40 dark:hover:border-primary/60 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden h-full flex flex-col cursor-pointer"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -95,7 +95,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">-{discount}%</div>
         )}
         {product.salesCount > 100 && (
-          <div className="absolute top-2 right-2 z-10 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">Bestseller</div>
+          <div className="absolute top-2 right-2 z-10 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded">Bestseller</div>
         )}
 
         {/* Image with smooth crossfade */}
@@ -120,7 +120,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Content */}
         <CardContent className="p-3 flex-1 flex flex-col gap-1">
-          <h3 className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 text-sm leading-snug whitespace-pre-line">
+          <h3 className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-primary dark:group-hover:text-primary-foreground transition-colors line-clamp-2 text-sm leading-snug whitespace-pre-line">
             {product.title}
           </h3>
 
@@ -149,7 +149,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
 
           <Button
-            className={`w-full mt-1.5 h-8 text-xs font-semibold transition-all active:scale-95 ${added ? "bg-green-500 hover:bg-green-600 text-white" : "bg-yellow-400 hover:bg-yellow-500 text-slate-900"}`}
+            className={`w-full mt-1.5 h-8 text-xs font-bold transition-all active:scale-95 ${added ? "bg-green-500 hover:bg-green-600 text-white" : "bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 text-white shadow-sm"}`}
             onClick={handleAddToCart}
           >
             <ShoppingCart className="h-3.5 w-3.5 mr-1.5" />

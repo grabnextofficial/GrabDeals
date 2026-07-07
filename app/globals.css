@@ -29,57 +29,65 @@ body {
 
 @layer base {
   :root {
-    /* GrabDeals - Purple/Orange Primary Brand */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
+    /* GrabDeals - Blue/Orange Brand */
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 285 85% 55%; /* Rich Purple - GrabDeals Brand */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 290 20% 96%;
-    --secondary-foreground: 0 0% 10%;
-    --muted: 290 20% 96%;
-    --muted-foreground: 290 10% 45%;
-    --accent: 320 85% 55%; /* Magenta Accent */
-    --accent-foreground: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 220 100% 45%; /* Royal Blue */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 24 100% 50%; /* Vibrant Orange */
+    --secondary-foreground: 210 40% 98%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 24 100% 95%; /* Soft orange tint */
+    --accent-foreground: 24 100% 40%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 290 20% 90%;
-    --input: 290 20% 96%;
-    --ring: 285 85% 55%;
-    --radius: 0.5rem;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 220 100% 45%;
+    --radius: 0.75rem;
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 20%;
-    --sidebar-primary: 285 85% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 285 85% 90%;
-    --sidebar-accent-foreground: 285 85% 55%;
-    --sidebar-border: 290 20% 90%;
-    --sidebar-ring: 285 85% 55%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 220 100% 45%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 220 100% 45%;
   }
 
   .dark {
-    --background: 0 0% 8%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 14%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 14%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 285 85% 65%;
-    --primary-foreground: 0 0% 8%;
-    --secondary: 0 0% 25%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 25%;
-    --muted-foreground: 0 0% 75%;
-    --accent: 320 85% 65%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 8%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 285 85% 65%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 6%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 6%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%; /* Accessible Blue for Dark Mode */
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 24 100% 50%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 222.2 84% 12%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 24 100% 12%;
+    --accent-foreground: 24 100% 60%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 222.2 84% 12%;
+    --input: 222.2 84% 12%;
+    --ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 222.2 84% 6%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217.2 91.2% 59.8%;
+    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
+    --sidebar-accent: 222.2 84% 10%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222.2 84% 12%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -94,11 +102,11 @@ body {
 
 @layer utilities {
   .text-gradient-primary {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-500 to-orange-500;
   }
   
   .bg-gradient-primary {
-    @apply bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500;
+    @apply bg-gradient-to-r from-blue-600 via-indigo-500 to-orange-500;
   }
 
   /* Card shadows */
