@@ -6,4 +6,4 @@ pages_build_output_dir = ".vercel/output/static"
 [[d1_databases]]
 binding = "DB"
 database_name = "grabdeals"
-database_id = "17842d5c-f9f1-4746-bcfd-cf631c6465da"
+database_id = "148f61c0-328a-4e7e-92d5-a9f87584cf2b"
