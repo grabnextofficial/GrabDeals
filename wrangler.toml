@@ -1,9 +1,9 @@
-name = "grabnext"
+name = "grabdeals"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat_v2"]
 pages_build_output_dir = ".vercel/output/static"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "my-ecommerce-db"
-database_id = "f4d9bd37-724c-4d2f-ac48-73629b4f734f"
+database_name = "grabdeals"
+database_id = "148f61c0-328a-4e7e-92d5-a9f87584cf2b"
