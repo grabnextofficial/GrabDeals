@@ -57,7 +57,7 @@ export default function LoginPage() {
               <ShoppingBag className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-              Grab<span className="text-blue-600">next</span>
+              Grab<span className="text-blue-600">deals</span>
             </h1>
             <p className="text-gray-500 text-sm mt-1">Welcome back! Sign in to your account</p>
           </div>
@@ -131,7 +131,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-4 text-gray-400 text-sm">New to Grabnext?</span>
+              <span className="bg-white px-4 text-gray-400 text-sm">New to GrabDeals?</span>
             </div>
           </div>
 

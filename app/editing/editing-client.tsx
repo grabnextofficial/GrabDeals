@@ -21,7 +21,7 @@ const FALLBACK_PRODUCT = {
 }
 
 // WhatsApp link
-const WHATSAPP_LINK = "https://wa.me/917500167987?text=Hi%20GrabNext,%20I%20have%2520a%2520query%2520regarding%2520the%2520Video%2520Editing%2520Bundle"
+const WHATSAPP_LINK = "https://wa.me/917500167987?text=Hi%20GrabDeals,%20I%20have%2520a%2520query%2520regarding%2520the%2520Video%2520Editing%2520Bundle"
 
 // Mock Indian purchase popups (Herd Effect)
 const BUYER_NAMES = ["Rohit", "Karan", "Anil", "Vishal", "Manish", "Deepak", "Suresh", "Tarun", "Aditya", "Ramesh", "Karthik", "Arjun", "Chetan", "Shibin", "Altaf", "Naman", "Priya", "Pooja", "Soumya", "Kirti"]
@@ -207,7 +207,7 @@ export function EditingLandingPageClient() {
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight max-w-5xl mx-auto">
             Stop Spending Hours Editing From Scratch & <span className="bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent text-cyan-glow">Cut Your Editing Time By 90%!</span>
             <span className="block mt-4 bg-gradient-to-r from-violet-400 via-fuchsia-300 to-cyan-400 bg-clip-text text-transparent text-neon-glow text-2xl md:text-4xl lg:text-5xl">
-              Introducing: GrabNext World&apos;s Biggest Video Editing Bundle!
+              Introducing: GrabDeals World&apos;s Biggest Video Editing Bundle!
             </span>
           </h1>
 
@@ -279,13 +279,13 @@ export function EditingLandingPageClient() {
           {/* Desktop Image */}
           <img 
             src="https://wbveb.idigitalcampus.com/wp-content/uploads/2025/02/hero1.webp" 
-            alt="GrabNext Video Editing Assets Package Mockup" 
+            alt="GrabDeals Video Editing Assets Package Mockup" 
             className="hidden md:block w-full h-auto object-cover hover:scale-[1.01] transition-transform duration-700" 
           />
           {/* Mobile Image */}
           <img 
             src="https://wbveb.idigitalcampus.com/wp-content/uploads/2025/02/Videoeditingheromobile-1-1.webp" 
-            alt="GrabNext Video Editing Assets Mobile Package Mockup" 
+            alt="GrabDeals Video Editing Assets Mobile Package Mockup" 
             className="block md:hidden w-full h-auto object-cover" 
           />
         </div>
@@ -449,7 +449,7 @@ export function EditingLandingPageClient() {
             >
               <img 
                 src={url} 
-                alt={`GrabNext Customer Review WhatsApp Screenshot ${idx + 1}`} 
+                alt={`GrabDeals Customer Review WhatsApp Screenshot ${idx + 1}`} 
                 loading="lazy"
                 className="w-full h-auto object-contain" 
               />
@@ -497,8 +497,8 @@ export function EditingLandingPageClient() {
               </div>
               <span className="px-3 py-1 bg-violet-900/50 text-violet-300 font-black rounded-lg text-xs tracking-wider">STEP 01</span>
               <h3 className="font-bold text-slate-200">Click &ldquo;Get Everything at ₹149&rdquo; Button</h3>
-              <p className="text-xs text-slate-450 leading-relaxed">
-                You will be redirected to the GrabNext secure product details checkout page.
+              <p className="text-xs text-slate-455 leading-relaxed">
+                You will be redirected to the GrabDeals secure product details checkout page.
               </p>
             </div>
 
@@ -572,7 +572,7 @@ export function EditingLandingPageClient() {
           Your Satisfaction is our No.1 Priority!
         </h2>
         <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-          GrabNext is committed to providing outstanding value and premium support. We ensure that our video assets, presets, and courses meet the highest standards of professional quality.
+          GrabDeals is committed to providing outstanding value and premium support. We ensure that our video assets, presets, and courses meet the highest standards of professional quality.
         </p>
       </section>
 
@@ -628,12 +628,12 @@ export function EditingLandingPageClient() {
             <div className="relative">
               <img 
                 src="/logo.png" 
-                alt="GrabNext Logo" 
+                alt="GrabDeals Logo" 
                 className="h-10 w-auto object-contain dark:brightness-110" 
               />
             </div>
             <p className="text-slate-500 text-xs font-semibold tracking-widest uppercase">
-              GRABNEXT DIGITAL STORE
+              GRABDEALS DIGITAL STORE
             </p>
           </div>
 
@@ -654,7 +654,7 @@ export function EditingLandingPageClient() {
               This site is not affiliated with, endorsed by, or associated with Facebook&trade; or Facebook&trade; Inc. in any way. FACEBOOK&trade; is a trademark of FACEBOOK&trade;, Inc. As required by law, we cannot and do not make any guarantees about your ability to achieve results or earn money with the ideas, information, tools, or strategies provided. Our goal is to offer valuable content, direction, and strategies that have proven effective for us and our students, and which we believe can help you advance. For more information, including our terms, privacy policies, and disclaimers, please refer to the provided links. Transparency is of utmost importance to us, and we uphold a high standard of integrity for both ourselves and our users. Thank you for visiting. We hope this training and content bring you significant value and results.
             </p>
             <p className="text-[10px] text-slate-650 mt-4 font-semibold">
-              &copy; {new Date().getFullYear()} GrabNext. All rights reserved.
+              &copy; {new Date().getFullYear()} GrabDeals. All rights reserved.
             </p>
           </div>
         </div>

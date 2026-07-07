@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
         // Forward to T-Drive API
         const tDriveFormData = new FormData();
         tDriveFormData.append('file', file);
-        tDriveFormData.append('folder', 'grabnext-digital-products');
+        tDriveFormData.append('folder', 'grabdeals-products');
 
         const tDriveResponse = await fetch('https://t-drive.pages.dev/api/v1/upload', {
             method: 'POST',

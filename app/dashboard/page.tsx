@@ -425,7 +425,7 @@ export default function DashboardPage() {
                 key: orderData.keyId,
                 amount: Math.round(order.totalAmount * 100),
                 currency: "INR",
-                name: "Grabnext",
+                name: "GrabDeals",
                 order_id: orderData.orderId,
                 prefill: {
                     name: order.userName || "",

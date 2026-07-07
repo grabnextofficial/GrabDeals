@@ -1,4 +1,4 @@
--- Grabnext D1 Schema
+-- GrabDeals D1 Schema
 -- Run with: npx wrangler d1 execute grabnow_db --remote --file=schema.sql
 
 CREATE TABLE IF NOT EXISTS categories (

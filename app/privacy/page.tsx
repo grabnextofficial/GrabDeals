@@ -3,8 +3,8 @@ import { Footer } from "@/components/footer"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "Privacy Policy | Grabnext",
-    description: "Read Grabnext's Privacy Policy to understand how we collect, use, and protect your personal information.",
+    title: "Privacy Policy | GrabDeals",
+    description: "Read GrabDeals's Privacy Policy to understand how we collect, use, and protect your personal information.",
 }
 
 export default function PrivacyPage() {
@@ -62,12 +62,12 @@ export default function PrivacyPage() {
 
                         <section>
                             <h2 className="text-xl font-semibold mb-3">6. Your Rights</h2>
-                            <p className="text-gray-600 leading-relaxed">You have the right to access, correct, or delete your personal information. To exercise these rights, contact us at support@grabnext.com.</p>
+                            <p className="text-gray-600 leading-relaxed">You have the right to access, correct, or delete your personal information. To exercise these rights, contact us at support@grabdeals.com.</p>
                         </section>
 
                         <section>
                             <h2 className="text-xl font-semibold mb-3">7. Contact Us</h2>
-                            <p className="text-gray-600 leading-relaxed">If you have questions about this Privacy Policy, please contact us at <a href="mailto:support@grabnext.com" className="text-primary hover:underline">support@grabnext.com</a>.</p>
+                            <p className="text-gray-600 leading-relaxed">If you have questions about this Privacy Policy, please contact us at <a href="mailto:support@grabdeals.com" className="text-primary hover:underline">support@grabdeals.com</a>.</p>
                         </section>
                     </div>
                 </div>

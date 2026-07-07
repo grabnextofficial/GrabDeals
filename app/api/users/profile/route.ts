@@ -12,7 +12,7 @@ async function getUserIdFromCookie(): Promise<string | null> {
         const token = cookieStore.get('auth-token')?.value
         if (!token) return null
 
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'grabnext-local-dev-secret-key-change-in-production')
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'grabdeals-local-dev-secret-key-change-in-production')
         const { payload } = await jwtVerify(token, secret)
         return (payload as any).uid || null
     } catch {

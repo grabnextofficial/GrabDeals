@@ -23,7 +23,7 @@ interface TestResponse {
 export default function AITestPage() {
     const [loading, setLoading] = useState(false)
     const [results, setResults] = useState<TestResponse | null>(null)
-    const [customMsg, setCustomMsg] = useState("Kya tum GrabNext ke liye kaam karoge? Ek product suggest karo.")
+    const [customMsg, setCustomMsg] = useState("Kya tum GrabDeals ke liye kaam karoge? Ek product suggest karo.")
     const [lastTested, setLastTested] = useState<string | null>(null)
 
     const runTest = async () => {

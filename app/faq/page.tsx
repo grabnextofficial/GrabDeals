@@ -118,7 +118,7 @@ export default function FAQPage() {
                     <h3 className="text-xl font-semibold mb-2">Still have questions?</h3>
                     <p className="text-muted-foreground mb-4">Our support team is ready to help you.</p>
                     <a
-                        href="mailto:support@grabnext.com"
+                        href="mailto:support@grabdeals.com"
                         className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
                     >
                         Contact Support

@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
             user: { uid, email, displayName: name, isGuest: true },
             isExisting: false,
             temporaryPassword,
-            message: `Welcome to Grabnext! A guest account has been created for you. Please save your temporary password to access your downloads: ${temporaryPassword}`
+            message: `Welcome to GrabDeals! A guest account has been created for you. Please save your temporary password to access your downloads: ${temporaryPassword}`
         }, { status: 201 })
     } catch (error: any) {
         console.error('[Guest Register Error]', error)

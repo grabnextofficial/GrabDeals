@@ -4,8 +4,8 @@ import { CheckCircle2, XCircle, Clock, AlertTriangle } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "Refund & Return Policy | Grabnext",
-    description: "Learn about Grabnext's refund and return policy for digital and physical products.",
+    title: "Refund & Return Policy | GrabDeals",
+    description: "Learn about GrabDeals's refund and return policy for digital and physical products.",
 }
 
 export default function RefundPage() {
@@ -62,13 +62,13 @@ export default function RefundPage() {
                                 <li>Not matching the product description</li>
                                 <li>Wrong size or color (exchange, not refund)</li>
                             </ul>
-                            <p className="text-gray-600 leading-relaxed mt-3">Return shipping costs are covered by Grabnext for eligible returns.</p>
+                            <p className="text-gray-600 leading-relaxed mt-3">Return shipping costs are covered by GrabDeals for eligible returns.</p>
                         </section>
 
                         <section>
                             <h2 className="text-xl font-semibold mb-3">How to Request a Refund</h2>
                             <ol className="list-decimal pl-6 text-gray-600 space-y-2">
-                                <li>Email us at <a href="mailto:support@grabnext.com" className="text-primary hover:underline">support@grabnext.com</a> within 7 days of purchase</li>
+                                <li>Email us at <a href="mailto:support@grabdeals.com" className="text-primary hover:underline">support@grabdeals.com</a> within 7 days of purchase</li>
                                 <li>Include your Order ID and the reason for the refund request</li>
                                 <li>Attach screenshots or evidence of the issue (for digital products)</li>
                                 <li>Our team will review and respond within 2 business days</li>

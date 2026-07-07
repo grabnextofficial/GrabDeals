@@ -37,7 +37,7 @@ interface Message {
 
 const INITIAL_MESSAGE: Message = {
   role: "ai",
-  text: "Hey! 👋 I'm **GrabNext AI** — your personal shopping assistant! Ask me anything about our products, deals, or orders. I'm here to help! ✨",
+  text: "Hey! 👋 I'm **GrabDeals AI** — your personal shopping assistant! Ask me anything about our products, deals, or orders. I'm here to help! ✨",
   timestamp: new Date().toISOString(),
 }
 
@@ -48,9 +48,9 @@ const QUICK_QUESTIONS = [
   "Payment options?",
 ]
 
-const STORAGE_KEY = "grabnext-ai-chat-v2"
-const DATE_KEY    = "grabnext-ai-date"
-const SESSION_KEY = "grabnext-ai-session"
+const STORAGE_KEY = "grabdeals-ai-chat-v2"
+const DATE_KEY    = "grabdeals-ai-date"
+const SESSION_KEY = "grabdeals-ai-session"
 
 // Typewriter speed: chars per tick (higher = faster)
 const CHARS_PER_TICK = 4
@@ -236,7 +236,7 @@ export function ShopAIChat() {
       setIsLoading(false)
       setMessages(prev => [
         ...prev,
-        { role: "ai", text: "GrabNext AI is offline right now. Check your connection and try again! 🙏", timestamp: new Date().toISOString(), products: [] },
+        { role: "ai", text: "GrabDeals AI is offline right now. Check your connection and try again! 🙏", timestamp: new Date().toISOString(), products: [] },
       ])
     }
   }
@@ -312,7 +312,7 @@ export function ShopAIChat() {
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 bg-green-400 rounded-full border-2 border-sky-500" />
               </div>
               <div>
-                <span className="font-bold text-white text-sm tracking-wide">GrabNext AI</span>
+                <span className="font-bold text-white text-sm tracking-wide">GrabDeals AI</span>
                 <div className="text-[10px] text-sky-100">Shopping Assistant · Always Online</div>
               </div>
             </div>
@@ -398,7 +398,7 @@ export function ShopAIChat() {
                               </p>
                               <div className="flex items-center gap-1 mt-1">
                                 <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                                <span className="text-[10px] text-gray-400">GrabNext Certified</span>
+                                <span className="text-[10px] text-gray-400">GrabDeals Certified</span>
                               </div>
                               <div className="flex items-baseline gap-1.5 mt-1">
                                 <span className="text-sm font-bold text-sky-500">{formatPrice(product.price)}</span>

@@ -68,7 +68,7 @@ export default function CheckoutSuccessPage() {
               </div>
               <CardTitle className="text-2xl">Payment Successful! 🎉</CardTitle>
               <p className="text-muted-foreground">
-                Your order has been confirmed. Thank you for shopping with Grabnext!
+                Your order has been confirmed. Thank you for shopping with GrabDeals!
               </p>
             </CardHeader>
             <CardContent className="space-y-6">

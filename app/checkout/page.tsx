@@ -230,7 +230,7 @@ export default function CheckoutPage() {
       key: orderData.keyId,
       amount: Math.round(finalAmount * 100),
       currency: "INR",
-      name: "Grabnext",
+      name: "GrabDeals",
       description: items.length === 1 ? items[0].product.title : `${items.length} items`,
       order_id: orderData.orderId,
       prefill: {

@@ -4,22 +4,22 @@ import { ShoppingBag, Shield, Zap, Users } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "About Us | Grabnext",
-    description: "Learn about Grabnext — India's premier digital marketplace for software, templates, courses, and more.",
+    title: "About Us | GrabDeals",
+    description: "Learn about GrabDeals — India's premier online shopping and deals platform for electronics, fashion, lifestyle, and digital products.",
 }
 
 const stats = [
-    { label: "Products", value: "500+" },
-    { label: "Happy Customers", value: "10,000+" },
-    { label: "Categories", value: "20+" },
-    { label: "Secured Payments", value: "₹50L+" },
+    { label: "Products", value: "10,000+" },
+    { label: "Happy Customers", value: "50,000+" },
+    { label: "Categories", value: "50+" },
+    { label: "Secured Payments", value: "₹1Cr+" },
 ]
 
 const values = [
     {
         icon: ShoppingBag,
         title: "Wide Selection",
-        description: "From software and templates to digital courses and e-books — we carry everything you need.",
+        description: "From electronics and fashion to home essentials, software, and templates — we carry everything you need.",
         color: "bg-blue-50 text-blue-600",
     },
     {
@@ -50,9 +50,9 @@ export default function AboutPage() {
             {/* Hero */}
             <section className="bg-gradient-to-br from-blue-600 to-purple-700 text-white py-20">
                 <div className="container mx-auto px-4 text-center max-w-3xl">
-                    <h1 className="text-4xl lg:text-5xl font-bold mb-4">About Grabnext</h1>
+                    <h1 className="text-4xl lg:text-5xl font-bold mb-4">About GrabDeals</h1>
                     <p className="text-lg text-blue-100 leading-relaxed">
-                        India's growing digital marketplace — bringing you the best software, templates, courses, and digital products at unbeatable prices.
+                        India's growing online marketplace — bringing you the best deals across electronics, fashion, home essentials, and digital products at unbeatable prices.
                     </p>
                 </div>
             </section>
@@ -77,13 +77,13 @@ export default function AboutPage() {
                     <h2 className="text-2xl font-bold mb-4">Our Story</h2>
                     <div className="space-y-4 text-gray-600 leading-relaxed">
                         <p>
-                            Grabnext was founded with a simple mission: to make high-quality digital products accessible to everyone in India. We noticed that many creators and businesses struggled to find affordable, reliable digital tools and resources.
+                            GrabDeals was founded with a simple mission: to make high-quality products and incredible shopping deals accessible to everyone in India. We noticed that many shoppers struggled to find reliable platforms that offer quality products at wholesale or best-in-market rates with secure payments and rapid delivery.
                         </p>
                         <p>
-                            We built Grabnext as a curated marketplace where individuals and businesses can discover and purchase software, templates, educational courses, and digital resources — all in one place, with instant delivery and transparent pricing.
+                            We built GrabDeals as a curated marketplace where individuals and families can discover and purchase top-tier products across electronics, fashion, lifestyle, and home essentials, as well as digital resources, software, and courses — all in one place, with instant value and transparent, direct-to-consumer pricing.
                         </p>
                         <p>
-                            Today, we serve thousands of customers across India, helping students, freelancers, small businesses, and enterprises access the digital tools they need to grow and succeed.
+                            Today, we serve thousands of customers across India, helping students, professionals, small businesses, and households access the quality goods and digital tools they need to grow, live better, and succeed.
                         </p>
                     </div>
                 </div>
@@ -91,7 +91,7 @@ export default function AboutPage() {
 
             {/* Values */}
             <section className="container mx-auto px-4 pb-16 max-w-4xl">
-                <h2 className="text-2xl font-bold text-center mb-8">Why Choose Grabnext?</h2>
+                <h2 className="text-2xl font-bold text-center mb-8">Why Choose GrabDeals?</h2>
                 <div className="grid md:grid-cols-2 gap-6">
                     {values.map(({ icon: Icon, title, description, color }) => (
                         <div key={title} className="bg-white rounded-2xl shadow-sm p-6 flex gap-4">

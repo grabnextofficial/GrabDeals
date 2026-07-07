@@ -11,13 +11,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     try {
         const rows = await executeQuery('SELECT title, isPublished FROM landing_pages WHERE slug = ?', [params.slug])
         const page = Array.isArray(rows) ? rows[0] : null
-        if (!page || !page.isPublished) return { title: 'Page Not Found | GrabNext' }
+        if (!page || !page.isPublished) return { title: 'Page Not Found | GrabDeals' }
         return {
-            title: `${page.title} | GrabNext`,
-            description: `${page.title} — exclusive offer on GrabNext`,
+            title: `${page.title} | GrabDeals`,
+            description: `${page.title} — exclusive offer on GrabDeals`,
         }
     } catch {
-        return { title: 'GrabNext' }
+        return { title: 'GrabDeals' }
     }
 }
 

@@ -1,4 +1,4 @@
--- GrabNext Full Migration — Run this to add ALL new tables and columns
+-- GrabDeals Full Migration — Run this to add ALL new tables and columns
 -- Command: npx wrangler d1 execute grabnow_db --remote --file=migration.sql
 -- Safe to run multiple times (uses IF NOT EXISTS / IF NOT COLUMN checks)
 

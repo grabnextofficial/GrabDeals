@@ -27,7 +27,7 @@ export default function SignUpPage() {
       await signUpWithEmail(email, password, displayName)
       await refreshUser()
       trackCompleteRegistration(
-        { content_name: "Grabnext Account", status: true },
+        { content_name: "GrabDeals Account", status: true },
         {
           email: email,
           firstName: displayName.split(' ')[0],
@@ -59,7 +59,7 @@ export default function SignUpPage() {
               <ShoppingBag className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-              Grab<span className="text-blue-600">next</span>
+              Grab<span className="text-blue-600">deals</span>
             </h1>
             <p className="text-gray-500 text-sm mt-1">Create your account and start shopping</p>
           </div>

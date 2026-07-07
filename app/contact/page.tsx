@@ -56,8 +56,8 @@ export default function ContactPage() {
                                     </div>
                                     <div>
                                         <p className="font-medium text-sm">Email</p>
-                                        <a href="mailto:support@grabnext.com" className="text-sm text-primary hover:underline">
-                                            support@grabnext.com
+                                        <a href="mailto:support@grabdeals.com" className="text-sm text-primary hover:underline">
+                                            support@grabdeals.com
                                         </a>
                                         <p className="text-xs text-muted-foreground mt-0.5">We reply within 24 hours</p>
                                     </div>

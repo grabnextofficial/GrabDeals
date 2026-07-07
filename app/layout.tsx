@@ -11,51 +11,51 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   title: {
-    default: "Grabnext - Buy Digital Products, Software, Courses & Templates Online India",
-    template: "%s | Grabnext",
+    default: "GrabDeals - India's Ultimate Shopping & Online Deals Platform",
+    template: "%s | GrabDeals",
   },
   description:
-    "Grabnext is India's trusted digital marketplace. Buy software, online courses, design templates, ebooks & more at the best prices with instant delivery and secure UPI payment.",
+    "GrabDeals is India's trusted online shopping platform. Find unbeatable deals on electronics, fashion, lifestyle, home essentials, books, software, digital assets & more.",
   keywords: [
-    "grabnext",
-    "buy digital products india",
-    "software buy online india",
-    "online courses india",
-    "design templates",
-    "ebooks india",
-    "digital download india",
-    "instant delivery digital goods",
-    "buy software cheap india",
+    "grabdeals",
+    "grab deals",
+    "online shopping india",
+    "best deals online india",
+    "buy electronics online",
+    "fashion shopping india",
+    "home decor offers",
     "digital marketplace india",
+    "discount shopping india",
+    "instant deals india",
   ],
-  authors: [{ name: "Grabnext", url: "https://shop.grabnext.app" }],
-  creator: "Grabnext",
-  publisher: "Grabnext",
-  metadataBase: new URL("https://shop.grabnext.app"),
+  authors: [{ name: "GrabDeals", url: "https://shop.grabdeals.app" }],
+  creator: "GrabDeals",
+  publisher: "GrabDeals",
+  metadataBase: new URL("https://shop.grabdeals.app"),
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://shop.grabnext.app",
-    siteName: "Grabnext",
-    title: "Grabnext - Buy Digital Products Online India",
+    url: "https://shop.grabdeals.app",
+    siteName: "GrabDeals",
+    title: "GrabDeals - India's Ultimate Shopping & Online Deals Platform",
     description:
-      "India's trusted digital store. Software, courses, templates & more at the best prices with instant delivery.",
+      "India's trusted online store. Shop electronics, fashion, home decor, digital goods & more at the best prices with secure payment and instant delivery.",
     images: [
       {
         url: "/favicon.png",
         width: 512,
         height: 512,
-        alt: "Grabnext - Digital Marketplace India",
+        alt: "GrabDeals - Online Shopping India",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    site: "@grabnext",
-    creator: "@grabnext",
-    title: "Grabnext - Buy Digital Products Online India",
+    site: "@grabdeals",
+    creator: "@grabdeals",
+    title: "GrabDeals - India's Ultimate Shopping & Online Deals Platform",
     description:
-      "India's trusted digital store. Software, courses, templates & more with instant delivery.",
+      "India's trusted online store. Shop electronics, fashion, home decor, digital goods & more with instant delivery and secure checkout.",
     images: ["/favicon.png"],
   },
   robots: {
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     apple: "/favicon.png",
   },
   alternates: {
-    canonical: "https://shop.grabnext.app",
+    canonical: "https://shop.grabdeals.app",
   },
 }
 
@@ -133,15 +133,15 @@ html {
               {
                 "@context": "https://schema.org",
                 "@type": "WebSite",
-                "name": "Grabnext",
-                "url": "https://shop.grabnext.app",
-                "alternateName": "Grabnext Digital Marketplace",
-                "description": "India's trusted digital marketplace. Buy software, online courses, design templates, ebooks & more with instant delivery.",
+                "name": "GrabDeals",
+                "url": "https://shop.grabdeals.app",
+                "alternateName": "GrabDeals Online Shopping Marketplace",
+                "description": "India's trusted online store. Shop electronics, fashion, home decor, digital goods & more at the best prices with secure payment and instant delivery.",
                 "potentialAction": {
                   "@type": "SearchAction",
                   "target": {
                     "@type": "EntryPoint",
-                    "urlTemplate": "https://shop.grabnext.app/products?q={search_term_string}"
+                    "urlTemplate": "https://shop.grabdeals.app/products?q={search_term_string}"
                   },
                   "query-input": "required name=search_term_string"
                 }
@@ -149,18 +149,18 @@ html {
               {
                 "@context": "https://schema.org",
                 "@type": "Organization",
-                "name": "Grabnext",
-                "url": "https://shop.grabnext.app",
-                "logo": "https://shop.grabnext.app/favicon.png",
-                "description": "Grabnext is India's trusted digital marketplace for software, courses, templates & digital downloads with instant delivery.",
+                "name": "GrabDeals",
+                "url": "https://shop.grabdeals.app",
+                "logo": "https://shop.grabdeals.app/favicon.png",
+                "description": "GrabDeals is India's trusted online shopping platform for electronics, fashion, home decor, software, templates & courses with instant delivery.",
                 "contactPoint": {
                   "@type": "ContactPoint",
                   "contactType": "customer support",
-                  "url": "https://shop.grabnext.app/contact",
+                  "url": "https://shop.grabdeals.app/contact",
                   "availableLanguage": ["English", "Hindi"]
                 },
                 "sameAs": [
-                  "https://grabnext.pages.dev"
+                  "https://grabdeals.pages.dev"
                 ]
               }
             ])

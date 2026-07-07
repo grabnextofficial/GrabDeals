@@ -895,7 +895,7 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
                 {VIDEO_BUNDLE_ITEMS.map((item) => (
                   <div key={item.name} className="bg-white border border-slate-250 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-lg hover:border-[#0052FF] hover:-translate-y-0.5 transition-all duration-300">
                     <div className="w-full aspect-video bg-slate-100 overflow-hidden relative border-b border-slate-150">
-                      <img src={item.img} alt={item.name} className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300" onError={(e) => { (e.target as HTMLImageElement).src = "https://grabnext.pages.dev/api/placeholder?w=400&h=250&text=" + encodeURIComponent(item.name); }} />
+                      <img src={item.img} alt={item.name} className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300" onError={(e) => { (e.target as HTMLImageElement).src = "https://grabdeals.pages.dev/api/placeholder?w=400&h=250&text=" + encodeURIComponent(item.name); }} />
                       <div className="absolute top-2 right-2 bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
                         Worth {item.worth}
                       </div>
@@ -996,10 +996,10 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
           </div>
         </section>
 
-        {/* ── 7. WHY CHOOSE GRABNEXT ── */}
+        {/* ── 7. WHY CHOOSE GRABDEALS ── */}
         <section className="bg-white py-14 px-4 border-t border-gray-150">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-center font-black text-3xl md:text-4xl text-[#00114E] mb-2">Why Choose Grabnext?</h2>
+            <h2 className="text-center font-black text-3xl md:text-4xl text-[#00114E] mb-2">Why Choose GrabDeals?</h2>
             <p className="text-center text-gray-500 mb-8 font-medium">India's most trusted digital software store — 3,929+ satisfied customers</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {FEATURES.map(f => (
@@ -1016,13 +1016,13 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
         {/* ── 8. COMPARISON TABLE (Green highlights for victory) ── */}
         <section className="py-14 px-4 bg-gray-50 border-t border-gray-200">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-center font-black text-3xl text-gray-900 mb-8">Grabnext vs. Adobe Subscription</h2>
+            <h2 className="text-center font-black text-3xl text-gray-900 mb-8">GrabDeals vs. Adobe Subscription</h2>
             <div className="w-full max-w-2xl mx-auto overflow-x-auto rounded-2xl shadow-xl border border-gray-200">
               <table className="w-full border-collapse" style={{ display: "table" }}>
                 <thead>
                   <tr className="bg-[#00114E] text-white">
                     <th className="py-4 px-4 text-left font-extrabold text-xs sm:text-sm">Feature</th>
-                    <th className="py-4 px-4 text-center font-black text-[#05FF00] text-xs sm:text-sm bg-[#000f45]">Grabnext Bundle</th>
+                    <th className="py-4 px-4 text-center font-black text-[#05FF00] text-xs sm:text-sm bg-[#000f45]">GrabDeals Bundle</th>
                     <th className="py-4 px-4 text-center font-extrabold text-red-300 text-xs sm:text-sm">Adobe Official</th>
                   </tr>
                 </thead>
@@ -1103,7 +1103,7 @@ export default function SoftwareFunnelPage({ params }: { params?: { slug?: strin
               <a href="/refund" className="hover:text-white">Refund Policy</a>
               <a href="/contact" className="hover:text-white">Contact Us</a>
             </div>
-            <p>© {new Date().getFullYear()} Grabnext. All rights reserved. | Payments secured by XPay 🔒</p>
+            <p>© {new Date().getFullYear()} GrabDeals. All rights reserved. | Payments secured by XPay 🔒</p>
           </div>
         </footer>
 
@@ -1389,7 +1389,7 @@ function WhatsAppWidget() {
         </div>
       )}
       <a
-        href="https://wa.me/917500167987?text=Hi%20Grabnext!%20I'm%20on%20the%20Adobe%20CC%20Bundle%20page%20and%20want%20to%20purchase.%20Can%20you%20help%20me%3F"
+        href="https://wa.me/917500167987?text=Hi%20GrabDeals!%20I'm%20on%20the%20Adobe%20CC%20Bundle%20page%20and%20want%20to%2520purchase.%20Can%20you%20help%20me%3F"
         target="_blank"
         rel="noopener noreferrer"
         className="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-xl hover:scale-110 transition-transform duration-200 animate-pulse-glow relative border border-[#25D366]/20"

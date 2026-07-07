@@ -15,7 +15,7 @@ export function Footer() {
                             <Logo textClassName="text-white group-hover:text-gray-200" />
                         </div>
                         <p className="text-sm text-gray-400 leading-relaxed">
-                            India's digital marketplace for software, templates, courses, and more.
+                            India's trusted online marketplace for electronics, fashion, home essentials, digital downloads, and more.
                         </p>
                         <div className="flex gap-3 mt-4">
                             <a href="#" aria-label="Twitter" className="h-8 w-8 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors text-xs font-bold">𝕏</a>
@@ -62,7 +62,7 @@ export function Footer() {
             {/* Bottom Bar */}
             <div className="border-t border-gray-800">
                 <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-500">
-                    <p>© {currentYear} Grabnext. All rights reserved.</p>
+                    <p>© {currentYear} GrabDeals. All rights reserved.</p>
                     <div className="flex gap-4">
                         <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy Policy</Link>
                         <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms of Service</Link>

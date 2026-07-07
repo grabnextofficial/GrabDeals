@@ -432,7 +432,7 @@ export function ProductDetailView({ product: initialProduct, id }: { product: Pr
                                 {/* Trust Value Proposition Cards */}
                                 <div className="mt-8 pt-6 border-t border-gray-100 dark:border-slate-800">
                                     <h4 className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-1.5">
-                                        <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" /> Why buy from Grabnext?
+                                        <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" /> Why buy from GrabDeals?
                                     </h4>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="flex gap-3 p-4 rounded-xl bg-blue-50/40 dark:bg-blue-950/10 border border-blue-100/50 dark:border-blue-900/30 hover:bg-blue-50/60 dark:hover:bg-blue-950/20 transition-colors">

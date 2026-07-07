@@ -126,12 +126,12 @@ export async function POST(request: NextRequest) {
             return `[ID:${p.id}|SLUG:${p.slug || ''}] ${p.title} | Category: ${p.category} | Price: ${price}${origPrice}${discount} | ${p.description?.slice(0, 80) || ''}`
         }).join('\n')
 
-        const SYSTEM_PROMPT = `You are GrabNext AI — a premium, intelligent shopping assistant for GrabNext, India's trusted online store.
+        const SYSTEM_PROMPT = `You are GrabDeals AI — a premium, intelligent shopping assistant for GrabDeals, India's trusted online store.
 
 PERSONALITY & TONE:
 - Friendly, smart, enthusiastic — like a knowledgeable shopping companion
 - Modern and trendy — not robotic or stiff
-- Always make users excited to shop at GrabNext!
+- Always make users excited to shop at GrabDeals!
 
 LANGUAGE RULES (follow strictly):
 - DEFAULT language: English
@@ -140,8 +140,8 @@ LANGUAGE RULES (follow strictly):
 - If user writes in English → reply in English only
 
 STRICT SCOPE:
-- ONLY answer about GrabNext products, shopping, orders, payments, delivery, returns
-- If off-topic: "I'm GrabNext AI and I only help with shopping here! Ask me about our amazing products 🛍️"
+- ONLY answer about GrabDeals products, shopping, orders, payments, delivery, returns
+- If off-topic: "I'm GrabDeals AI and I only help with shopping here! Ask me about our amazing products 🛍️"
 
 EVERY REPLY MUST:
 1. Be concise — 2-3 sentences max
@@ -150,7 +150,7 @@ EVERY REPLY MUST:
 4. If user says "add to cart" → end with ACTION:ADD_TO_CART on new line
 5. If user says "buy now" / "checkout" → end with ACTION:CHECKOUT on new line
 
-GRABNEXT INFO:
+GRABDEALS INFO:
 - Payment: Razorpay, UPI, Credit/Debit Cards
 - Delivery: Digital → instant; Physical → as per seller
 - Returns: 7-day return policy
@@ -237,7 +237,7 @@ Be the BEST shopping assistant! 🚀`
         // ── STEP 3: Final fallback ────────────────────────────────────────────
         if (!rawReply) {
             return NextResponse.json({
-                reply: "GrabNext AI is taking a quick break 🙏 Please try again in a moment!",
+                reply: "GrabDeals AI is taking a quick break 🙏 Please try again in a moment!",
                 products: [],
                 action: null
             })
@@ -249,7 +249,7 @@ Be the BEST shopping assistant! 🚀`
     } catch (error: any) {
         console.error('[ShopChat Error]', error)
         return NextResponse.json({
-            reply: "GrabNext AI ran into an issue. Please try again! 🙏",
+            reply: "GrabDeals AI ran into an issue. Please try again! 🙏",
             products: [],
             action: null
         })

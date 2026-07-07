@@ -50,8 +50,8 @@ export async function generateMetadata(
 
     if (!product) {
         return {
-            title: 'Product Not Found - Grabnext',
-            description: 'The product you are looking for could not be found on Grabnext.',
+            title: 'Product Not Found - GrabDeals',
+            description: 'The product you are looking for could not be found on GrabDeals.',
         }
     }
 
@@ -63,7 +63,7 @@ export async function generateMetadata(
     // Strip HTML tags for a clean plain-text description
     const cleanDescription = product.description
         ? product.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 160)
-        : `Buy ${product.title} at the best price on Grabnext. Instant digital delivery. 100% secure payment.`
+        : `Buy ${product.title} at the best price on GrabDeals. Instant digital delivery. 100% secure payment.`
 
     // Build keyword list for AI and search discovery
     const keywordParts = [
@@ -75,7 +75,7 @@ export async function generateMetadata(
         `${product.category} digital download`,
         `best ${product.category}`,
         `${product.title} india`,
-        'grabnext',
+        'grabdeals',
         'digital download',
         'instant delivery',
         'buy online india',
@@ -85,33 +85,33 @@ export async function generateMetadata(
     }
     const keywords = keywordParts.filter(Boolean).join(', ')
 
-    const canonicalUrl = `https://grabnext.pages.dev/products/${(product as any).slug || product.id}`
+    const canonicalUrl = `https://grabdeals.pages.dev/products/${(product as any).slug || product.id}`
     const priceStr = `₹${product.price}`
 
     return {
-        title: `${product.title} - Buy Online at ₹${product.price} | Grabnext`,
+        title: `${product.title} - Buy Online at ₹${product.price} | GrabDeals`,
         description: cleanDescription,
         keywords,
-        authors: [{ name: 'Grabnext', url: 'https://grabnext.pages.dev' }],
-        creator: 'Grabnext',
-        publisher: 'Grabnext',
+        authors: [{ name: 'GrabDeals', url: 'https://grabdeals.pages.dev' }],
+        creator: 'GrabDeals',
+        publisher: 'GrabDeals',
         category: product.category,
         openGraph: {
-            title: `${product.title} | ${priceStr} - Grabnext`,
+            title: `${product.title} | ${priceStr} - GrabDeals`,
             description: cleanDescription,
             images: [...images, ...previousImages],
             type: 'website',
             url: canonicalUrl,
-            siteName: 'Grabnext',
+            siteName: 'GrabDeals',
             locale: 'en_IN',
         },
         twitter: {
             card: 'summary_large_image',
-            title: `${product.title} | ${priceStr} - Grabnext`,
+            title: `${product.title} | ${priceStr} - GrabDeals`,
             description: cleanDescription,
             images: images,
-            site: '@grabnext',
-            creator: '@grabnext',
+            site: '@grabdeals',
+            creator: '@grabdeals',
         },
         alternates: {
             canonical: canonicalUrl,
@@ -182,13 +182,13 @@ export default async function Page({ params }: Props) {
                         "mpn": product.id,
                         "brand": {
                             "@type": "Brand",
-                            "name": "Grabnext"
+                            "name": "GrabDeals"
                         },
                         "category": product.category,
-                        "url": `https://grabnext.pages.dev/products/${(product as any).slug || product.id}`,
+                        "url": `https://grabdeals.pages.dev/products/${(product as any).slug || product.id}`,
                         "offers": {
                             "@type": "Offer",
-                            "url": `https://grabnext.pages.dev/products/${(product as any).slug || product.id}`,
+                            "url": `https://grabdeals.pages.dev/products/${(product as any).slug || product.id}`,
                             "priceCurrency": "INR",
                             "price": product.price,
                             "priceValidUntil": new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -198,8 +198,8 @@ export default async function Page({ params }: Props) {
                             "itemCondition": "https://schema.org/NewCondition",
                             "seller": {
                                 "@type": "Organization",
-                                "name": "Grabnext",
-                                "url": "https://grabnext.pages.dev"
+                                "name": "GrabDeals",
+                                "url": "https://grabdeals.pages.dev"
                             }
                         },
                         ...(product.tags && Array.isArray(product.tags) && product.tags.length > 0

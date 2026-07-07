@@ -3,8 +3,8 @@ import { Footer } from "@/components/footer"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "Terms of Service | Grabnext",
-    description: "Read Grabnext's Terms of Service and understand your rights and responsibilities when using our platform.",
+    title: "Terms of Service | GrabDeals",
+    description: "Read GrabDeals's Terms of Service and understand your rights and responsibilities when using our platform.",
 }
 
 export default function TermsPage() {
@@ -19,12 +19,12 @@ export default function TermsPage() {
                     <div className="space-y-8">
                         <section>
                             <h2 className="text-xl font-semibold mb-3">1. Acceptance of Terms</h2>
-                            <p className="text-gray-600 leading-relaxed">By accessing and using Grabnext, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our platform.</p>
+                            <p className="text-gray-600 leading-relaxed">By accessing and using GrabDeals, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our platform.</p>
                         </section>
 
                         <section>
                             <h2 className="text-xl font-semibold mb-3">2. Use of the Platform</h2>
-                            <p className="text-gray-600 leading-relaxed">Grabnext is an e-commerce platform for digital and physical products. You agree to:</p>
+                            <p className="text-gray-600 leading-relaxed">GrabDeals is an e-commerce platform for digital and physical products. You agree to:</p>
                             <ul className="list-disc pl-6 text-gray-600 space-y-1 mt-2">
                                 <li>Provide accurate and complete information when creating an account</li>
                                 <li>Maintain the security of your account credentials</li>
@@ -45,12 +45,12 @@ export default function TermsPage() {
 
                         <section>
                             <h2 className="text-xl font-semibold mb-3">5. Intellectual Property</h2>
-                            <p className="text-gray-600 leading-relaxed">All content on Grabnext, including but not limited to text, graphics, logos, and software, is the property of Grabnext or its content suppliers and is protected by intellectual property laws.</p>
+                            <p className="text-gray-600 leading-relaxed">All content on GrabDeals, including but not limited to text, graphics, logos, and software, is the property of GrabDeals or its content suppliers and is protected by intellectual property laws.</p>
                         </section>
 
                         <section>
                             <h2 className="text-xl font-semibold mb-3">6. Limitation of Liability</h2>
-                            <p className="text-gray-600 leading-relaxed">Grabnext shall not be liable for any indirect, incidental, or consequential damages arising from use of our platform. Our total liability shall not exceed the amount paid for the specific product giving rise to the claim.</p>
+                            <p className="text-gray-600 leading-relaxed">GrabDeals shall not be liable for any indirect, incidental, or consequential damages arising from use of our platform. Our total liability shall not exceed the amount paid for the specific product giving rise to the claim.</p>
                         </section>
 
                         <section>
@@ -60,7 +60,7 @@ export default function TermsPage() {
 
                         <section>
                             <h2 className="text-xl font-semibold mb-3">8. Contact</h2>
-                            <p className="text-gray-600 leading-relaxed">For questions about these Terms, contact us at <a href="mailto:legal@grabnext.com" className="text-primary hover:underline">legal@grabnext.com</a>.</p>
+                            <p className="text-gray-600 leading-relaxed">For questions about these Terms, contact us at <a href="mailto:legal@grabdeals.com" className="text-primary hover:underline">legal@grabdeals.com</a>.</p>
                         </section>
                     </div>
                 </div>

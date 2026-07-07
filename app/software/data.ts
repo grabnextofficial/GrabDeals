@@ -1,4 +1,4 @@
-export const PRODUCT_BUY_URL = "https://grabnext.pages.dev/products/adobe-all-premium-software-bundle-2026-for-windows-mac-420947";
+export const PRODUCT_BUY_URL = "https://grabdeals.pages.dev/products/adobe-all-premium-software-bundle-2026-for-windows-mac-420947";
 
 export const INCLUDED_SOFTWARE = [
   { name: "Adobe Photoshop 2026", logo: "https://img.icons8.com/color/96/adobe-photoshop--v1.png" },
@@ -35,7 +35,7 @@ export const TESTIMONIALS = [
 export const FAQS = [
   { q: "Is this software 100% genuine and pre-activated?", a: "Yes! All software comes fully pre-activated. Just install and start using immediately — no activation code needed." },
   { q: "Which operating systems are supported?", a: "Windows 10/11 (64-bit) and macOS 10.15+ (Intel & Apple Silicon M1/M2/M3/M4). All platforms fully supported." },
-  { q: "How will I receive the software?", a: "You will receive an instant download link via email and your Grabnext dashboard immediately after payment. Available 24/7." },
+  { q: "How will I receive the software?", a: "You will receive an instant download link via email and your GrabDeals dashboard immediately after payment. Available 24/7." },
   { q: "Is there a money-back guarantee?", a: "Yes, we offer full support for installation issues. If the software doesn't work as described, we will resolve it or refund you." },
   { q: "Can I install on multiple devices?", a: "Installation availability depends on the license type provided. Contact our support team for multi-device installation queries." },
   { q: "How long does it take to download?", a: "Download links are provided instantly after purchase. Download speed depends on your internet connection." },

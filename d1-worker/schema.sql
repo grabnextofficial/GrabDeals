@@ -1,4 +1,4 @@
--- Grabnext E-Commerce Platform Database Schema
+-- GrabDeals E-Commerce Platform Database Schema
 
 -- Categories Table
 DROP TABLE IF EXISTS categories;

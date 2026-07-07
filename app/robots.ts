@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: ['/admin/', '/api/', '/dashboard/'],
         },
-        sitemap: 'https://shop.grabnext.app/sitemap.xml',
+        sitemap: 'https://shop.grabdeals.app/sitemap.xml',
     }
 }
